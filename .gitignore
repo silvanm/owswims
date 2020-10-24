@@ -1,0 +1,6 @@
+# Created by .ignore support plugin (hsz.mobi)
+.idea
+.pytest_cache
+db.sqlite3
+geocode_test.py
+/owswims/node_modules/esm/node_modules/.cache/esm/

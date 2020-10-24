@@ -1,0 +1,27 @@
+[tool.poetry]
+name = "owswims"
+version = "0.1.0"
+description = "Backend for databaes of Open Water Swims"
+authors = ["Silvan Muehlemann <silvan.muehlemann@muehlemann-popp.ch>"]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+django-countries = "^6.1.3"
+psycopg2-binary = "^2.8.6"
+requests = "^2.24.0"
+beautifulsoup4 = "^4.9.3"
+dateparser = "^0.7.6"
+flake8 = "^3.8.4"
+googlemaps = "^4.4.2"
+graphene-django = "^2.13.0"
+django-filter = "^2.4.0"
+django-cors-headers = "^3.5.0"
+
+[tool.poetry.dev-dependencies]
+pytest-django = "^4.0.0"
+pytest-sugar = "^0.9.4"
+flake8 = "^3.8.4"
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
