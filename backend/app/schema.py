@@ -1,6 +1,6 @@
 from graphene_django import DjangoObjectType
 import graphene
-from graphene import relay
+from graphene import relay, Node
 from graphene_django.filter import DjangoFilterConnectionField
 
 from app.models import Location, Race, Event
@@ -10,14 +10,14 @@ class LocationNode(DjangoObjectType):
     class Meta:
         model = Location
         filter_fields = ["city", "country"]
-        interfaces = (relay.Node,)
+        interfaces = (Node,)
 
 
 class RaceNode(DjangoObjectType):
     class Meta:
         model = Race
         filter_fields = ["date", "distance"]
-        interfaces = (relay.Node,)
+        interfaces = (Node,)
 
 
 class EventNode(DjangoObjectType):
@@ -29,8 +29,14 @@ class EventNode(DjangoObjectType):
             "location": ["exact"],
             "location__country": ["exact"],
             "location__city": ["exact", "icontains"],
+            "races__date": ["lte", "gte"],
+            "races__distance": ["lte", "gte"],
         }
-        interfaces = (relay.Node,)
+        include = ("name", "website", "location", "races")
+        interfaces = (Node,)
+    # start_date = graphene.Date()
+    # end_date = graphene.Date()
+
 
 
 class Query(graphene.ObjectType):

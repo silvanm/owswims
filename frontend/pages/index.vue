@@ -1,49 +1,50 @@
 <template>
   <div class="container">
+    <client-only placeholder="Loading...">
+      <Map :events="allEvents.edges" />
+    </client-only>
     <div>
+      <vue-slider
+        ref="slider"
+        v-model="distanceRange"
+        :min="0"
+        :max="30"
+      ></vue-slider>
       <select v-model="country">
         <option v-for="country in countries" :key="country">
           {{ country }}
         </option>
       </select>
       <table>
-        <tr v-for="edge in allEvents.edges" :key="edge.node.id">
-          <td>{{ edge.node.name }}</td>
-          <td>{{ edge.node.location.city }}</td>
-        </tr>
+        <tbody>
+          <tr
+            v-for="edge in allEvents.edges"
+            :key="edge.node.raceSet.edges[0].node.id"
+          >
+            <td>{{ edge.node.name }}</td>
+            <td>{{ edge.node.location.city }}</td>
+            <td>{{ edge.node.location.lat }}</td>
+            <td>{{ edge.node.location.lng }}</td>
+          </tr>
+        </tbody>
       </table>
-      <div class="links">
-        <a
-          href="https://nuxtjs.org/"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="button--green"
-        >
-          Documentation
-        </a>
-        <a
-          href="https://github.com/nuxt/nuxt.js"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="button--grey"
-        >
-          GitHub
-        </a>
-      </div>
     </div>
   </div>
 </template>
 
 <script>
 import gql from 'graphql-tag'
-
+import 'vue-slider-component/theme/antd.css'
 export default {
   apollo: {
-    // Simple query that will update the 'hello' vue property
     allEvents: {
       query: gql`
-        query($country: String!) {
-          allEvents(location_Country: $country) {
+        query($country: String!, $distanceFrom: Float!, $distanceTo: Float!) {
+          allEvents(
+            location_Country: $country
+            race_Distance_Gte: $distanceFrom
+            race_Distance_Lte: $distanceTo
+          ) {
             edges {
               node {
                 id
@@ -51,6 +52,16 @@ export default {
                 location {
                   city
                   country
+                  lat
+                  lng
+                }
+                raceSet {
+                  edges {
+                    node {
+                      id
+                      distance
+                    }
+                  }
                 }
               }
             }
@@ -61,6 +72,8 @@ export default {
         // Use vue reactive properties here
         return {
           country: this.country,
+          distanceFrom: this.distanceRange[0],
+          distanceTo: this.distanceRange[1],
         }
       },
     },
@@ -69,6 +82,7 @@ export default {
     return {
       countries: ['CH', 'IT', 'AT'],
       country: 'CH',
+      distanceRange: [0, 30],
     }
   },
 }
