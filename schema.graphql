@@ -11,13 +11,13 @@ interface Node {
 }
 
 type EventNode implements Node {
-    endDate: Date
+    dateEnd: Date!
+    dateStart: Date!
     "The ID of the object."
     id: ID!
     location: LocationNode
     name: String!
-    raceSet(after: String, before: String, date: Date, distance: Float, first: Int, last: Int): RaceNodeConnection!
-    startDate: Date
+    races(after: String, before: String, date: Date, distance: Float, first: Int, last: Int): RaceNodeConnection!
     website: String!
 }
 
@@ -39,7 +39,7 @@ type EventNodeEdge {
 type LocationNode implements Node {
     city: String!
     country: LocationCountry!
-    eventSet(after: String, before: String, first: Int, last: Int, location: ID, location_City: String, location_City_Icontains: String, location_Country: String, name: String, race_Date_Gte: Date, race_Date_Lte: Date, race_Distance_Gte: Float, race_Distance_Lte: Float, website: String): EventNodeConnection!
+    eventSet(after: String, before: String, first: Int, last: Int, location: ID, location_City: String, location_City_Icontains: String, location_Country: String, name: String, website: String): EventNodeConnection!
     "The ID of the object."
     id: ID!
     lat: Float
@@ -75,7 +75,7 @@ type PageInfo {
 }
 
 type Query {
-    allEvents(after: String, before: String, first: Int, last: Int, location: ID, location_City: String, location_City_Icontains: String, location_Country: String, name: String, race_Date_Gte: Date, race_Date_Lte: Date, race_Distance_Gte: Float, race_Distance_Lte: Float, website: String): EventNodeConnection
+    allEvents(after: String, before: String, dateFrom: Date, dateTo: Date, first: Int, last: Int, location: ID, name: String, raceDistanceGte: Float, raceDistanceLte: Float, races: [ID], website: String): EventNodeConnection
     allLocations(after: String, before: String, city: String, country: String, first: Int, last: Int): LocationNodeConnection
     "The ID of the object"
     event(id: ID!): EventNode

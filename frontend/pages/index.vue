@@ -1,49 +1,49 @@
 <template>
-  <div class="container">
-    <client-only placeholder="Loading...">
-      <Map :events="allEvents.edges" />
+  <div style="max-width: 600px">
+    <client-only>
+      <Map v-if="allEvents" :events="allEvents.edges" />
     </client-only>
-    <div>
-      <vue-slider
-        ref="slider"
-        v-model="distanceRange"
-        :min="0"
-        :max="30"
-      ></vue-slider>
-      <select v-model="country">
-        <option v-for="country in countries" :key="country">
-          {{ country }}
-        </option>
-      </select>
-      <table>
-        <tbody>
-          <tr
-            v-for="edge in allEvents.edges"
-            :key="edge.node.raceSet.edges[0].node.id"
-          >
-            <td>{{ edge.node.name }}</td>
-            <td>{{ edge.node.location.city }}</td>
-            <td>{{ edge.node.location.lat }}</td>
-            <td>{{ edge.node.location.lng }}</td>
-          </tr>
-        </tbody>
-      </table>
+    <div class="bg-white rounded-md p-2 relative">
+      <h2>Distance</h2>
+      <div class="p-10">
+        <client-only>
+          <vue-slider
+            tooltip="always"
+            v-model="distanceRange"
+            dotSize="25"
+            :min="0"
+            :max="30"
+          ></vue-slider>
+        </client-only>
+      </div>
+      <h2>Date</h2>
+      <div class="p-10">
+        <DaterangeSlider @change="updateDateRange"></DaterangeSlider>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
 import gql from 'graphql-tag'
+import { addDays, formatISO } from 'date-fns'
+
 import 'vue-slider-component/theme/antd.css'
 export default {
   apollo: {
     allEvents: {
       query: gql`
-        query($country: String!, $distanceFrom: Float!, $distanceTo: Float!) {
+        query(
+          $distanceFrom: Float!
+          $distanceTo: Float!
+          $dateFrom: Date!
+          $dateTo: Date!
+        ) {
           allEvents(
-            location_Country: $country
-            race_Distance_Gte: $distanceFrom
-            race_Distance_Lte: $distanceTo
+            raceDistanceGte: $distanceFrom
+            raceDistanceLte: $distanceTo
+            dateFrom: $dateFrom
+            dateTo: $dateTo
           ) {
             edges {
               node {
@@ -55,10 +55,11 @@ export default {
                   lat
                   lng
                 }
-                raceSet {
+                races {
                   edges {
                     node {
                       id
+                      date
                       distance
                     }
                   }
@@ -69,21 +70,31 @@ export default {
         }
       `,
       variables() {
-        // Use vue reactive properties here
         return {
-          country: this.country,
           distanceFrom: this.distanceRange[0],
           distanceTo: this.distanceRange[1],
+          dateFrom: formatISO(addDays(new Date(), this.dateRange[0]), {
+            representation: 'date',
+          }),
+          dateTo: formatISO(addDays(new Date(), this.dateRange[1]), {
+            representation: 'date',
+          }),
         }
       },
+      debounce: 200,
     },
   },
   data() {
     return {
-      countries: ['CH', 'IT', 'AT'],
-      country: 'CH',
       distanceRange: [0, 30],
+      dateRange: [-6 * 30, 12 * 30],
     }
+  },
+  methods: {
+    updateDateRange(range) {
+      console.log(range)
+      this.dateRange = range
+    },
   },
 }
 </script>

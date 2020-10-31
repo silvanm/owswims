@@ -13,10 +13,19 @@ def import_events():
             city=event["location"][0],
             country=event["location"][1],
         )
-        print(
-            f'Searching city={event["location"][0]}, country={event["location"][1]}. '
-            f"Created: {created}. Id: {location_model.id}"
+        #print(
+        #    f'Searching city={event["location"][0]}, country={event["location"][1]}. '
+        #    f"Created: {created}. Id: {location_model.id}"
+        #)
+        event_model = Event.objects.create(
+            location=location_model,
+            name=event["event"],
+            date_start=event["dates"][0],
+            date_end=event["dates"][1],
         )
-        event_model = Event.objects.create(location=location_model, name=event["event"])
         for race in event["races"]:
-            Race.objects.create(event=event_model, date=event["date"], distance=race)
+            Race.objects.create(event=event_model, date=event["dates"][0], distance=race)
+    logging.info(f"Imported items: {len(events['parsed_items'])}")
+    logging.warning(f"Failed items: {len(events['failed_items'])}")
+
+    print(events['failed_items'])

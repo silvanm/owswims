@@ -1,3 +1,5 @@
+""" Imports the data from the website
+https://anatreselvagge.wordpress.com/2020/01/09/traversate2020/ """
 import csv
 from datetime import date
 from typing import Dict, Tuple, List
@@ -13,7 +15,7 @@ from typing import TypedDict
 
 
 class ImportedEvent(TypedDict):
-    date: date
+    dates: Tuple[date, date]
     event: str
     website: str
     location: Tuple[str, Country]
@@ -57,7 +59,7 @@ def resolve_location_string(source: str) -> (str, str):
 
     if len(match[2]) == 2:
         # it's an italian location
-        return (match[1].strip(), 'IT')
+        return (match[1].strip(), "IT")
     else:
         return (match[1].strip(), resolve_country(match[2]))
 
@@ -78,15 +80,21 @@ def extract_url(source) -> str:
     return matches[0]
 
 
-def extract_date(source: str) -> date:
+def extract_date(source: str) -> Tuple[date, date]:
     """
     Turns a italian date string into a date object
     :param source:
-    :return: date
+    :return: [ date, date ]
     """
     try:
-        d = dateparser.parse(source).date()
-        return d
+        if source.find("–") > 0:
+            g = re.search(r"(\w+ \d+) . (\w+ \d+ (\w+))", source)
+            d_from = dateparser.parse(g[1] + " " + g[3]).date()
+            d_to = dateparser.parse(g[2]).date()
+            return (d_from, d_to)
+        else:
+            d = dateparser.parse(source).date()
+            return (d, d)
     except AttributeError:
         raise NotParsableException(not_parsable_part=source)
 
@@ -116,7 +124,7 @@ def parse_line(source: str) -> dict:
         raise NotParsableException(not_parsable_part=source)
 
     return {
-        "date": extract_date(matches[1]),
+        "dates": extract_date(matches[1]),
         "event": matches[2],
         "website": extract_url(source),
         "location": resolve_location_string(matches[3]),

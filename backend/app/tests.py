@@ -46,11 +46,24 @@ def test_extract_url(a, expected):
 testdata_date = [
     (
         "Sabato 11 dicembre",
-        date(year=2020, month=12, day=11),
+        (
+            date(year=2020, month=12, day=11),
+            date(year=2020, month=12, day=11),
+        ),
     ),
     (
         "Domenica 8 novembre",
-        date(year=2020, month=11, day=8),
+        (
+            date(year=2020, month=11, day=8),
+            date(year=2020, month=11, day=8),
+        ),
+    ),
+    (
+        "Sabato 5 – domenica 6 settembre",
+        (
+            date(year=2020, month=9, day=5),
+            date(year=2020, month=9, day=6),
+        ),
     ),
 ]
 
@@ -65,7 +78,7 @@ testdata_line = [
     (
         raw_events[0],
         {
-            "date": date(2020, 12, 11),
+            "dates": (date(2020, 12, 11), date(2020, 12, 11)),
             "event": "OceanMan Bali",
             "location": ("Bali", "ID"),
             "races": [10.0, 5.0, 1.5],
@@ -79,7 +92,7 @@ testdata_line = [
         "<em>Larnaca CIPRO</em> "
         "(10 km / 6 km / 2 km)",
         {
-            "date": date(2020, 11, 8),
+            "dates": (date(2020, 11, 8), date(2020, 11, 8)),
             "event": "OceanMan Cyprus",
             "location": ("Larnaca", "CY"),
             "races": [10.0, 6.0, 2.0],
@@ -94,7 +107,7 @@ testdata_line = [
         "<em>Alanya TURCHIA</em> "
         "(10 km / 5 km / 2 km)</del>→ annullato",
         {
-            "date": date(2020, 11, 8),
+            "dates": (date(2020, 11, 8), date(2020, 11, 8)),
             "event": "OceanMan Alanya",
             "location": ("Alanya", "TR"),
             "races": [10.0, 5.0, 2.0],
@@ -122,6 +135,7 @@ def test_country_it_to_country_obj_invalid_country():
 testdata_location = [
     ("Alanya TURCHIA", ("Alanya", "TR")),
     ("Omegna VB", ("Omegna", "IT")),
+    ("Amsterdam PAESI BASSI", ("Amsterdam", "NL")),
 ]
 
 

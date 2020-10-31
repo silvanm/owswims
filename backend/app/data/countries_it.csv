@@ -137,6 +137,8 @@ id,name,alpha2,alpha3
 492,Monaco,mc,mco
 634,Qatar,qa,qat
 826,"Regno Unito",gb,gbr
+826,"INGHILTERRA",gb,gbr
+826,"Scozia",gb,gbr
 180,"RD del Congo",cd,cod
 203,"Rep. Ceca",cz,cze
 140,"Rep. Centrafricana",cf,caf
@@ -163,6 +165,7 @@ id,name,alpha2,alpha3
 724,Spagna,es,esp
 144,"Sri Lanka",lk,lka
 840,"Stati Uniti",us,usa
+840,"USA",us,usa
 710,Sudafrica,za,zaf
 729,Sudan,sd,sdn
 728,"Sudan del Sud",ss,ssd

@@ -1,3 +1,4 @@
+import django_filters
 from graphene_django import DjangoObjectType
 import graphene
 from graphene import relay, Node
@@ -29,14 +30,43 @@ class EventNode(DjangoObjectType):
             "location": ["exact"],
             "location__country": ["exact"],
             "location__city": ["exact", "icontains"],
-            "races__date": ["lte", "gte"],
-            "races__distance": ["lte", "gte"],
         }
-        include = ("name", "website", "location", "races")
+        include = (
+            "name",
+            "website",
+            "location",
+            "races",
+        )
         interfaces = (Node,)
+
     # start_date = graphene.Date()
     # end_date = graphene.Date()
 
+
+class EventNodeFilter(django_filters.FilterSet):
+    race_distance_gte = django_filters.NumberFilter(
+        field_name="races", lookup_expr="distance__gte", distinct=True
+    )
+    race_distance_lte = django_filters.NumberFilter(
+        field_name="races", lookup_expr="distance__lte", distinct=True
+    )
+    date_from = django_filters.DateFilter(
+        field_name="date_start", lookup_expr="gte", distinct=True
+    )
+    date_to = django_filters.DateFilter(
+        field_name="date_end", lookup_expr="lte", distinct=True
+    )
+
+    class Meta:
+        model = Event
+        fields = (
+            "date_from",
+            "date_to",
+            "name",
+            "website",
+            "location",
+            "races",
+        )
 
 
 class Query(graphene.ObjectType):
@@ -44,7 +74,7 @@ class Query(graphene.ObjectType):
     all_locations = DjangoFilterConnectionField(LocationNode)
 
     event = relay.Node.Field(EventNode)
-    all_events = DjangoFilterConnectionField(EventNode)
+    all_events = DjangoFilterConnectionField(EventNode, filterset_class=EventNodeFilter)
 
 
 schema = graphene.Schema(query=Query)
