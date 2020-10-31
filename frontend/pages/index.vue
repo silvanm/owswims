@@ -1,7 +1,7 @@
 <template>
   <div style="max-width: 600px">
     <client-only>
-      <Map v-if="allEvents" :events="allEvents.edges" />
+      <Map v-if="allLocations" :locations="allLocations.edges" />
     </client-only>
     <div class="bg-white rounded-md p-2 relative">
       <h2>Distance</h2>
@@ -31,7 +31,7 @@ import { addDays, formatISO } from 'date-fns'
 import 'vue-slider-component/theme/antd.css'
 export default {
   apollo: {
-    allEvents: {
+    allLocations: {
       query: gql`
         query(
           $distanceFrom: Float!
@@ -39,7 +39,7 @@ export default {
           $dateFrom: Date!
           $dateTo: Date!
         ) {
-          allEvents(
+          allLocations(
             raceDistanceGte: $distanceFrom
             raceDistanceLte: $distanceTo
             dateFrom: $dateFrom
@@ -48,19 +48,28 @@ export default {
             edges {
               node {
                 id
-                name
-                location {
-                  city
-                  country
-                  lat
-                  lng
-                }
-                races {
+                country
+                city
+                lat
+                lng
+                events(dateStart_Gte: $dateFrom, dateEnd_Lte: $dateTo) {
                   edges {
                     node {
                       id
-                      date
-                      distance
+                      name
+                      dateStart
+                      dateEnd
+                      website
+                      races(
+                        distance_Gte: $distanceFrom
+                        distance_Lte: $distanceTo
+                      ) {
+                        edges {
+                          node {
+                            distance
+                          }
+                        }
+                      }
                     }
                   }
                 }

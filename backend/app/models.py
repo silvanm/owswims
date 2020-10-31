@@ -19,7 +19,7 @@ class Location(models.Model):
 class Event(models.Model):
     name = models.CharField(max_length=100)
     website = models.URLField(max_length=200)
-    location = models.ForeignKey(Location, on_delete=models.CASCADE, null=True)
+    location = models.ForeignKey(Location, on_delete=models.CASCADE, null=True, related_name="events")
     date_start = models.DateField()
     date_end = models.DateField()
 
