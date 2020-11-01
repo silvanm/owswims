@@ -60,9 +60,6 @@ class EventNode(DjangoObjectType):
         )
         interfaces = (Node,)
 
-    # start_date = graphene.Date()
-    # end_date = graphene.Date()
-
 
 class EventNodeFilter(django_filters.FilterSet):
     race_distance_gte = django_filters.NumberFilter(

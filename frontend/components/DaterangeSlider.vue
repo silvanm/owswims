@@ -3,9 +3,9 @@
     <vue-slider
       ref="slider"
       v-model="dateRange"
-      dotSize="25"
-      :min="-6 * 30"
-      :max="12 * 30"
+      dot-size="25"
+      :min="-6"
+      :max="12"
       tooltip="always"
       :tooltip-formatter="tooltipFormatter"
       @change="(v) => $emit('change', v)"
@@ -14,19 +14,19 @@
 </template>
 
 <script>
-import { addDays, format } from 'date-fns'
+import { addMonths, format } from 'date-fns'
 
 export default {
   name: 'DaterangeSlider',
   data() {
     return {
-      dateRange: [-6 * 30, 6 * 30],
+      dateRange: [-6, 6],
     }
   },
   methods: {
     tooltipFormatter(val) {
-      const d = addDays(new Date(), val)
-      return format(d, 'd. LLL yyyy')
+      const d = addMonths(new Date(), val)
+      return format(d, 'LLL yy')
     },
   },
 }
