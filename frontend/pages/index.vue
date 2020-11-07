@@ -10,26 +10,33 @@
         :lng="lng"
       />
     </client-only>
-    <div class="bg-white p-4 relative">
-      <h1 class="text-2xl font-semibold pb-4">Open-Water Swims DB</h1>
-      <h2 class="font-semibold pl-6 pb-2">Distance</h2>
-      <div class="pl-10 pr-10 pt-10 pb-5">
+    <div class="bg-white p-6 relative">
+      <h1 class="text-2xl font-semibold pb-4 text-primary">
+        🏊🏻‍️ European Open-Water Events
+      </h1>
+      <h2 class="font-semibold pb-2">Distance</h2>
+      <div class="pl-4 pr-4 pb-5">
         <client-only>
           <vue-slider
             v-model="distanceRange"
-            tooltip="always"
+            :marks="(val) => val % 5 === 0"
+            :tooltip-formatter="(val) => `${val}km`"
             dot-size="25"
             :min="0"
             :max="30"
           ></vue-slider>
         </client-only>
       </div>
-      <h2 class="font-semibold pl-6 pb-2">Date</h2>
-      <div class="pl-10 pr-10 pt-10">
+      <h2 class="font-semibold pb-2">Date</h2>
+      <div class="pl-4 pr-4 pb-8">
         <DaterangeSlider @change="updateDateRange"></DaterangeSlider>
       </div>
-      <button @click="locateMe">Locate me</button>
-      <button @click="calculateDistances">Calculate Distances</button>
+      <Toggle
+        name="locateMe"
+        @change="(e) => (e ? locateMe() : null)"
+        :is-checked="geoLocationEnabled"
+        >Display Travel times</Toggle
+      >
     </div>
   </div>
 </template>
@@ -37,7 +44,7 @@
 <script>
 import gql from 'graphql-tag'
 import { addMonths, formatISO } from 'date-fns'
-import 'vue-slider-component/theme/antd.css'
+import 'assets/slider.css'
 import { Loader } from 'google-maps'
 
 export default {
@@ -112,25 +119,35 @@ export default {
       dateRange: [-6, 12],
       lat: null,
       lng: null,
+      geoLocationEnabled: false,
     }
   },
   async mounted() {
-    const loader = new Loader('AIzaSyBJm1Vv5sZa0ZlRZ4-vxNSQQydMwXDPzZw', {})
+    const loader = new Loader(process.env.googleMapsKey, {})
     this.google = await loader.load()
-    this.locateMe()
   },
+
   methods: {
     updateDateRange(range) {
       this.dateRange = range
     },
     locateMe() {
-      navigator.geolocation.getCurrentPosition((position) => {
-        this.lat = position.coords.latitude
-        this.lng = position.coords.longitude
-      })
-    },
-    calculateDistances() {
-      this.$refs.map.calculateDistances()
+      console.log('Locating me')
+      const store = this.$store
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          console.log(
+            `storing position lat=${position.coords.latitude}, lng=${position.coords.longitude}`
+          )
+          store.commit('mylocation', {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude,
+          })
+        },
+        () => {
+          console.log('Geolocation has failed')
+        }
+      )
     },
   },
 }

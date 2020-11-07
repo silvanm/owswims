@@ -18,3 +18,9 @@ $ yarn generate
 ```
 
 For detailed explanation on how things work, check out [Nuxt.js docs](https://nuxtjs.org).
+
+Colors:
+
+Primary: blue #4299E1 blue-500
+Primary: blue light #bee3f8 blue-200
+    

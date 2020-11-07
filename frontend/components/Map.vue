@@ -28,6 +28,7 @@
 <script>
 import MarkerClusterer from '@googlemaps/markerclustererplus'
 import { format, formatDistance } from 'date-fns'
+import { mapGetters } from 'vuex'
 
 export default {
   props: {
@@ -41,14 +42,6 @@ export default {
         return []
       },
     },
-    lat: {
-      type: Number,
-      default: null,
-    },
-    lng: {
-      type: Number,
-      default: null,
-    },
   },
   data() {
     return {
@@ -58,15 +51,34 @@ export default {
       travelTimes: {},
     }
   },
+  computed: {
+    ...mapGetters(['mylocation']),
+  },
   watch: {
-    locations(oldlocations, newlocations) {
+    locations(newlocations, oldlocations) {
       this.updateMarker()
     },
-    lat() {
-      this.centerMap()
-    },
-    lng() {
-      this.centerMap()
+    mylocation(newLocation, oldLocation) {
+      console.log(newLocation)
+      if (newLocation.lat && newLocation.lng) {
+        const icon = {
+          path:
+            'M 25, 50\n' +
+            '    a 25,25 0 1,1 50,0\n' +
+            '    a 25,25 0 1,1 -50,0',
+          fillColor: '#4299E1',
+          fillOpacity: 1,
+          anchor: new this.google.maps.Point(0, 0),
+          strokeWeight: 1,
+          strokeColor: '#fff',
+          scale: 0.25,
+        }
+        this.myLocationMarker = new this.google.maps.Marker({
+          icon,
+          position: newLocation,
+          map: this.map,
+        })
+      }
     },
   },
   mounted() {
@@ -81,9 +93,23 @@ export default {
     this.updateMarker()
   },
   methods: {
+    markerPin() {
+      return {
+        path:
+          'M66.9,41.8c0-11.3-9.1-20.4-20.4-20.4c-11.3,0-20.4,9.1-20.4,20.4c0,11.3,20.4,32.4,20.4,32.4S66.9,53.1,66.9,41.8z    M37,41.4c0-5.2,4.3-9.5,9.5-9.5c5.2,0,9.5,4.2,9.5,9.5c0,5.2-4.2,9.5-9.5,9.5C41.3,50.9,37,46.6,37,41.4z',
+        fillColor: '#fff',
+        fillOpacity: 1,
+        anchor: new this.google.maps.Point(55, 60),
+        strokeWeight: 0,
+        scale: 0.7,
+      }
+    },
     centerMap() {
       if (this.lat && this.lng) {
-        const myLatLng = new this.google.maps.LatLng(this.lat, this.lng)
+        const myLatLng = new this.google.maps.LatLng(
+          this.mylocation.lat,
+          this.mylocation.lng
+        )
         this.map.panTo(myLatLng)
       }
     },
@@ -110,6 +136,7 @@ export default {
     updateMarker() {
       const infowindow = new this.google.maps.InfoWindow({
         content: this.$refs.eventDescription,
+        fontFamily: "'Source Sans Pro', sans-serif",
       })
 
       if (this.markerCluster) {
@@ -123,53 +150,63 @@ export default {
 
       for (const location of this.locations) {
         const markerObj = new this.google.maps.Marker({
+          icon: this.markerPin(),
           position: location.node,
           map: this.map,
           title: location.node.name,
         })
 
         markerObj.addListener('click', () => {
-          this.pickedEvent = location.node
-          infowindow.open(this.map, markerObj)
+          this.calculateDistance(location, () => {
+            this.pickedEvent = location.node
+            infowindow.open(this.map, markerObj)
+          })
         })
         this.marker[location.node.id] = markerObj
       }
       this.markerCluster = new MarkerClusterer(this.map, this.marker, {
-        imagePath:
-          'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m',
+        styles: [
+          {
+            width: 30,
+            height: 30,
+            className: 'custom-clustericon-1',
+          },
+          {
+            width: 40,
+            height: 40,
+            className: 'custom-clustericon-2',
+          },
+          {
+            width: 50,
+            height: 50,
+            className: 'custom-clustericon-3',
+          },
+        ],
+        clusterClass: 'custom-clustericon',
       })
     },
-    getLocationsWithinViewport() {
-      const b = this.map.getBounds()
-      return this.locations.filter((l) => {
-        return (
-          l.node.lat > b.getSouthWest().lat() &&
-          l.node.lat < b.getNorthEast().lat() &&
-          l.node.lng > b.getSouthWest().lng() &&
-          l.node.lng < b.getNorthEast().lng()
-        )
-      })
-    },
-    calculateDistances() {
+    calculateDistance(location, callback) {
       const requestedDestinations = []
       // Calculate distance for those destinations within the viewport.
-      this.getLocationsWithinViewport()
-        .slice(0, 10)
-        .forEach((location) => {
-          // @todo ask only for those who don't have a measurement.
-          const k = `${location.node.lat},${location.node.lng}`
-          if (!(k in this.travelTimes)) {
-            requestedDestinations.push(k)
-          }
-        })
+      const k = `${location.node.lat},${location.node.lng}`
+      if (!(k in this.travelTimes)) {
+        requestedDestinations.push(k)
+      }
 
+      console.log(
+        `Calculate distance from ${this.mylocation.lat}, ${this.mylocation.lng}`
+      )
       const service = new this.google.maps.DistanceMatrixService()
-      console.log(`Requesting ${requestedDestinations.length}`)
-      if (requestedDestinations.length === 0) return
+      if (requestedDestinations.length === 0) callback()
       service.getDistanceMatrix(
         {
-          origins: [new this.google.maps.LatLng(this.lat, this.lng)],
-          destinations: requestedDestinations,
+          origins: [
+            new this.google.maps.LatLng(
+              this.mylocation.lat,
+              this.mylocation.lng
+            ),
+          ],
+          destinations: [k],
           transitOptions: {
             departureTime: new Date(2020, 8, 1, 8),
           },
@@ -193,6 +230,7 @@ export default {
               }
             }
           }
+          callback()
         }
       )
     },
@@ -200,4 +238,52 @@ export default {
 }
 </script>
 
-<style scoped></style>
+<style>
+.gm-style .gm-style-iw {
+  font-family: 'Source Sans Pro', sans-serif;
+}
+
+.gm-style .gm-style-iw-c {
+  border-radius: 0;
+}
+
+.custom-clustericon {
+  background: var(--cluster-color);
+  color: #fff;
+  border-radius: 100%;
+  font-weight: bold;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+}
+
+.custom-clustericon::before,
+.custom-clustericon::after {
+  content: '';
+  display: block;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+
+  transform: translate(-50%, -50%);
+  top: 50%;
+  left: 50%;
+  background: var(--cluster-color);
+  opacity: 0.2;
+  border-radius: 100%;
+}
+
+.custom-clustericon::before {
+  padding: 7px;
+}
+
+.custom-clustericon::after {
+  padding: 14px;
+}
+
+.custom-clustericon-1,
+.custom-clustericon-2,
+.custom-clustericon-3 {
+  --cluster-color: #4299e1;
+}
+</style>

@@ -22,6 +22,7 @@ def import_events():
             name=event["event"],
             date_start=event["dates"][0],
             date_end=event["dates"][1],
+            website=event["website"]
         )
         for race in event["races"]:
             Race.objects.create(event=event_model, date=event["dates"][0], distance=race)
