@@ -10,7 +10,9 @@
         :lng="lng"
       />
     </client-only>
+    <Spinner :show="isLoading"></Spinner>
     <div class="bg-white p-4 md:p-6 relative">
+      <Ribbon>alpha</Ribbon>
       <div class="inline">
         <h1 class="text-xl md:text-2xl font-semibold text-primary">
           🏊🏻‍️ European Open-Water Swims
@@ -59,9 +61,11 @@ import { addMonths, formatISO } from 'date-fns'
 import 'assets/slider.css'
 import { Loader } from 'google-maps'
 import CloseButton from '@/components/CloseButton'
+import Spinner from '@/components/Spinner'
+import Ribbon from '@/components/Ribbon'
 
 export default {
-  components: { CloseButton },
+  components: { Ribbon, CloseButton, Spinner },
   apollo: {
     allLocations: {
       query: gql`
@@ -123,6 +127,9 @@ export default {
         }
       },
       debounce: 200,
+      watchLoading(isLoading, countModifier) {
+        this.isLoading = isLoading
+      },
     },
   },
   data() {
@@ -135,6 +142,7 @@ export default {
       lng: null,
       geoLocationEnabled: false,
       filterCollapsed: false,
+      isLoading: false,
     }
   },
   async mounted() {

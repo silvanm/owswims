@@ -6,9 +6,7 @@
           {{ pickedEvent.city }}, {{ pickedEvent.country }}
         </h1>
         <span v-if="mylocation.lat">
-          Travel time:<br />
-          Train: {{ getFormattedTravelDistance(pickedEvent, 'TRANSIT') }}<br />
-          Car: {{ getFormattedTravelDistance(pickedEvent, 'DRIVING') }}
+          Travel time: {{ getFormattedTravelDistance(pickedEvent, 'DRIVING') }}
         </span>
         <div v-for="event in pickedEvent.events.edges" :key="event.node.id">
           <div style="margin-top: 10px">
@@ -193,21 +191,13 @@ export default {
         requestedDestinations.push(k)
       }
 
-      console.log(
-        `Calculate distance from ${this.mylocation.lat}, ${this.mylocation.lng}`
-      )
       const service = new this.google.maps.DistanceMatrixService()
 
-      const travelModes = [
-        this.google.maps.TravelMode.DRIVING,
-        this.google.maps.TravelMode.TRANSIT,
-      ]
+      const travelModes = [this.google.maps.TravelMode.DRIVING]
 
       if (requestedDestinations.length === 0) callback()
 
       const promises = travelModes.map((travelMode) => {
-        console.log(`Get distance matrix for ${travelMode}`)
-
         // Using DistanceMatrix for a 1x1 matrix is a bit pointless. But
         // I think the directions service is a bit too heavy for this kind of task.
         return service.getDistanceMatrix({
@@ -229,10 +219,8 @@ export default {
       Promise.all(promises).then((values) => {
         values.forEach((value, ix) => {
           const results = value.rows[0].elements
-          console.log(results)
           for (let j = 0; j < results.length; j++) {
             if (!this.travelTimes[requestedDestinations[j]]) {
-              console.log('initializing')
               this.travelTimes[requestedDestinations[j]] = {
                 DRIVING: null,
                 TRANSIT: null,
@@ -250,8 +238,6 @@ export default {
           }
         })
 
-        console.log('promise resolved')
-        console.log(values)
         callback()
       })
     },
