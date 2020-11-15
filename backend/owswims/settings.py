@@ -17,6 +17,8 @@ import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Vue project location
+FRONTEND_DIR = os.path.join(BASE_DIR, "..", "frontend")
 
 env = environ.Env()
 
@@ -73,7 +75,10 @@ ROOT_URLCONF = "owswims.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [BASE_DIR / "templates"],
+        "DIRS": [
+            BASE_DIR / "templates",
+            os.path.join(BASE_DIR, "static"),
+        ],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -95,10 +100,10 @@ WSGI_APPLICATION = "owswims.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": env.str("DB_NAME", ''),
-        "USER": env.str("DB_USER", ''),
-        "PASSWORD": env.str("DB_PASS", ''),
-        "HOST": env.str("DB_HOST", ''),
+        "NAME": env.str("DB_NAME", ""),
+        "USER": env.str("DB_USER", ""),
+        "PASSWORD": env.str("DB_PASS", ""),
+        "HOST": env.str("DB_HOST", ""),
         "PORT": "5432",
     }
 }
@@ -143,6 +148,12 @@ USE_TZ = True
 STATIC_URL = "/static/"
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
-GMAPS_API_KEY = env.str("GMAPS_API_KEY", '')
+# see https://johnfraney.ca/posts/2019/05/14/integrate-django-vuejs/
+# Vue assets directory (assetsDir)
+#STATICFILES_DIRS = [
+#    os.path.join(FRONTEND_DIR, "dist/static"),
+#]
+
+GMAPS_API_KEY = env.str("GMAPS_API_KEY", "")
 
 GRAPHENE = {"SCHEMA": "app.schema.schema"}

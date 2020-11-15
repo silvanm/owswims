@@ -1,34 +1,26 @@
 version: "3.8"
+# not tested. Created after merging the two containers
 services:
-  frontend:
+  app:
     image: gcr.io/owswims/frontend:latest
     depends_on:
-      - backend
+      - db
     build:
       context: ./frontend
       args:
         - GOOGLE_MAPS_KEY=AIzaSyBJm1Vv5sZa0ZlRZ4-vxNSQQydMwXDPzZw
         - GRAPHQL_ENDPOINT=http://backend:8000/graphql
-    ports:
-      - "3000:3000"
-
-
-  backend:
-    image: gcr.io/owswims/backend:latest
-    build: ./backend
-    depends_on:
-      - db
+        - SECRET_KEY=dfgim4p02mi2mg2eign2
+        - DEBUG=True
+        - ALLOWED_HOSTS=localhost
+        - DB_USER=postgres
+        - DB_NAME=postgres
+        - DB_PASS=owswims
+        - DB_HOST=db
+        - GMAPS_API_KEY=AIzaSyBJm1Vv5sZa0ZlRZ4-vxNSQQydMwXDPzZw
     ports:
       - "8000:8000"
-    environment:
-      - SECRET_KEY=dfgim4p02mi2mg2eign2
-      - DEBUG=True
-      - ALLOWED_HOSTS=localhost
-      - DB_USER=postgres
-      - DB_NAME=postgres
-      - DB_PASS=owswims
-      - DB_HOST=db
-      - GMAPS_API_KEY=AIzaSyBJm1Vv5sZa0ZlRZ4-vxNSQQydMwXDPzZw
+
 
   db:
     image: postgres
