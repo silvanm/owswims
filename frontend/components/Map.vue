@@ -5,7 +5,11 @@
         <h1 class="text-xl font-semibold">
           {{ pickedEvent.city }}, {{ pickedEvent.country }}
         </h1>
-        Travel time: {{ getFormattedTravelDistance(pickedEvent) }}
+        <span v-if="mylocation.lat">
+          Travel time:<br />
+          Train: {{ getFormattedTravelDistance(pickedEvent, 'TRANSIT') }}<br />
+          Car: {{ getFormattedTravelDistance(pickedEvent, 'DRIVING') }}
+        </span>
         <div v-for="event in pickedEvent.events.edges" :key="event.node.id">
           <div style="margin-top: 10px">
             {{ formatEventDate(event.node.dateStart) }}<br />
@@ -18,13 +22,9 @@
         </div>
       </div>
     </div>
-    <div
-      id="map"
-      style="position: absolute; top: 0; left: 0; height: 100vh; width: 100vw"
-    ></div>
+    <div id="map"></div>
   </div>
 </template>
-
 <script>
 import MarkerClusterer from '@googlemaps/markerclustererplus'
 import { format, formatDistance } from 'date-fns'
@@ -121,14 +121,14 @@ export default {
         .map((e) => e.node.distance.toFixed(1) + 'km')
         .join(', ')
     },
-    getFormattedTravelDistance(location) {
+    getFormattedTravelDistance(location, travelMode) {
       const k = `${location.lat},${location.lng}`
-      if (k in this.travelTimes && this.travelTimes[k] !== null) {
+      if (k in this.travelTimes && this.travelTimes[k][travelMode] !== null) {
         const formatDuration = (s) => formatDistance(0, s * 1000)
 
-        return `${formatDuration(this.travelTimes[k].duration)} ${(
-          this.travelTimes[k].distance / 1000
-        ).toFixed(0)}km`
+        return `${formatDuration(this.travelTimes[k][travelMode].duration)} (${(
+          this.travelTimes[k][travelMode].distance / 1000
+        ).toFixed(0)}km)`
       } else {
         return '?'
       }
@@ -197,9 +197,20 @@ export default {
         `Calculate distance from ${this.mylocation.lat}, ${this.mylocation.lng}`
       )
       const service = new this.google.maps.DistanceMatrixService()
+
+      const travelModes = [
+        this.google.maps.TravelMode.DRIVING,
+        this.google.maps.TravelMode.TRANSIT,
+      ]
+
       if (requestedDestinations.length === 0) callback()
-      service.getDistanceMatrix(
-        {
+
+      const promises = travelModes.map((travelMode) => {
+        console.log(`Get distance matrix for ${travelMode}`)
+
+        // Using DistanceMatrix for a 1x1 matrix is a bit pointless. But
+        // I think the directions service is a bit too heavy for this kind of task.
+        return service.getDistanceMatrix({
           origins: [
             new this.google.maps.LatLng(
               this.mylocation.lat,
@@ -208,43 +219,71 @@ export default {
           ],
           destinations: [k],
           transitOptions: {
-            departureTime: new Date(2020, 8, 1, 8),
+            departureTime: new Date(2020, 8, 2, 8, 0, 0),
           },
-          travelMode: this.google.maps.TravelMode.DRIVING,
+          travelMode,
           unitSystem: this.google.maps.UnitSystem.METRIC,
-        },
-        (response, status) => {
-          if (status !== 'OK') {
-            alert('Error was: ' + status)
-          } else {
-            const results = response.rows[0].elements
-            console.log(results)
-            for (let j = 0; j < results.length; j++) {
-              if (results[j].status === 'OK') {
-                this.travelTimes[requestedDestinations[j]] = {
-                  distance: results[j].distance.value,
-                  duration: results[j].duration.value,
-                }
-              } else {
-                this.travelTimes[requestedDestinations[j]] = null
+        })
+      })
+
+      Promise.all(promises).then((values) => {
+        values.forEach((value, ix) => {
+          const results = value.rows[0].elements
+          console.log(results)
+          for (let j = 0; j < results.length; j++) {
+            if (!this.travelTimes[requestedDestinations[j]]) {
+              console.log('initializing')
+              this.travelTimes[requestedDestinations[j]] = {
+                DRIVING: null,
+                TRANSIT: null,
               }
             }
+
+            if (results[j].status === 'OK') {
+              this.travelTimes[requestedDestinations[j]][travelModes[ix]] = {
+                distance: results[j].distance.value,
+                duration: results[j].duration.value,
+              }
+            } else {
+              this.travelTimes[requestedDestinations[j]][travelModes[ix]] = null
+            }
           }
-          callback()
-        }
-      )
+        })
+
+        console.log('promise resolved')
+        console.log(values)
+        callback()
+      })
     },
   },
 }
 </script>
 
 <style>
+html,
+body {
+  height: 100%;
+  width: 100%;
+}
+
+#map {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+}
+
 .gm-style .gm-style-iw {
   font-family: 'Source Sans Pro', sans-serif;
 }
 
 .gm-style .gm-style-iw-c {
   border-radius: 0;
+}
+
+.gm-style a {
+  color: #4299e1;
 }
 
 .custom-clustericon {

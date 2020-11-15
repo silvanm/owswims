@@ -1,5 +1,5 @@
 <template>
-  <div class="m-4" style="max-width: 500px">
+  <div class="md:m-4" style="max-width: 500px">
     <client-only>
       <Map
         v-if="allLocations"
@@ -10,33 +10,45 @@
         :lng="lng"
       />
     </client-only>
-    <div class="bg-white p-6 relative">
-      <h1 class="text-2xl font-semibold pb-4 text-primary">
-        🏊🏻‍️ European Open-Water Events
-      </h1>
-      <h2 class="font-semibold pb-2">Distance</h2>
-      <div class="pl-4 pr-4 pb-5">
-        <client-only>
-          <vue-slider
-            v-model="distanceRange"
-            :marks="(val) => val % 5 === 0"
-            :tooltip-formatter="(val) => `${val}km`"
-            dot-size="25"
-            :min="0"
-            :max="30"
-          ></vue-slider>
-        </client-only>
+    <div class="bg-white p-4 md:p-6 relative">
+      <div class="inline">
+        <h1 class="text-xl md:text-2xl font-semibold text-primary">
+          🏊🏻‍️ European Open-Water Swims
+          <CloseButton
+            @collapse="filterCollapsed = true"
+            @expand="filterCollapsed = false"
+          ></CloseButton>
+        </h1>
       </div>
-      <h2 class="font-semibold pb-2">Date</h2>
-      <div class="pl-4 pr-4 pb-8">
-        <DaterangeSlider @change="updateDateRange"></DaterangeSlider>
-      </div>
-      <Toggle
-        name="locateMe"
-        @change="(e) => (e ? locateMe() : null)"
-        :is-checked="geoLocationEnabled"
-        >Display Travel times</Toggle
+      <div
+        class="overflow-hidden"
+        style="transition: max-height 0.5s linear"
+        :style="{ maxHeight: filterCollapsed ? 0 : '500px' }"
       >
+        <h2 class="font-semibold pb-2 pt-4">Race Distance</h2>
+        <div class="pl-4 pr-4 pb-5">
+          <client-only>
+            <vue-slider
+              v-model="distanceRange"
+              :marks="(val) => val % 5 === 0"
+              :tooltip-formatter="(val) => `${val}km`"
+              dot-size="25"
+              :min="0"
+              :max="30"
+            ></vue-slider>
+          </client-only>
+        </div>
+        <h2 class="font-semibold pb-2">Date</h2>
+        <div class="pl-4 pr-4 pb-8">
+          <DaterangeSlider @change="updateDateRange"></DaterangeSlider>
+        </div>
+        <Toggle
+          name="locateMe"
+          :is-checked="geoLocationEnabled"
+          @change="(e) => (e ? locateMe() : null)"
+          >Display Travel times</Toggle
+        >
+      </div>
     </div>
   </div>
 </template>
@@ -46,8 +58,10 @@ import gql from 'graphql-tag'
 import { addMonths, formatISO } from 'date-fns'
 import 'assets/slider.css'
 import { Loader } from 'google-maps'
+import CloseButton from '@/components/CloseButton'
 
 export default {
+  components: { CloseButton },
   apollo: {
     allLocations: {
       query: gql`
@@ -120,13 +134,13 @@ export default {
       lat: null,
       lng: null,
       geoLocationEnabled: false,
+      filterCollapsed: false,
     }
   },
   async mounted() {
-    const loader = new Loader(process.env.googleMapsKey, {})
+    const loader = new Loader(process.env.googleMapsKey, { version: 'beta' })
     this.google = await loader.load()
   },
-
   methods: {
     updateDateRange(range) {
       this.dateRange = range

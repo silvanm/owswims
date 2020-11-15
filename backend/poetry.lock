@@ -223,6 +223,14 @@ test = ["pytest (>=3.6.3)", "pytest-cov", "coveralls", "mock", "pytz", "pytest-d
 
 [[package]]
 category = "main"
+description = "Optimize database access inside graphene queries."
+name = "graphene-django-optimizer"
+optional = false
+python-versions = "*"
+version = "0.7.1"
+
+[[package]]
+category = "main"
 description = "GraphQL implementation for Python"
 name = "graphql-core"
 optional = false
@@ -551,7 +559,7 @@ version = "5.2.0"
 brotli = ["brotli"]
 
 [metadata]
-content-hash = "8d3fa795392c0e1d5a2a2ca53e19e628c8fb0ce9b0b20c36b3de9a0fbd517a9f"
+content-hash = "a170ad019be2b411210483330f20c9bfaa910fd6a826574c87bdcd0b98a7ef11"
 python-versions = "^3.8"
 
 [metadata.files]
@@ -626,6 +634,9 @@ graphene = [
 graphene-django = [
     {file = "graphene-django-2.13.0.tar.gz", hash = "sha256:8a4efc7bf954ba0b5a28d3cdb090b36941aca6b83d211e3cd3ab29cf53ac6154"},
     {file = "graphene_django-2.13.0-py2.py3-none-any.whl", hash = "sha256:0e33cdec0774284175c387c2af1e0ef4eb0f4e10a56a3a1b2d39bc3a74d9a538"},
+]
+graphene-django-optimizer = [
+    {file = "graphene-django-optimizer-0.7.1.tar.gz", hash = "sha256:88ca2886bf56f3330ffb7e66f00c454d5720fdab8102dc7a98cfac9fdcec5106"},
 ]
 graphql-core = [
     {file = "graphql-core-2.3.2.tar.gz", hash = "sha256:aac46a9ac524c9855910c14c48fc5d60474def7f99fd10245e76608eba7af746"},

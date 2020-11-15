@@ -54,18 +54,19 @@ INSTALLED_APPS = [
     "app",
 ]
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
-    "corsheaders.middleware.CorsMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "app.middleware.DebugMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
+CORS_ORIGIN_ALLOW_ALL = True
 
 ROOT_URLCONF = "owswims.urls"
 
@@ -94,10 +95,10 @@ WSGI_APPLICATION = "owswims.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": env.str("DB_NAME"),
-        "USER": env.str("DB_USER"),
-        "PASSWORD": env.str("DB_PASS"),
-        "HOST": env.str("DB_HOST"),
+        "NAME": env.str("DB_NAME", ''),
+        "USER": env.str("DB_USER", ''),
+        "PASSWORD": env.str("DB_PASS", ''),
+        "HOST": env.str("DB_HOST", ''),
         "PORT": "5432",
     }
 }
@@ -142,6 +143,6 @@ USE_TZ = True
 STATIC_URL = "/static/"
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
-GMAPS_API_KEY = env.str("GMAPS_API_KEY")
+GMAPS_API_KEY = env.str("GMAPS_API_KEY", '')
 
 GRAPHENE = {"SCHEMA": "app.schema.schema"}

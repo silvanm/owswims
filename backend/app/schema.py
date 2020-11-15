@@ -3,6 +3,7 @@ from graphene_django import DjangoObjectType
 import graphene
 from graphene import relay, Node
 from graphene_django.filter import DjangoFilterConnectionField
+import graphene_django_optimizer as gql_optimizer
 
 from app.models import Location, Race, Event
 

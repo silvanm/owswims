@@ -14,7 +14,9 @@ RUN poetry config virtualenvs.create false
 RUN poetry install --no-interaction --no-dev
 COPY . ./
 
-RUN mkdir static
+ARG SECRET_KEY
+
+RUN python ./manage.py collectstatic --noinput
 
 ARG RELEASE_ID=''
 ENV RELEASE_ID=$RELEASE_ID
