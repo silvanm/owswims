@@ -1,5 +1,5 @@
 <template>
-  <div class="ribbon ribbon-top-right">
+  <div class="ribbon ribbon-bottom-right">
     <span><slot></slot></span>
   </div>
 </template>
@@ -39,26 +39,26 @@ export default {
 }
 
 /* top right*/
-.ribbon-top-right {
-  top: 0px;
-  right: 0px;
-}
-.ribbon-top-right::before,
-.ribbon-top-right::after {
-  border-top-color: transparent;
-  border-right-color: transparent;
-}
-.ribbon-top-right::before {
-  top: 0;
-  left: 0;
-}
-.ribbon-top-right::after {
+.ribbon-bottom-right {
   bottom: 0;
   right: 0;
 }
-.ribbon-top-right span {
-  left: 0px;
-  top: 0px;
-  transform: rotate(45deg);
+.ribbon-bottom-right::before,
+.ribbon-bottom-right::after {
+  border-bottom-color: transparent;
+  border-right-color: transparent;
+}
+.ribbon-bottom-right::before {
+  bottom: 0;
+  left: 0;
+}
+.ribbon-bottom-right::after {
+  top: 0;
+  right: 0;
+}
+.ribbon-bottom-right span {
+  left: 13px;
+  bottom: 7px;
+  transform: rotate(-45deg);
 }
 </style>

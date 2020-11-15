@@ -12,7 +12,7 @@
     </client-only>
     <Spinner :show="isLoading"></Spinner>
     <div class="bg-white p-4 md:p-6 relative">
-      <Ribbon>alpha</Ribbon>
+      <Ribbon v-if="!filterCollapsed">alpha</Ribbon>
       <div class="inline">
         <h1 class="text-xl md:text-2xl font-semibold text-primary">
           🏊🏻‍️ European Open-Water Swims
