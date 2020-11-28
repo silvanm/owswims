@@ -7,7 +7,6 @@ COPY ./frontend/package.json ./frontend/yarn.lock ./
 ENV PATH="./node_modules/.bin:$PATH"
 
 ARG GOOGLE_MAPS_KEY
-ARG GRAPHQL_ENDPOINT
 
 COPY frontend/ ./
 

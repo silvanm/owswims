@@ -1,7 +1,6 @@
 from datetime import date
 
 from django.db import models
-from django.db.models import Max, Min
 from django_countries.fields import CountryField
 
 
@@ -12,26 +11,39 @@ class Location(models.Model):
     lat = models.FloatField(null=True)
     lng = models.FloatField(null=True)
 
-    def __repr__(self):
+    def __str__(self):
         return repr(f"({self.id}) {self.city}, {self.country}")
+
+
+class Organizer(models.Model):
+    name = models.CharField(max_length=100)
+    website = models.URLField(max_length=200)
+
+    def __str__(self):
+        return repr(f"({self.id}) {self.name}")
 
 
 class Event(models.Model):
     name = models.CharField(max_length=100)
     website = models.URLField(max_length=200)
-    location = models.ForeignKey(Location, on_delete=models.CASCADE, null=True, related_name="events")
+    location = models.ForeignKey(
+        Location, on_delete=models.CASCADE, null=True, related_name="events"
+    )
+    organizer = models.ForeignKey(
+        Organizer, on_delete=models.SET_NULL, null=True, related_name="events"
+    )
+    needs_medical_certificate = models.BooleanField(null=True)
+    needs_license = models.BooleanField(null=True)
     date_start = models.DateField()
     date_end = models.DateField()
+    water_temp = models.FloatField(null=True)
+    description = models.TextField(max_length=1024, default="")
+    water_type = models.CharField(
+        max_length=10, choices=[("river", "river"), ("sea", "sea"), ("lake", "lake")],
+        null=True
+    )
 
-    # @property
-    # def start_date(self) -> date:
-    #     return self.race_set.all().aggregate(Min('date'))['date__min']
-    #
-    # @property
-    # def end_date(self) -> date:
-    #     return self.race_set.all().aggregate(Max('date'))['date__max']
-
-    def __repr__(self):
+    def __str__(self):
         return repr(f"({self.id}) {self.name}, {self.location}")
 
 
@@ -44,6 +56,15 @@ class Race(models.Model):
     event = models.ForeignKey("Event", related_name="races", on_delete=models.CASCADE)
     distance = models.FloatField(verbose_name="Distance (km)")
     name = models.CharField(max_length=30, null=True)
+    wetsuit = models.CharField(
+        max_length=10,
+        choices=[
+            ("compulsory", "compulsory"),
+            ("optional", "optional"),
+            ("prohibited", "prohibited"),
+        ],
+        null=True
+    )
 
-    def __repr__(self):
-        return repr(f"({self.id}) {self.distance}")
+    def __str__(self):
+        return repr(f"({self.id}) {self.event.name}, {self.distance}")
