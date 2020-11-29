@@ -52,6 +52,7 @@
         >
       </div>
     </div>
+    <EventPane></EventPane>
   </div>
 </template>
 
@@ -174,5 +175,3 @@ export default {
   },
 }
 </script>
-
-<style></style>

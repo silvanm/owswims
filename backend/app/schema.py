@@ -3,7 +3,7 @@ from graphene_django import DjangoObjectType
 import graphene
 from graphene import relay, Node
 from graphene_django.filter import DjangoFilterConnectionField
-import graphene_django_optimizer as gql_optimizer
+from graphql_relay import from_global_id
 
 from app.models import Location, Race, Event
 
@@ -98,4 +98,39 @@ class Query(graphene.ObjectType):
     all_events = DjangoFilterConnectionField(EventNode, filterset_class=EventNodeFilter)
 
 
-schema = graphene.Schema(query=Query)
+class EventMutation(relay.ClientIDMutation):
+    class Input:
+        name = graphene.String(required=True)
+        id = graphene.ID()
+
+    event = graphene.Field(EventNode)
+
+    @classmethod
+    def mutate_and_get_payload(cls, root, info, name, id, client_mutation_id=None):
+        event = Event.objects.get(pk=from_global_id(id)[1])
+        event.name = name
+        event.save()
+        return EventMutation(event=event)
+
+
+class LocationMutation(relay.ClientIDMutation):
+    class Input:
+        city = graphene.String(required=True)
+        id = graphene.ID()
+
+    location = graphene.Field(LocationNode)
+
+    @classmethod
+    def mutate_and_get_payload(cls, root, info, city, id, client_mutation_id=None):
+        location = Location.objects.get(pk=from_global_id(id)[1])
+        location.city = city
+        location.save()
+        return LocationMutation(location=location)
+
+
+class Mutation(graphene.ObjectType):
+    update_event = EventMutation.Field()
+    update_location = LocationMutation.Field()
+
+
+schema = graphene.Schema(query=Query, mutation=Mutation)

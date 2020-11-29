@@ -57,7 +57,6 @@ export default {
       this.updateMarker()
     },
     mylocation(newLocation, oldLocation) {
-      console.log(newLocation)
       if (newLocation.lat && newLocation.lng) {
         const icon = {
           path:
