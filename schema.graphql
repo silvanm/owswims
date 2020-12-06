@@ -2,6 +2,7 @@
 
 schema {
     query: Query
+    mutation: Mutation
 }
 
 "An object with an ID"
@@ -10,14 +11,65 @@ interface Node {
     id: ID!
 }
 
+"Debugging information for the current query."
+type DjangoDebug {
+    "Executed SQL queries for this API query."
+    sql: [DjangoDebugSQL]
+}
+
+"Represents a single database query made to a Django managed DB."
+type DjangoDebugSQL {
+    "The Django database alias (e.g. 'default')."
+    alias: String!
+    "Duration of this database query in seconds."
+    duration: Float!
+    "Postgres connection encoding if available."
+    encoding: String
+    "Whether this database query was a SELECT."
+    isSelect: Boolean!
+    "Whether this database query took more than 10 seconds."
+    isSlow: Boolean!
+    "Postgres isolation level if available."
+    isoLevel: String
+    "JSON encoded database query parameters."
+    params: String!
+    "The raw SQL of this query, without params."
+    rawSql: String!
+    "The actual SQL sent to this database."
+    sql: String
+    "Start time of this database query."
+    startTime: Float!
+    "Stop time of this database query."
+    stopTime: Float!
+    "Postgres transaction ID if available."
+    transId: String
+    "Postgres transaction status if available."
+    transStatus: String
+    "The type of database being used (e.g. postrgesql, mysql, sqlite)."
+    vendor: String!
+}
+
+type EventMutationPayload {
+    clientMutationId: String
+    event: EventNode
+}
+
 type EventNode implements Node {
     dateEnd: Date!
     dateStart: Date!
+    description: String!
     "The ID of the object."
     id: ID!
     location: LocationNode
     name: String!
+    needsLicense: Boolean
+    needsMedicalCertificate: Boolean
     races(after: String, before: String, distance_Gte: Float, distance_Lte: Float, first: Int, last: Int): RaceNodeConnection!
+    source: String
+    "set if the event has been verified by the admin"
+    verifiedAt: Date
+    waterTemp: Float
+    waterType: EventWaterType
     website: String!
 }
 
@@ -34,6 +86,11 @@ type EventNodeEdge {
     cursor: String!
     "The item at the end of the edge"
     node: EventNode
+}
+
+type LocationMutationPayload {
+    clientMutationId: String
+    location: LocationNode
 }
 
 type LocationNode implements Node {
@@ -62,6 +119,11 @@ type LocationNodeEdge {
     node: LocationNode
 }
 
+type Mutation {
+    updateEvent(input: EventMutationInput!): EventMutationPayload
+    updateLocation(input: LocationMutationInput!): LocationMutationPayload
+}
+
 "The Relay compliant `PageInfo` type, containing data necessary to paginate this connection."
 type PageInfo {
     "When paginating forwards, the cursor to continue."
@@ -75,12 +137,14 @@ type PageInfo {
 }
 
 type Query {
+    _debug: DjangoDebug
     allEvents(after: String, before: String, dateFrom: Date, dateTo: Date, first: Int, last: Int, location: ID, name: String, raceDistanceGte: Float, raceDistanceLte: Float, races: [ID], website: String): EventNodeConnection
     allLocations(after: String, before: String, city: String, country: String, dateFrom: Date, dateTo: Date, events: [ID], first: Int, last: Int, lat: Float, lng: Float, raceDistanceGte: Float, raceDistanceLte: Float): LocationNodeConnection
     "The ID of the object"
     event(id: ID!): EventNode
     "The ID of the object"
     location(id: ID!): LocationNode
+    locationsFiltered(dateFrom: Date, dateTo: Date, raceDistanceGte: Float, raceDistanceLte: Float): [LocationNode]
 }
 
 type RaceNode implements Node {
@@ -90,6 +154,9 @@ type RaceNode implements Node {
     "The ID of the object."
     id: ID!
     name: String
+    price: Float
+    priceCurrency: RacePriceCurrency!
+    wetsuit: RaceWetsuit
 }
 
 type RaceNodeConnection {
@@ -105,6 +172,16 @@ type RaceNodeEdge {
     cursor: String!
     "The item at the end of the edge"
     node: RaceNode
+}
+
+"An enumeration."
+enum EventWaterType {
+    "Lake"
+    LAKE
+    "River"
+    RIVER
+    "Sea"
+    SEA
 }
 
 "An enumeration."
@@ -607,6 +684,410 @@ enum LocationCountry {
     ZM
     "Zimbabwe"
     ZW
+}
+
+"An enumeration."
+enum RacePriceCurrency {
+    "UAE Dirham"
+    AED
+    "Afghani"
+    AFN
+    "Lek"
+    ALL
+    "Armenian Dram"
+    AMD
+    "Netherlands Antillian Guilder"
+    ANG
+    "Kwanza"
+    AOA
+    "Argentine Peso"
+    ARS
+    "Australian Dollar"
+    AUD
+    "Aruban Guilder"
+    AWG
+    "Azerbaijanian Manat"
+    AZN
+    "Convertible Marks"
+    BAM
+    "Barbados Dollar"
+    BBD
+    "Taka"
+    BDT
+    "Bulgarian Lev"
+    BGN
+    "Bahraini Dinar"
+    BHD
+    "Burundi Franc"
+    BIF
+    "Bermudian Dollar (customarily known as Bermuda Dollar)"
+    BMD
+    "Brunei Dollar"
+    BND
+    "Boliviano"
+    BOB
+    "Mvdol"
+    BOV
+    "Brazilian Real"
+    BRL
+    "Bahamian Dollar"
+    BSD
+    "Bhutanese ngultrum"
+    BTN
+    "Pula"
+    BWP
+    "Belarussian Ruble"
+    BYN
+    "Belarussian Ruble"
+    BYR
+    "Belize Dollar"
+    BZD
+    "Canadian Dollar"
+    CAD
+    "Congolese franc"
+    CDF
+    "WIR Euro"
+    CHE
+    "Swiss Franc"
+    CHF
+    "WIR Franc"
+    CHW
+    "Unidad de Fomento"
+    CLF
+    "Chilean peso"
+    CLP
+    "Yuan Renminbi"
+    CNY
+    "Colombian peso"
+    COP
+    "Unidad de Valor Real"
+    COU
+    "Costa Rican Colon"
+    CRC
+    "Cuban convertible peso"
+    CUC
+    "Cuban Peso"
+    CUP
+    "Cape Verde Escudo"
+    CVE
+    "Czech Koruna"
+    CZK
+    "Djibouti Franc"
+    DJF
+    "Danish Krone"
+    DKK
+    "Dominican Peso"
+    DOP
+    "Algerian Dinar"
+    DZD
+    "Egyptian Pound"
+    EGP
+    "Nakfa"
+    ERN
+    "Ethiopian Birr"
+    ETB
+    "Euro"
+    EUR
+    "Fiji Dollar"
+    FJD
+    "Falkland Islands Pound"
+    FKP
+    "Pound Sterling"
+    GBP
+    "Lari"
+    GEL
+    "Ghana Cedi"
+    GHS
+    "Gibraltar Pound"
+    GIP
+    "Dalasi"
+    GMD
+    "Guinea Franc"
+    GNF
+    "Quetzal"
+    GTQ
+    "Guyana Dollar"
+    GYD
+    "Hong Kong Dollar"
+    HKD
+    "Lempira"
+    HNL
+    "Croatian Kuna"
+    HRK
+    "Haitian gourde"
+    HTG
+    "Forint"
+    HUF
+    "Rupiah"
+    IDR
+    "New Israeli Sheqel"
+    ILS
+    "Isle of Man Pound"
+    IMP
+    "Indian Rupee"
+    INR
+    "Iraqi Dinar"
+    IQD
+    "Iranian Rial"
+    IRR
+    "Iceland Krona"
+    ISK
+    "Jamaican Dollar"
+    JMD
+    "Jordanian Dinar"
+    JOD
+    "Yen"
+    JPY
+    "Kenyan Shilling"
+    KES
+    "Som"
+    KGS
+    "Riel"
+    KHR
+    "Comoro Franc"
+    KMF
+    "North Korean Won"
+    KPW
+    "Won"
+    KRW
+    "Kuwaiti Dinar"
+    KWD
+    "Cayman Islands Dollar"
+    KYD
+    "Tenge"
+    KZT
+    "Kip"
+    LAK
+    "Lebanese Pound"
+    LBP
+    "Sri Lanka Rupee"
+    LKR
+    "Liberian Dollar"
+    LRD
+    "Lesotho loti"
+    LSL
+    "Lithuanian Litas"
+    LTL
+    "Latvian Lats"
+    LVL
+    "Libyan Dinar"
+    LYD
+    "Moroccan Dirham"
+    MAD
+    "Moldovan Leu"
+    MDL
+    "Malagasy Ariary"
+    MGA
+    "Denar"
+    MKD
+    "Kyat"
+    MMK
+    "Tugrik"
+    MNT
+    "Pataca"
+    MOP
+    "Ouguiya"
+    MRO
+    "Mauritius Rupee"
+    MUR
+    "Rufiyaa"
+    MVR
+    "Malawian Kwacha"
+    MWK
+    "Mexican peso"
+    MXN
+    "Mexican Unidad de Inversion (UDI)"
+    MXV
+    "Malaysian Ringgit"
+    MYR
+    "Metical"
+    MZN
+    "Namibian Dollar"
+    NAD
+    "Naira"
+    NGN
+    "Cordoba Oro"
+    NIO
+    "Norwegian Krone"
+    NOK
+    "Nepalese Rupee"
+    NPR
+    "New Zealand Dollar"
+    NZD
+    "Rial Omani"
+    OMR
+    "Balboa"
+    PAB
+    "Nuevo Sol"
+    PEN
+    "Kina"
+    PGK
+    "Philippine Peso"
+    PHP
+    "Pakistan Rupee"
+    PKR
+    "Zloty"
+    PLN
+    "Guarani"
+    PYG
+    "Qatari Rial"
+    QAR
+    "New Leu"
+    RON
+    "Serbian Dinar"
+    RSD
+    "Russian Ruble"
+    RUB
+    "Rwanda Franc"
+    RWF
+    "Saudi Riyal"
+    SAR
+    "Solomon Islands Dollar"
+    SBD
+    "Seychelles Rupee"
+    SCR
+    "Sudanese Pound"
+    SDG
+    "Swedish Krona"
+    SEK
+    "Singapore Dollar"
+    SGD
+    "Saint Helena Pound"
+    SHP
+    "Leone"
+    SLL
+    "Somali Shilling"
+    SOS
+    "Surinam Dollar"
+    SRD
+    "South Sudanese Pound"
+    SSP
+    "Dobra"
+    STD
+    "El Salvador Colon"
+    SVC
+    "Syrian Pound"
+    SYP
+    "Lilangeni"
+    SZL
+    "Baht"
+    THB
+    "Somoni"
+    TJS
+    "Manat"
+    TMM
+    "Turkmenistan New Manat"
+    TMT
+    "Tunisian Dinar"
+    TND
+    "Paanga"
+    TOP
+    "Turkish Lira"
+    TRY
+    "Trinidad and Tobago Dollar"
+    TTD
+    "Tuvalu dollar"
+    TVD
+    "New Taiwan Dollar"
+    TWD
+    "Tanzanian Shilling"
+    TZS
+    "Hryvnia"
+    UAH
+    "Uganda Shilling"
+    UGX
+    "US Dollar"
+    USD
+    "US Dollar (Next day)"
+    USN
+    "Uruguay Peso en Unidades Indexadas (URUIURUI)"
+    UYI
+    "Uruguayan peso"
+    UYU
+    "Uzbekistan Sum"
+    UZS
+    "Bolivar Fuerte"
+    VEF
+    "Dong"
+    VND
+    "Vatu"
+    VUV
+    "Tala"
+    WST
+    "CFA franc BEAC"
+    XAF
+    "Silver"
+    XAG
+    "Gold"
+    XAU
+    "Bond Markets Units European Composite Unit (EURCO)"
+    XBA
+    "European Monetary Unit (E.M.U.-6)"
+    XBB
+    "European Unit of Account 9(E.U.A.-9)"
+    XBC
+    "European Unit of Account 17(E.U.A.-17)"
+    XBD
+    "East Caribbean Dollar"
+    XCD
+    "SDR"
+    XDR
+    "Gold-Franc"
+    XFO
+    "UIC-Franc"
+    XFU
+    "CFA Franc BCEAO"
+    XOF
+    "Palladium"
+    XPD
+    "CFP Franc"
+    XPF
+    "Platinum"
+    XPT
+    "Sucre"
+    XSU
+    "Codes specifically reserved for testing purposes"
+    XTS
+    "ADB Unit of Account"
+    XUA
+    "The codes assigned for transactions where no currency is involved"
+    XXX
+    "Yemeni Rial"
+    YER
+    "Rand"
+    ZAR
+    "Zambian Kwacha"
+    ZMK
+    "Zambian Kwacha"
+    ZMW
+    "Zimbabwe Dollar A/06"
+    ZWD
+    "Zimbabwe dollar A/09"
+    ZWL
+    "Zimbabwe dollar A/08"
+    ZWN
+}
+
+"An enumeration."
+enum RaceWetsuit {
+    "Compulsory"
+    COMPULSORY
+    "Optional"
+    OPTIONAL
+    "Prohibited"
+    PROHIBITED
+}
+
+input EventMutationInput {
+    clientMutationId: String
+    id: ID
+    name: String!
+}
+
+input LocationMutationInput {
+    city: String!
+    clientMutationId: String
+    id: ID
 }
 
 

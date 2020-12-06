@@ -5,7 +5,7 @@
       v-model="dateRange"
       dot-size="25"
       :marks="marksFormatter"
-      :min="-6"
+      :min="0"
       :max="12"
       :tooltip-formatter="tooltipFormatter"
       @change="(v) => $emit('change', v)"
@@ -20,7 +20,7 @@ export default {
   name: 'DaterangeSlider',
   data() {
     return {
-      dateRange: [-6, 6],
+      dateRange: [0, 12],
     }
   },
   methods: {

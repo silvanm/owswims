@@ -25,10 +25,63 @@
 </template>
 <script>
 import MarkerClusterer from '@googlemaps/markerclustererplus'
-import { format, formatDistance } from 'date-fns'
+import { addMonths, format, formatDistance, formatISO } from 'date-fns'
 import { mapGetters } from 'vuex'
+import gql from 'graphql-tag'
 
 export default {
+  apollo: {
+    allEvents: {
+      query: gql`
+        query(
+          $distanceFrom: Float!
+          $distanceTo: Float!
+          $dateFrom: Date!
+          $dateTo: Date!
+          $locationId: ID!
+        ) {
+          allEvents(
+            dateFrom: $dateFrom
+            dateTo: $dateTo
+            location: $locationId
+          ) {
+            edges {
+              node {
+                id
+                name
+                dateStart
+                dateEnd
+                website
+                races(distance_Gte: $distanceFrom, distance_Lte: $distanceTo) {
+                  edges {
+                    node {
+                      distance
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      `,
+      variables() {
+        return {
+          locationId: this.pickedLocationId,
+          distanceFrom: this.distanceFrom,
+          distanceTo: this.distanceTo,
+          dateFrom: formatISO(addMonths(new Date(), this.dateRange[0]), {
+            representation: 'date',
+          }),
+          dateTo: formatISO(addMonths(new Date(), this.dateRange[1]), {
+            representation: 'date',
+          }),
+        }
+      },
+      watchLoading(isLoading, countModifier) {
+        this.isLoading = isLoading
+      },
+    },
+  },
   props: {
     google: {
       type: Object,
@@ -40,13 +93,34 @@ export default {
         return []
       },
     },
+    distanceFrom: {
+      type: Number,
+      default: () => {
+        return 0
+      },
+    },
+    distanceTo: {
+      type: Number,
+      default: () => {
+        return 100
+      },
+    },
+    dateRange: {
+      type: Array,
+      default: () => {
+        return [-10, 10]
+      },
+    },
   },
   data() {
     return {
       marker: {},
-      pickedEvent: null,
+      pickedLocationId: 'TG9jYXRpb25Ob2RlOjE4NTg=',
+      pickedLocation: null,
       // Stores travel times per location (null == not possible to fetch)
       travelTimes: {},
+      formattedTravelDistance: '',
+      isLoading: false,
     }
   },
   computed: {
@@ -86,7 +160,6 @@ export default {
       mapTypeId: 'satellite',
       mapTypeControl: false,
     })
-
     this.updateMarker()
   },
   methods: {
@@ -119,6 +192,7 @@ export default {
         .join(', ')
     },
     getFormattedTravelDistance(location, travelMode) {
+      console.log('getFormattedTravelDistance', location)
       const k = `${location.lat},${location.lng}`
       if (k in this.travelTimes && this.travelTimes[k][travelMode] !== null) {
         const formatDuration = (s) => formatDistance(0, s * 1000)
@@ -146,20 +220,32 @@ export default {
       }
 
       for (const location of this.locations) {
+        if (!(location.lat && location.lng)) {
+          // latLng is mandatory
+          continue
+        }
+
         const markerObj = new this.google.maps.Marker({
           icon: this.markerPin(),
-          position: location.node,
+          position: location,
           map: this.map,
-          title: location.node.name,
+          title: location.name,
         })
 
         markerObj.addListener('click', () => {
-          this.calculateDistance(location, () => {
-            this.pickedEvent = location.node
-            infowindow.open(this.map, markerObj)
+          this.$store.commit('pickedLocationId', location.id)
+          this.pickedLocationId = location.id
+          this.pickedLocation = location
+          this.location = location
+          this.markerObj = markerObj
+          console.log('Marker object click')
+          infowindow.close()
+          this.calculateDistance(this.location, () => {
+            console.log('Distance calculated callback')
+            infowindow.open(this.map, this.markerObj)
           })
         })
-        this.marker[location.node.id] = markerObj
+        this.marker[location.id] = markerObj
       }
       this.markerCluster = new MarkerClusterer(this.map, this.marker, {
         styles: [
@@ -185,7 +271,7 @@ export default {
     calculateDistance(location, callback) {
       const requestedDestinations = []
       // Calculate distance for those destinations within the viewport.
-      const k = `${location.node.lat},${location.node.lng}`
+      const k = `${location.lat},${location.lng}`
       if (!(k in this.travelTimes)) {
         requestedDestinations.push(k)
       }
@@ -208,6 +294,7 @@ export default {
           ],
           destinations: [k],
           transitOptions: {
+            // @todo: Is a hardcoded year really good here?
             departureTime: new Date(2020, 8, 2, 8, 0, 0),
           },
           travelMode,
@@ -215,9 +302,11 @@ export default {
         })
       })
 
+      // @todo simplify this
       Promise.all(promises).then((values) => {
         values.forEach((value, ix) => {
           const results = value.rows[0].elements
+          console.log('Got distancematrix result', results)
           for (let j = 0; j < results.length; j++) {
             if (!this.travelTimes[requestedDestinations[j]]) {
               this.travelTimes[requestedDestinations[j]] = {
@@ -236,6 +325,10 @@ export default {
             }
           }
         })
+        this.formattedTravelDistance = this.getFormattedTravelDistance(
+          location,
+          'DRIVING'
+        )
 
         callback()
       })

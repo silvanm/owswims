@@ -2,14 +2,18 @@ from datetime import date
 
 from django.db import models
 from django_countries.fields import CountryField
+from djmoney.models.fields import MoneyField
 
 
 class Location(models.Model):
     street = models.CharField(max_length=100, blank=True)
     city = models.CharField(max_length=50)
     country = CountryField()
-    lat = models.FloatField(null=True)
-    lng = models.FloatField(null=True)
+    lat = models.FloatField(null=True, blank=True)
+    lng = models.FloatField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["city"]
 
     def __str__(self):
         return repr(f"{self.city}, {self.country}")
@@ -18,6 +22,9 @@ class Location(models.Model):
 class Organizer(models.Model):
     name = models.CharField(max_length=100)
     website = models.URLField(max_length=200)
+
+    class Meta:
+        ordering = ["name"]
 
     def __str__(self):
         return repr(f"{self.name}")
@@ -46,9 +53,12 @@ class Event(models.Model):
         max_length=10,
         choices=[("river", "River"), ("sea", "Sea"), ("lake", "Lake")],
         null=True,
-        blank=True
+        blank=True,
     )
     source = models.CharField(max_length=30, null=True, blank=True)
+    verified_at = models.DateField(
+        null=True, blank=True, help_text="set if the event has been verified by the admin"
+    )
 
     class Meta:
         ordering = ["date_start"]
@@ -74,8 +84,14 @@ class Race(models.Model):
             ("prohibited", "Prohibited"),
         ],
         null=True,
-        blank=True
+        blank=True,
     )
+    price = MoneyField(
+        max_digits=14, decimal_places=2, default_currency="EUR", null=True, blank=True
+    )
+
+    class Meta:
+        ordering = ["distance"]
 
     def __str__(self):
         return repr(f"{self.event.name}, {self.distance}")

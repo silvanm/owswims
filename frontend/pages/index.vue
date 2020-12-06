@@ -2,16 +2,19 @@
   <div class="md:m-4" style="max-width: 500px">
     <client-only>
       <Map
-        v-if="allLocations"
+        v-if="locationsFiltered"
         ref="map"
         :google="google"
-        :locations="allLocations.edges"
+        :locations="locationsFiltered"
         :lat="lat"
         :lng="lng"
+        :distance-from="distanceRange[0]"
+        :distance-to="distanceRange[1]"
+        :date-range="dateRange"
       />
     </client-only>
     <Spinner :show="isLoading"></Spinner>
-    <div class="bg-white p-4 md:p-6 relative">
+    <div class="bg-white p-4 md:p-6 relative overflow-hidden">
       <Ribbon v-if="!filterCollapsed">alpha</Ribbon>
       <div class="inline">
         <h1 class="text-xl md:text-2xl font-semibold text-primary">
@@ -23,12 +26,11 @@
         </h1>
       </div>
       <div
-        class="overflow-hidden"
         style="transition: max-height 0.5s linear"
         :style="{ maxHeight: filterCollapsed ? 0 : '500px' }"
       >
         <h2 class="font-semibold pb-2 pt-4">Race Distance</h2>
-        <div class="pl-4 pr-4 pb-5">
+        <div id="race-distance-slider" class="pl-4 pr-4 pb-5">
           <client-only>
             <vue-slider
               v-model="distanceRange"
@@ -41,18 +43,19 @@
           </client-only>
         </div>
         <h2 class="font-semibold pb-2">Date</h2>
-        <div class="pl-4 pr-4 pb-8">
+        <div id="date-range-slider" class="pl-4 pr-4 pb-8">
           <DaterangeSlider @change="updateDateRange"></DaterangeSlider>
         </div>
         <Toggle
           name="locateMe"
           :is-checked="geoLocationEnabled"
           @change="(e) => (e ? locateMe() : null)"
-          >Display Travel times</Toggle
+          ><span id="activate-geolocation">Show Travel times</span></Toggle
         >
+        ⚠️ Shows test data.
       </div>
     </div>
-    <EventPane></EventPane>
+    <EventPane v-if="$store.pickedLocationId"></EventPane>
   </div>
 </template>
 
@@ -64,11 +67,13 @@ import { Loader } from 'google-maps'
 import CloseButton from '@/components/CloseButton'
 import Spinner from '@/components/Spinner'
 import Ribbon from '@/components/Ribbon'
+import Tour from '@/components/Tour'
+import EventPane from '@/components/EventPane'
 
 export default {
-  components: { Ribbon, CloseButton, Spinner },
+  components: { EventPane, Ribbon, CloseButton, Spinner, Tour },
   apollo: {
-    allLocations: {
+    locationsFiltered: {
       query: gql`
         query(
           $distanceFrom: Float!
@@ -76,42 +81,17 @@ export default {
           $dateFrom: Date!
           $dateTo: Date!
         ) {
-          allLocations(
+          locationsFiltered(
             raceDistanceGte: $distanceFrom
             raceDistanceLte: $distanceTo
             dateFrom: $dateFrom
             dateTo: $dateTo
           ) {
-            edges {
-              node {
-                id
-                country
-                city
-                lat
-                lng
-                events(dateStart_Gte: $dateFrom, dateEnd_Lte: $dateTo) {
-                  edges {
-                    node {
-                      id
-                      name
-                      dateStart
-                      dateEnd
-                      website
-                      races(
-                        distance_Gte: $distanceFrom
-                        distance_Lte: $distanceTo
-                      ) {
-                        edges {
-                          node {
-                            distance
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
+            id
+            country
+            city
+            lat
+            lng
           }
         }
       `,
@@ -138,7 +118,7 @@ export default {
       google: null,
       distanceRange: [0, 30],
       // @todo: this must be applied to the slider
-      dateRange: [-6, 12],
+      dateRange: [0, 12],
       lat: null,
       lng: null,
       geoLocationEnabled: false,
@@ -156,6 +136,7 @@ export default {
     },
     locateMe() {
       console.log('Locating me')
+      this.isLoading = true
       const store = this.$store
       navigator.geolocation.getCurrentPosition(
         (position) => {
@@ -166,8 +147,10 @@ export default {
             lat: position.coords.latitude,
             lng: position.coords.longitude,
           })
+          this.isLoading = false
         },
         () => {
+          this.isLoading = false
           console.log('Geolocation has failed')
         }
       )

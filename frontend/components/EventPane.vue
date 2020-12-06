@@ -75,9 +75,7 @@ export default {
     ...mapGetters(['pickedLocationId']),
   },
   methods: {
-    save() {
-
-    }
-  }
+    save() {},
+  },
 }
 </script>

@@ -2,6 +2,8 @@ import json
 from django.conf import settings
 import googlemaps
 import dateparser
+from django.db import transaction
+
 from app.models import Location, Event, Race
 
 from django.core.management.base import BaseCommand
@@ -26,16 +28,18 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument("path", help="Path to the json file")
+        parser.add_argument("source", help="Source string to use")
 
+    @transaction.atomic
     def handle(self, *args, **options):
         self.gmaps = googlemaps.Client(key=settings.GMAPS_API_KEY)
-
         with open(options["path"], "r") as fp:
             source_events = json.load(fp)
             for source_event in source_events:
                 self.stdout.write(source_event["name"])
 
-                if not "races" in source_event:
+                # Ignore events with no races
+                if "races" not in source_event:
                     self.style.SUCCESS(f"Event {source_event['name']} has no races.")
                     continue
 
@@ -47,13 +51,19 @@ class Command(BaseCommand):
                 ).count()
                 if num_events == 0:
                     e = Event()
+                    e.source = options["source"]
                     e.date_start = date
                     e.date_end = date
                     e.name = source_event["name"]
                     if "website" in source_event:
                         e.website = source_event["website"]
-                    e.description = source_event["description"]
-                    e.water_type = WATER_TYPE_MAP[source_event["water_type"]]
+                    e.description = (
+                        source_event["description"]
+                        if "description" in source_event
+                        else ""
+                    )
+                    if "water_type" in source_event:
+                        e.water_type = WATER_TYPE_MAP[source_event["water_type"]]
                     e.location = location
                     e.save()
 
@@ -61,7 +71,9 @@ class Command(BaseCommand):
                         r = Race(
                             date=e.date_start,
                             distance=dist,
-                            wetsuit=WETSUIT_MAP[source_event["wetsuit"]],
+                            wetsuit=WETSUIT_MAP[source_event["wetsuit"]]
+                            if "wetsuit" in source_event
+                            else None,
                             event=e,
                         )
                         r.save()

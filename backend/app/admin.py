@@ -15,9 +15,9 @@ class RaceInline(admin.TabularInline):
 
 @admin.register(models.Event)
 class EventAdmin(admin.ModelAdmin):
-    list_display = ("date_start", "name", "locationstr", "water_type")
+    list_display = ("date_start", "name", "locationstr", "water_type", "source")
     list_display_links = ("name",)
-    list_filter = ("water_type", "location__country")
+    list_filter = ("water_type", "source")
     inlines = [
         RaceInline,
     ]
@@ -30,4 +30,5 @@ class EventAdmin(admin.ModelAdmin):
         )
 
     def locationstr(self, obj):
-        return f"{obj.location.city}, {obj.location.country}"
+        if obj.location:
+            return f"{obj.location.city}, {obj.location.country}"

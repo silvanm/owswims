@@ -20,5 +20,6 @@ class OWSwimsPipeline:
 
     def process_item(self, event: EventItem, spider):
         event['location'] = self._replace_nl(event['location'])
-        event['description'] = self._replace_nl(event['description'])
+        if 'description' in event:
+            event['description'] = self._replace_nl(event['description'])
         return event

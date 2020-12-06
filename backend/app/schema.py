@@ -1,7 +1,9 @@
 import django_filters
+from django.db.models import Q
 from graphene_django import DjangoObjectType
 import graphene
 from graphene import relay, Node
+from graphene_django.debug import DjangoDebug
 from graphene_django.filter import DjangoFilterConnectionField
 from graphql_relay import from_global_id
 
@@ -93,9 +95,27 @@ class Query(graphene.ObjectType):
     all_locations = DjangoFilterConnectionField(
         LocationNode, filterset_class=LocationNodeFilter
     )
+    debug = graphene.Field(DjangoDebug, name="_debug")
 
     event = relay.Node.Field(EventNode)
     all_events = DjangoFilterConnectionField(EventNode, filterset_class=EventNodeFilter)
+
+    # Not GraphQL style, but leads to fast query not returning dates without
+    # events
+    locations_filtered = graphene.List(
+        LocationNode, date_from=graphene.Date(), date_to=graphene.Date(),
+        race_distance_gte=graphene.Float(), race_distance_lte=graphene.Float()
+    )
+
+    def resolve_locations_filtered(root, info, race_distance_gte, race_distance_lte,
+                                   date_from, date_to):
+        q = Q(
+            events__races__distance__gte=race_distance_gte,
+            events__races__distance__lte=race_distance_lte,
+            events__date_start__gte=date_from,
+            events__date_start__lte=date_to,
+        )
+        return Location.objects.filter(q).distinct().all()
 
 
 class EventMutation(relay.ClientIDMutation):
