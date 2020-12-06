@@ -56,12 +56,15 @@ class Event(models.Model):
         blank=True,
     )
     source = models.CharField(max_length=30, null=True, blank=True)
-    verified_at = models.DateField(
+    verified_at = models.DateTimeField(
         null=True, blank=True, help_text="set if the event has been verified by the admin"
     )
 
     class Meta:
         ordering = ["date_start"]
+
+    def is_verified(self):
+        return self.verified_at is not None
 
     def __str__(self):
         return repr(f"{self.date_start}, {self.name}, {self.location}")
