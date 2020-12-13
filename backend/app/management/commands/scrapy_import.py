@@ -32,16 +32,12 @@ class Command(BaseCommand):
 
     @transaction.atomic
     def handle(self, *args, **options):
-        self.gmaps = googlemaps.Client(key=settings.GMAPS_API_KEY)
+        self.gmaps = googlemaps.Client(key=settings.GOOGLE_MAPS_API_KEY)
         with open(options["path"], "r") as fp:
             source_events = json.load(fp)
             for source_event in source_events:
                 self.stdout.write(source_event["name"])
 
-                # Ignore events with no races
-                if "races" not in source_event:
-                    self.style.SUCCESS(f"Event {source_event['name']} has no races.")
-                    continue
 
                 location = self.process_location(source_event)
 
@@ -67,16 +63,17 @@ class Command(BaseCommand):
                     e.location = location
                     e.save()
 
-                    for dist in source_event["races"]:
-                        r = Race(
-                            date=e.date_start,
-                            distance=dist,
-                            wetsuit=WETSUIT_MAP[source_event["wetsuit"]]
-                            if "wetsuit" in source_event
-                            else None,
-                            event=e,
-                        )
-                        r.save()
+                    if "races" in source_event:
+                        for dist in source_event["races"]:
+                            r = Race(
+                                date=e.date_start,
+                                distance=dist,
+                                wetsuit=WETSUIT_MAP[source_event["wetsuit"]]
+                                if "wetsuit" in source_event
+                                else None,
+                                event=e,
+                            )
+                            r.save()
 
                     self.style.SUCCESS(f"Event {source_event['name']} saved.")
                 else:
@@ -105,9 +102,10 @@ class Command(BaseCommand):
                             else component["short_name"]
                         )
 
-            location.street = geocoded_address["route"]
+            location.address = geocoded_address["route"]
             if geocoded_address["street_number"]:
-                location.street += geocoded_address["street_number"]
+                location.address += geocoded_address["street_number"]
+
             location.city = (
                 geocoded_address["locality"]
                 if geocoded_address["locality"]
@@ -116,6 +114,8 @@ class Command(BaseCommand):
             location.country = geocoded_address["country"]
             location.lat = geocode_result[0]["geometry"]["location"]["lat"]
             location.lng = geocode_result[0]["geometry"]["location"]["lng"]
+
+            location.address += f', {location.city}, {location.country}'
 
             existing_locations = Location.objects.filter(
                 lat=location.lat, lng=location.lng

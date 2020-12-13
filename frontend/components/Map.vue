@@ -187,8 +187,16 @@ export default {
       return format(new Date(dt), 'E dd. MMM. yyyy')
     },
     formatRaceDistances(races) {
+      function humanizeDistance(d) {
+        if (d <= 1.5) {
+          return (d * 1000).toFixed(0) + 'm'
+        } else {
+          return d.toFixed(0) + 'km'
+        }
+      }
+
       return races.edges
-        .map((e) => e.node.distance.toFixed(1) + 'km')
+        .map((e) => humanizeDistance(e.node.distance))
         .join(', ')
     },
     getFormattedTravelDistance(location, travelMode) {

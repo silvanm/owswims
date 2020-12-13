@@ -6,7 +6,8 @@ COPY ./frontend/package.json ./frontend/yarn.lock ./
 
 ENV PATH="./node_modules/.bin:$PATH"
 
-ARG GOOGLE_MAPS_KEY
+ARG GOOGLE_MAPS_API_KEY
+ARG GRAPHQL_ENDPOINT
 
 COPY frontend/ ./
 
@@ -24,7 +25,7 @@ CMD ["/bin/entrypoint.sh"]
 
 COPY backend/_docker/* /bin/
 
-RUN apt update && apt install gettext -y && rm -rf /var/lib/apt/lists/*
+RUN apt update && apt install gettext gcc -y && rm -rf /var/lib/apt/lists/*
 RUN pip install poetry
 RUN pip install gunicorn uvicorn uvloop httptools
 COPY backend/pyproject.toml backend/poetry.lock ./

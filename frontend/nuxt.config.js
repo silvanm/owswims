@@ -17,7 +17,7 @@ export default {
   css: [],
 
   env: {
-    googleMapsKey: process.env.GOOGLE_MAPS_KEY,
+    googleMapsKey: process.env.GOOGLE_MAPS_API_KEY,
   },
 
   // Plugins to run before rendering page (https://go.nuxtjs.dev/config-plugins)
@@ -46,7 +46,7 @@ export default {
   apollo: {
     clientConfigs: {
       default: {
-        httpEndpoint: `${process.env.GRAPHQL_ENDPOINT}/graphql`,
+        httpEndpoint: process.env.GRAPHQL_ENDPOINT,
       },
     },
   },

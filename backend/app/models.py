@@ -1,16 +1,20 @@
 from datetime import date
 
+from crum import get_current_request, get_current_user
+from django.contrib.auth.models import User
 from django.db import models
+from django.utils import timezone
 from django_countries.fields import CountryField
 from djmoney.models.fields import MoneyField
+from django_google_maps import fields as map_fields
 
 
 class Location(models.Model):
-    street = models.CharField(max_length=100, blank=True)
     city = models.CharField(max_length=50)
     country = CountryField()
     lat = models.FloatField(null=True, blank=True)
     lng = models.FloatField(null=True, blank=True)
+    address = map_fields.AddressField(max_length=200, default=None, null=True, blank=True)
 
     class Meta:
         ordering = ["city"]
@@ -45,17 +49,28 @@ class Event(models.Model):
     )
     needs_medical_certificate = models.BooleanField(null=True, blank=True)
     needs_license = models.BooleanField(null=True, blank=True)
+    sold_out = models.BooleanField(null=True, blank=True)
+    cancelled = models.BooleanField(null=True, blank=True, default=False)
     date_start = models.DateField()
     date_end = models.DateField()
     water_temp = models.FloatField(null=True, blank=True)
     description = models.TextField(max_length=1024, default="", blank=True)
+    entry_quality = models.CharField(
+        max_length=10,
+        choices=[("incomplete", "Incomplete"), ("complete", "Complete")],
+        null=True,
+        blank=True,
+    )
     water_type = models.CharField(
         max_length=10,
-        choices=[("river", "River"), ("sea", "Sea"), ("lake", "Lake")],
+        choices=[("river", "River"), ("sea", "Sea"), ("lake", "Lake"), ("pool", "Pool")],
         null=True,
         blank=True,
     )
     source = models.CharField(max_length=30, null=True, blank=True)
+    edited_by = models.ForeignKey(User, null=True, help_text='Author who has done the last edit',
+                                  on_delete=models.SET_NULL)
+    edited_at = models.DateTimeField(null=True, help_text='Timestamp of the last edit')
     verified_at = models.DateTimeField(
         null=True, blank=True, help_text="set if the event has been verified by the admin"
     )
@@ -65,6 +80,15 @@ class Event(models.Model):
 
     def is_verified(self):
         return self.verified_at is not None
+
+    def save(self, *args, **kwargs):
+        user = get_current_user()
+        if user and not user.pk:
+            user = None
+        self.edited_by = user
+        self.edited_at = timezone.now()
+        super(Event, self).save(*args, **kwargs)
+
 
     def __str__(self):
         return repr(f"{self.date_start}, {self.name}, {self.location}")

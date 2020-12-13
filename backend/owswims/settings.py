@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     "corsheaders",
     "graphene_django",
     "djmoney",
+    "django_google_maps",
     "app",
 ]
 MIDDLEWARE = [
@@ -66,6 +67,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "app.middleware.DebugMiddleware",
+    "crum.CurrentRequestUserMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
@@ -155,6 +157,6 @@ STATIC_ROOT = os.path.join(BASE_DIR, "static")
 #    os.path.join(FRONTEND_DIR, "dist/static"),
 #]
 
-GMAPS_API_KEY = env.str("GMAPS_API_KEY", "")
+GOOGLE_MAPS_API_KEY = env.str("GOOGLE_MAPS_API_KEY", "")
 
 GRAPHENE = {"SCHEMA": "app.schema.schema"}

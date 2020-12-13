@@ -9,7 +9,7 @@ class Command(BaseCommand):
     help = "Geocodes the locations which are not geocoded yet"
 
     def handle(self, *args, **options):
-        gmaps = googlemaps.Client(key=settings.GMAPS_API_KEY)
+        gmaps = googlemaps.Client(key=settings.GOOGLE_MAPS_API_KEY)
 
         for location in Location.objects.filter(lat__isnull=True):
             geocode_result = gmaps.geocode(f"{location.city}, {location.country.name}")

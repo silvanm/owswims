@@ -9,6 +9,7 @@ import scrapy
 class EventItem(scrapy.Item):
     name = scrapy.Field()
     location = scrapy.Field()
+    address = scrapy.Field()
     races = scrapy.Field()
     wetsuit = scrapy.Field()
     water_type = scrapy.Field()

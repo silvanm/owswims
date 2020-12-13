@@ -4,8 +4,8 @@ export $(egrep -v '^#' ./frontend/.env | xargs)
 
 export GRAPHQL_ENDPOINT=/graphql
 
-docker build --build-arg GOOGLE_MAPS_KEY \
-	--build-arg GRAPHQL_ENDPOINT  -t gcr.io/owswims/app:latest .
+docker build --build-arg GOOGLE_MAPS_API_KEY --build-arg GRAPHQL_ENDPOINT \
+	  -t gcr.io/owswims/app:latest .
 
 docker push gcr.io/owswims/app:latest
 
