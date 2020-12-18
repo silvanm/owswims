@@ -18,7 +18,7 @@
       <Ribbon v-if="!filterCollapsed">alpha</Ribbon>
       <div class="inline">
         <h1 class="text-xl md:text-2xl font-semibold text-primary">
-          🏊🏻‍️ European Open-Water Swims
+          ‍️European Open-Water Swims 🏊
           <CloseButton
             @collapse="filterCollapsed = true"
             @expand="filterCollapsed = false"
@@ -52,7 +52,6 @@
           @change="(e) => (e ? locateMe() : null)"
           ><span id="activate-geolocation">Show Travel times</span></Toggle
         >
-        ⚠️ Shows test data.
       </div>
     </div>
     <EventPane v-if="$store.pickedLocationId"></EventPane>

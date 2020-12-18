@@ -54,7 +54,10 @@ class Event(models.Model):
     date_start = models.DateField()
     date_end = models.DateField()
     water_temp = models.FloatField(null=True, blank=True)
-    description = models.TextField(max_length=1024, default="", blank=True)
+    description = models.TextField(max_length=1024, default="", blank=True,
+                                   help_text='Comment shown to the public')
+    internal_comment = models.TextField(max_length=1024, default="", blank=True,
+                                        help_text='Comment NOT shown to the public')
     entry_quality = models.CharField(
         max_length=10,
         choices=[("incomplete", "Incomplete"), ("complete", "Complete")],
@@ -89,7 +92,6 @@ class Event(models.Model):
         self.edited_at = timezone.now()
         super(Event, self).save(*args, **kwargs)
 
-
     def __str__(self):
         return repr(f"{self.date_start}, {self.name}, {self.location}")
 
@@ -99,7 +101,8 @@ class Race(models.Model):
     Represents a single race at one event
     """
 
-    date = models.DateField()
+    date = models.DateField(help_text="Date of event, in local time")
+    race_time = models.TimeField(help_text="Date and time of event, in local time", default=None, blank=True, null=True)
     event = models.ForeignKey("Event", related_name="races", on_delete=models.CASCADE)
     distance = models.FloatField(verbose_name="Distance (km)")
     name = models.CharField(max_length=30, null=True, blank=True)
