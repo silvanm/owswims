@@ -4,6 +4,7 @@ from crum import get_current_request, get_current_user
 from django.contrib.auth.models import User
 from django.db import models
 from django.utils import timezone
+from django.utils.safestring import mark_safe
 from django_countries.fields import CountryField
 from djmoney.models.fields import MoneyField
 from django_google_maps import fields as map_fields
@@ -15,6 +16,7 @@ class Location(models.Model):
     lat = models.FloatField(null=True, blank=True)
     lng = models.FloatField(null=True, blank=True)
     address = map_fields.AddressField(max_length=200, default=None, null=True, blank=True)
+    header_photo = models.ImageField(upload_to='photos', null=True, blank=True)
 
     class Meta:
         ordering = ["city"]

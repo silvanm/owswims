@@ -64,7 +64,7 @@ function googleMapAdmin() {
       var myOptions = {
         zoom: zoom,
         center: latlng,
-        mapTypeId: self.getMapType(),
+        mapTypeId: google.maps.MapTypeId.HYBRID,
       };
       map = new google.maps.Map(
         document.getElementById("map_canvas"),
@@ -75,8 +75,7 @@ function googleMapAdmin() {
       }
 
       autocomplete = new google.maps.places.Autocomplete(
-        /** @type {!HTMLInputElement} */ (document.getElementById(addressId)),
-        self.getAutoCompleteOptions()
+        document.getElementById(addressId)
       );
 
       // this only triggers on enter, or if a suggested location is chosen
@@ -94,34 +93,6 @@ function googleMapAdmin() {
       });
     },
 
-    getMapType: function () {
-      // https://developers.google.com/maps/documentation/javascript/maptypes
-      var geolocation = document.getElementById(addressId);
-      var allowedType = ["roadmap", "satellite", "hybrid", "terrain"];
-      var mapType = geolocation.getAttribute("data-map-type");
-
-      if (mapType && -1 !== allowedType.indexOf(mapType)) {
-        return mapType;
-      }
-
-      return google.maps.MapTypeId.HYBRID;
-    },
-
-    getAutoCompleteOptions: function () {
-      var geolocation = document.getElementById(addressId);
-      var autocompleteOptions = geolocation.getAttribute(
-        "data-autocomplete-options"
-      );
-
-      if (!autocompleteOptions) {
-        return {
-          types: ["geocode"],
-        };
-      }
-
-      return JSON.parse(autocompleteOptions);
-    },
-
     getExistingLocation: function () {
       var lat = document.getElementById(latId).value;
       var lng = document.getElementById(lngId).value;
@@ -130,6 +101,7 @@ function googleMapAdmin() {
 
     codeAddress: function () {
       var place = autocomplete.getPlace();
+      self.displayPhotos(place.photos);
 
       if (place.geometry !== undefined) {
         self.updateWithCoordinates(place.geometry.location);
@@ -189,6 +161,21 @@ function googleMapAdmin() {
       document.getElementById(latId).value = latlng.lat();
       document.getElementById(lngId).value = latlng.lng();
       $("#" + latId).trigger("change");
+    },
+
+    displayPhotos: function (photos) {
+      document.getElementById("photos").innerHTML = "";
+      photos.forEach((photo) => {
+        var div = document.createElement("div");
+        let src = photo.getUrl({ maxWidth: 600, maxHeight: 600 });
+        div.style = `background-image: url(${src})`;
+        div.className = "places-photo";
+        document.getElementById("photos").appendChild(div);
+        div.addEventListener("click", (e) => {
+          console.log(src);
+          document.getElementById("id_temp_image_url").value = src;
+        });
+      });
     },
   };
 

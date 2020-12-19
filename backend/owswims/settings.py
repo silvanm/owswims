@@ -150,6 +150,7 @@ USE_TZ = True
 
 STATIC_URL = "/static/"
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
+STATICFILES_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
 
 # see https://johnfraney.ca/posts/2019/05/14/integrate-django-vuejs/
 # Vue assets directory (assetsDir)
@@ -157,6 +158,10 @@ STATIC_ROOT = os.path.join(BASE_DIR, "static")
 #    os.path.join(FRONTEND_DIR, "dist/static"),
 #]
 
-GOOGLE_MAPS_API_KEY = env.str("GOOGLE_MAPS_API_KEY", "")
+GOOGLE_MAPS_API_KEY = env.str("GOOGLE_MAPS_API_KEY")
 
 GRAPHENE = {"SCHEMA": "app.schema.schema"}
+
+GOOGLE_APPLICATION_CREDENTIALS = env.str("GOOGLE_APPLICATION_CREDENTIALS")
+DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
+GS_BUCKET_NAME = env.str("GS_BUCKET_NAME", "owswims-local")
