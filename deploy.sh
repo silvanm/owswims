@@ -12,5 +12,4 @@ docker build --build-arg GOOGLE_MAPS_API_KEY --build-arg GRAPHQL_ENDPOINT \
 docker push gcr.io/owswims/app:latest
 
 gcloud config set project owswims
-gcloud run deploy owswims --image gcr.io/owswims/app:latest --platform managed  --region=europe-west1 \
-      --service-account owswims-python@owswims.iam.gserviceaccount.com
+gcloud run deploy owswims --image gcr.io/owswims/app:latest --platform managed  --region=europe-west1

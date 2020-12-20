@@ -8,7 +8,10 @@
         <span v-if="mylocation.lat">
           Travel time: {{ getFormattedTravelDistance(pickedEvent, 'DRIVING') }}
         </span>
-        <div v-for="event in pickedEvent.events.edges" :key="event.node.id">
+        <div
+          v-for="event in pickedLocationData.allEvents.edges"
+          :key="event.node.id"
+        >
           <div style="margin-top: 10px">
             {{ formatEventDate(event.node.dateStart) }}<br />
             <a :href="event.node.website" class="font-semibold">{{
@@ -25,65 +28,12 @@
 </template>
 <script>
 import MarkerClusterer from '@googlemaps/markerclustererplus'
-import { addMonths, formatDistance, formatISO } from 'date-fns'
+import { formatDistance } from 'date-fns'
 import eventPresentation from '@/mixins/eventPresentation'
 import { mapGetters } from 'vuex'
-import gql from 'graphql-tag'
 
 export default {
   mixins: [eventPresentation],
-  apollo: {
-    allEvents: {
-      query: gql`
-        query(
-          $distanceFrom: Float!
-          $distanceTo: Float!
-          $dateFrom: Date!
-          $dateTo: Date!
-          $locationId: ID!
-        ) {
-          allEvents(
-            dateFrom: $dateFrom
-            dateTo: $dateTo
-            location: $locationId
-          ) {
-            edges {
-              node {
-                id
-                name
-                dateStart
-                dateEnd
-                website
-                races(distance_Gte: $distanceFrom, distance_Lte: $distanceTo) {
-                  edges {
-                    node {
-                      distance
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      `,
-      variables() {
-        return {
-          locationId: this.pickedLocationId,
-          distanceFrom: this.distanceFrom,
-          distanceTo: this.distanceTo,
-          dateFrom: formatISO(addMonths(new Date(), this.dateRange[0]), {
-            representation: 'date',
-          }),
-          dateTo: formatISO(addMonths(new Date(), this.dateRange[1]), {
-            representation: 'date',
-          }),
-        }
-      },
-      watchLoading(isLoading, countModifier) {
-        this.isLoading = isLoading
-      },
-    },
-  },
   props: {
     google: {
       type: Object,
@@ -126,7 +76,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['mylocation']),
+    ...mapGetters(['mylocation', 'pickedLocationData']),
   },
   watch: {
     locations(newlocations, oldlocations) {

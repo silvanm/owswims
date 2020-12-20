@@ -17,7 +17,10 @@
       </div>
       <div class="p-4">
         <ul>
-          <li v-for="event in location.events.edges" :key="event.node.id">
+          <li
+            v-for="event in pickedLocationData.allEvents.edges"
+            :key="event.node.id"
+          >
             {{ formatEventDate(event.node.dateStart) }}
             <h3 class="text-xl font-bold">{{ event.node.name }}</h3>
             <div v-if="event.node.description">
@@ -54,26 +57,6 @@ export default {
             country
             city
             headerPhoto
-            events {
-              edges {
-                node {
-                  dateStart
-                  name
-                  races {
-                    edges {
-                      node {
-                        date
-                        raceTime
-                        name
-                        distance
-                        wetsuit
-                        priceValue
-                      }
-                    }
-                  }
-                }
-              }
-            }
           }
         }
       `,
@@ -89,7 +72,7 @@ export default {
   },
 
   computed: {
-    ...mapGetters(['pickedLocationId']),
+    ...mapGetters(['pickedLocationId', 'pickedLocationData']),
   },
 }
 </script>
