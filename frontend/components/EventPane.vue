@@ -1,53 +1,51 @@
 <template>
-  <div class="bg-white p-4 md:p-6 mt-4 relative">
-    Picked Location Id: {{ pickedLocationId }}
-
+  <div class="bg-white mt-4 relative">
     <div v-if="location">
-      {{ location.city }}
-      {{ location.country }}
-
-      <input v-model="location.city" type="text" />
-      <button @click="save">Save</button>
+      <div
+        id="event-pane-header"
+        :style="{ backgroundImage: `url(${location.headerPhoto})` }"
+      >
+        <div id="overlay"></div>
+        <div class="p-4">
+          <h2
+            class="text-3xl font-bold text-white absolute bottom-0"
+            style="bottom: 4px"
+          >
+            {{ location.city }}, {{ location.country }}
+          </h2>
+        </div>
+      </div>
+      <div class="p-4">
+        <ul>
+          <li v-for="event in location.events.edges" :key="event.node.id">
+            {{ formatEventDate(event.node.dateStart) }}
+            <h3 class="text-xl font-bold">{{ event.node.name }}</h3>
+            <div v-if="event.node.description">
+              {{ event.node.description }}
+            </div>
+            <table>
+              <tr v-for="race in event.node.races.edges" :key="race.node.id">
+                <td>{{ formatEventDate(race.node.date, true) }}</td>
+                <td>{{ humanizeDistance(race.node.distance) }}</td>
+                <td>{{ race.node.name }}</td>
+                <td v-if="race.node.priceValue !== 'None'">
+                  {{ race.node.priceValue }}{{ race.node.priceCurrency }}
+                </td>
+              </tr>
+            </table>
+          </li>
+        </ul>
+      </div>
     </div>
-
-    <!--
-    <h2>Paris, France</h2>
-
-    <div>
-      <h3>Sat 18. Jul. 2020</h3>
-      <p>Open Swim Stars Paris</p>
-      <p>10.0km, 5.0km, 2.0km, 1.0km</p>
-    </div>
-
-    <div>
-      <h3>Sun 13. Sep. 2020</h3>
-      <p>EDF Aqua Challenge Paris</p>
-      <p>5.0km, 2.5km, 1.3km</p>
-    </div>
-    <h1 class="text-xl font-semibold">
-          {{ pickedLocation.city }}, {{ pickedLocation.country }}
-        </h1>
-        <span v-if="mylocation.lat">
-          Travel time:
-          {{ formattedTravelDistance }}
-        </span>
-        <div v-for="event in allEvents.edges" :key="event.node.id">
-          <div style="margin-top: 10px">
-            {{ formatEventDate(event.node.dateStart) }}<br />
-            <a :href="event.node.website" class="font-semibold">{{
-              event.node.name
-            }}</a
-            ><br />
-            {{ formatRaceDistances(event.node.races) }}
-          </div>
-        </div> -->
   </div>
 </template>
 <script>
 import { mapGetters } from 'vuex'
 import gql from 'graphql-tag'
+import eventPresentation from '@/mixins/eventPresentation'
 
 export default {
+  mixins: [eventPresentation],
   apollo: {
     location: {
       query: gql`
@@ -55,6 +53,27 @@ export default {
           location(id: $locationId) {
             country
             city
+            headerPhoto
+            events {
+              edges {
+                node {
+                  dateStart
+                  name
+                  races {
+                    edges {
+                      node {
+                        date
+                        raceTime
+                        name
+                        distance
+                        wetsuit
+                        priceValue
+                      }
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       `,
@@ -68,14 +87,24 @@ export default {
       },
     },
   },
-  date() {
-    return {}
-  },
+
   computed: {
     ...mapGetters(['pickedLocationId']),
   },
-  methods: {
-    save() {},
-  },
 }
 </script>
+<style lang="scss" scoped>
+#event-pane-header {
+  position: relative;
+  background-size: cover;
+  background-position: center;
+  height: 160px;
+}
+
+#overlay {
+  position: absolute;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.5));
+  width: 100%;
+  height: 160px;
+}
+</style>

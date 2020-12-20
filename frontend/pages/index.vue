@@ -54,7 +54,7 @@
         >
       </div>
     </div>
-    <EventPane v-if="$store.pickedLocationId"></EventPane>
+    <EventPane v-if="$store.getters.pickedLocationId"></EventPane>
   </div>
 </template>
 

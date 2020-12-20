@@ -24,4 +24,7 @@ export const getters = {
   pickedLocationId(s) {
     return s.pickedLocationId
   },
+  hello(s) {
+    return 'hello'
+  },
 }

@@ -30,7 +30,10 @@ class LocationForm(forms.ModelForm):
                 # is-there-a-way-to-stream-data-directly-from-python-request-to-minio-bucket/59999799#59999799
                 r.raw.seek = lambda x, y: 0
                 r.raw.size = int(r.headers["Content-Length"])
-                self.instance.header_photo.save('filename.jpg', r.raw, save=True)
+                import uuid
+                # @todo add support for other image types
+                filename=uuid.uuid4().hex.upper()[0:10] + '.jpeg'
+                self.instance.header_photo.save(filename, r.raw, save=True)
 
         return super(LocationForm, self).save(commit=commit)
 
@@ -51,7 +54,7 @@ class LocationAdmin(admin.ModelAdmin):
 
     def image_display(self, obj):
         if obj.header_photo:
-            return mark_safe('<div style="display:inline-block;width:200px;height:50px;'
+            return mark_safe('<div style="display:inline-block;width:300px;height:100px;'
                              'background-image:url(%s);background-position: center;'
                              'background-size: cover;"></div>' % (obj.header_photo.url))
         else:

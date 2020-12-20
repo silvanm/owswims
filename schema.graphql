@@ -55,19 +55,27 @@ type EventMutationPayload {
 }
 
 type EventNode implements Node {
+    cancelled: Boolean
     dateEnd: Date!
     dateStart: Date!
+    "Comment shown to the public"
     description: String!
+    "Timestamp of the last edit"
+    editedAt: DateTime
+    entryQuality: EventEntryQuality
     "The ID of the object."
     id: ID!
+    "Comment NOT shown to the public"
+    internalComment: String!
     location: LocationNode
     name: String!
     needsLicense: Boolean
     needsMedicalCertificate: Boolean
     races(after: String, before: String, distance_Gte: Float, distance_Lte: Float, first: Int, last: Int): RaceNodeConnection!
+    soldOut: Boolean
     source: String
     "set if the event has been verified by the admin"
-    verifiedAt: Date
+    verifiedAt: DateTime
     waterTemp: Float
     waterType: EventWaterType
     website: String!
@@ -97,11 +105,11 @@ type LocationNode implements Node {
     city: String!
     country: LocationCountry!
     events(after: String, before: String, dateEnd_Gte: Date, dateEnd_Lte: Date, dateStart_Gte: Date, dateStart_Lte: Date, first: Int, last: Int, location: ID, location_City: String, location_City_Icontains: String, location_Country: String, name: String, website: String): EventNodeConnection!
+    headerPhoto: String
     "The ID of the object."
     id: ID!
     lat: Float
     lng: Float
-    street: String!
 }
 
 type LocationNodeConnection {
@@ -148,6 +156,7 @@ type Query {
 }
 
 type RaceNode implements Node {
+    "Date of event, in local time"
     date: Date!
     distance: Float!
     event: EventNode!
@@ -156,6 +165,8 @@ type RaceNode implements Node {
     name: String
     price: Float
     priceCurrency: RacePriceCurrency!
+    "Date and time of event, in local time"
+    raceTime: Time
     wetsuit: RaceWetsuit
 }
 
@@ -175,9 +186,19 @@ type RaceNodeEdge {
 }
 
 "An enumeration."
+enum EventEntryQuality {
+    "Complete"
+    COMPLETE
+    "Incomplete"
+    INCOMPLETE
+}
+
+"An enumeration."
 enum EventWaterType {
     "Lake"
     LAKE
+    "Pool"
+    POOL
     "River"
     RIVER
     "Sea"
@@ -1097,3 +1118,17 @@ value as specified by
 [iso8601](https://en.wikipedia.org/wiki/ISO_8601).
 """
 scalar Date
+
+"""
+The `DateTime` scalar type represents a DateTime
+value as specified by
+[iso8601](https://en.wikipedia.org/wiki/ISO_8601).
+"""
+scalar DateTime
+
+"""
+The `Time` scalar type represents a Time value as
+specified by
+[iso8601](https://en.wikipedia.org/wiki/ISO_8601).
+"""
+scalar Time

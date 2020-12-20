@@ -25,11 +25,13 @@
 </template>
 <script>
 import MarkerClusterer from '@googlemaps/markerclustererplus'
-import { addMonths, format, formatDistance, formatISO } from 'date-fns'
+import { addMonths, formatDistance, formatISO } from 'date-fns'
+import eventPresentation from '@/mixins/eventPresentation'
 import { mapGetters } from 'vuex'
 import gql from 'graphql-tag'
 
 export default {
+  mixins: [eventPresentation],
   apollo: {
     allEvents: {
       query: gql`
@@ -183,20 +185,9 @@ export default {
         this.map.panTo(myLatLng)
       }
     },
-    formatEventDate(dt) {
-      return format(new Date(dt), 'E dd. MMM. yyyy')
-    },
     formatRaceDistances(races) {
-      function humanizeDistance(d) {
-        if (d <= 1.5) {
-          return (d * 1000).toFixed(0) + 'm'
-        } else {
-          return d.toFixed(0) + 'km'
-        }
-      }
-
       return races.edges
-        .map((e) => humanizeDistance(e.node.distance))
+        .map((e) => this.humanizeDistance(e.node.distance))
         .join(', ')
     },
     getFormattedTravelDistance(location, travelMode) {

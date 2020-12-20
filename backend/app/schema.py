@@ -10,11 +10,24 @@ from graphql_relay import from_global_id
 from app.models import Location, Race, Event
 
 
+def get_header_photo_url(obj, resolve_obj):
+    if obj.header_photo:
+        return obj.header_photo.url
+    else:
+        return None
+
+
 class LocationNode(DjangoObjectType):
     class Meta:
         model = Location
         filter_fields = ["city", "country", "events"]
+        fields = ("city", "country", "lat", "lng", "events", "header_photo")
         interfaces = (Node,)
+
+    # returns the URL of the header photo
+    # see # see https://stackoverflow.com/questions/52767366/ \
+    # how-can-i-resolve-custom-fields-for-django-models-using-django-graphene
+    header_photo = graphene.String(resolver=get_header_photo_url)
 
 
 class LocationNodeFilter(django_filters.FilterSet):
@@ -40,7 +53,10 @@ class RaceNode(DjangoObjectType):
     class Meta:
         model = Race
         filter_fields = {"distance": ["lte", "gte"]}
+        fields=("date", "race_time", "name", "distance", "wetsuit", "price_value", "price_currency")
         interfaces = (Node,)
+
+    price_value = graphene.String(resolver=lambda obj, resolve_obj: str(obj.price))
 
 
 class EventNode(DjangoObjectType):
