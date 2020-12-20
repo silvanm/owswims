@@ -34,6 +34,8 @@ RUN poetry install --no-interaction --no-dev
 COPY backend/ ./
 
 ARG SECRET_KEY
+ARG GOOGLE_APPLICATION_CREDENTIALS
+ARG GOOGLE_MAPS_API_KEY
 
 COPY --from=frontend /dist/static/ /dist/index.html static/
 RUN python ./manage.py collectstatic --noinput
