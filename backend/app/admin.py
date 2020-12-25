@@ -91,7 +91,7 @@ class EventAdmin(admin.ModelAdmin):
     list_display_links = ("name",)
     list_filter = ("water_type", "source", IsVerifiedFilter, "organizer", "entry_quality")
     search_fields = ['name', 'location__city', 'location__country', 'organizer__name']
-    readonly_fields = ["edited_by", "edited_at"]
+    exclude = ["edited_by", "edited_at"]
     inlines = [
         RaceInline,
     ]

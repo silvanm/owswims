@@ -1,5 +1,6 @@
 import gql from 'graphql-tag'
 import { addMonths, formatISO } from 'date-fns'
+// import calculateDistance from '@assets/js/calculateDistance'
 
 export const state = () => ({
   lat: null,
@@ -8,6 +9,7 @@ export const state = () => ({
   distanceRange: [0, 30],
   dateRange: [0, 12],
   pickedLocationData: null,
+  travelTimes: [],
 })
 
 export const mutations = {
@@ -30,6 +32,11 @@ export const mutations = {
             $dateTo: Date!
             $locationId: ID!
           ) {
+            location(id: $locationId) {
+              country
+              city
+              headerPhoto
+            }
             allEvents(
               dateFrom: $dateFrom
               dateTo: $dateTo
@@ -86,6 +93,9 @@ export const mutations = {
   dateRange(s, id) {
     s.dateRange = id
   },
+  travelTimes(s, id) {
+    s.travelTimes = id
+  },
 }
 
 export const getters = {
@@ -106,5 +116,8 @@ export const getters = {
   },
   pickedLocationData(s) {
     return s.pickedLocationData
+  },
+  travelTimes(s) {
+    return s.travelTimes
   },
 }

@@ -4,7 +4,6 @@
       <Map
         v-if="locationsFiltered"
         ref="map"
-        :google="google"
         :locations="locationsFiltered"
         :lat="lat"
         :lng="lng"
@@ -23,7 +22,7 @@
 import gql from 'graphql-tag'
 import { addMonths, formatISO } from 'date-fns'
 import 'assets/slider.css'
-import { Loader } from 'google-maps'
+// import { Loader } from 'google-maps'
 import Spinner from '@/components/Spinner'
 import Tour from '@/components/Tour'
 import EventPane from '@/components/EventPane'
@@ -87,8 +86,8 @@ export default {
     ...mapGetters(['distanceRange', 'dateRange']),
   },
   async mounted() {
-    const loader = new Loader(process.env.googleMapsKey, { version: 'beta' })
-    this.google = await loader.load()
+    // const loader = new Loader(process.env.googleMapsKey, { version: 'beta' })
+    this.google = await this.$google()
   },
   methods: {},
 }

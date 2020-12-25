@@ -53,12 +53,13 @@ class Event(models.Model):
     needs_license = models.BooleanField(null=True, blank=True)
     sold_out = models.BooleanField(null=True, blank=True)
     cancelled = models.BooleanField(null=True, blank=True, default=False)
+    with_ranking = models.BooleanField(null=True, blank=True)
     date_start = models.DateField()
     date_end = models.DateField()
     water_temp = models.FloatField(null=True, blank=True)
-    description = models.TextField(max_length=1024, default="", blank=True,
+    description = models.TextField(max_length=2048, default="", blank=True,
                                    help_text='Comment shown to the public')
-    internal_comment = models.TextField(max_length=1024, default="", blank=True,
+    internal_comment = models.TextField(max_length=2048, default="", blank=True,
                                         help_text='Comment NOT shown to the public')
     entry_quality = models.CharField(
         max_length=10,

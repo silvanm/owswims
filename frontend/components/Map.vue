@@ -31,14 +31,11 @@ import MarkerClusterer from '@googlemaps/markerclustererplus'
 import { formatDistance } from 'date-fns'
 import eventPresentation from '@/mixins/eventPresentation'
 import { mapGetters } from 'vuex'
+import calculateDistance from 'assets/js/calculateDistance'
 
 export default {
   mixins: [eventPresentation],
   props: {
-    google: {
-      type: Object,
-      default: null,
-    },
     locations: {
       type: Array,
       default: () => {
@@ -104,7 +101,8 @@ export default {
       }
     },
   },
-  mounted() {
+  async mounted() {
+    this.google = await this.$google()
     this.map = new this.google.maps.Map(document.getElementById('map'), {
       center: { lat: 47.3474476, lng: 8.6733976 },
       zoom: 5,
@@ -143,12 +141,17 @@ export default {
     getFormattedTravelDistance(location, travelMode) {
       console.log('getFormattedTravelDistance', location)
       const k = `${location.lat},${location.lng}`
-      if (k in this.travelTimes && this.travelTimes[k][travelMode] !== null) {
+      if (
+        k in this.$store.getters.travelTimes &&
+        this.$store.getters.travelTimes[k] !== null
+      ) {
         const formatDuration = (s) => formatDistance(0, s * 1000)
 
-        return `${formatDuration(this.travelTimes[k][travelMode].duration)} (${(
-          this.travelTimes[k][travelMode].distance / 1000
-        ).toFixed(0)}km)`
+        return `${formatDuration(
+          this.$store.getters.travelTimes[k].duration
+        )} (${(this.$store.getters.travelTimes[k].distance / 1000).toFixed(
+          0
+        )}km)`
       } else {
         return '?'
       }
@@ -191,6 +194,10 @@ export default {
           infowindow.close()
           this.calculateDistance(this.location, () => {
             console.log('Distance calculated callback')
+            this.formattedTravelDistance = this.getFormattedTravelDistance(
+              location,
+              'DRIVING'
+            )
             infowindow.open(this.map, this.markerObj)
           })
         })
@@ -217,70 +224,9 @@ export default {
         clusterClass: 'custom-clustericon',
       })
     },
-    calculateDistance(location, callback) {
-      const requestedDestinations = []
-      // Calculate distance for those destinations within the viewport.
-      const k = `${location.lat},${location.lng}`
-      if (!(k in this.travelTimes)) {
-        requestedDestinations.push(k)
-      }
-
-      const service = new this.google.maps.DistanceMatrixService()
-
-      const travelModes = [this.google.maps.TravelMode.DRIVING]
-
-      if (requestedDestinations.length === 0) callback()
-
-      const promises = travelModes.map((travelMode) => {
-        // Using DistanceMatrix for a 1x1 matrix is a bit pointless. But
-        // I think the directions service is a bit too heavy for this kind of task.
-        return service.getDistanceMatrix({
-          origins: [
-            new this.google.maps.LatLng(
-              this.mylocation.lat,
-              this.mylocation.lng
-            ),
-          ],
-          destinations: [k],
-          transitOptions: {
-            // @todo: Is a hardcoded year really good here?
-            departureTime: new Date(2020, 8, 2, 8, 0, 0),
-          },
-          travelMode,
-          unitSystem: this.google.maps.UnitSystem.METRIC,
-        })
-      })
-
-      // @todo simplify this
-      Promise.all(promises).then((values) => {
-        values.forEach((value, ix) => {
-          const results = value.rows[0].elements
-          console.log('Got distancematrix result', results)
-          for (let j = 0; j < results.length; j++) {
-            if (!this.travelTimes[requestedDestinations[j]]) {
-              this.travelTimes[requestedDestinations[j]] = {
-                DRIVING: null,
-                TRANSIT: null,
-              }
-            }
-
-            if (results[j].status === 'OK') {
-              this.travelTimes[requestedDestinations[j]][travelModes[ix]] = {
-                distance: results[j].distance.value,
-                duration: results[j].duration.value,
-              }
-            } else {
-              this.travelTimes[requestedDestinations[j]][travelModes[ix]] = null
-            }
-          }
-        })
-        this.formattedTravelDistance = this.getFormattedTravelDistance(
-          location,
-          'DRIVING'
-        )
-
-        callback()
-      })
+    async calculateDistance(location, callback) {
+      const google = await this.$google()
+      calculateDistance(google, location, this.$store, callback)
     },
   },
 }

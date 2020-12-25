@@ -1,17 +1,23 @@
 <template>
-  <div class="bg-white mt-4 relative">
-    <div v-if="location">
+  <div class="bg-white mt-4 relative" v-if="!isClosed">
+    <div v-if="pickedLocationData">
       <div
         id="event-pane-header"
-        :style="{ backgroundImage: `url(${location.headerPhoto})` }"
+        :style="{
+          backgroundImage: `url(${pickedLocationData.location.headerPhoto})`,
+        }"
       >
         <div id="overlay"></div>
+        <h1 class="p-5 absolute right-0">
+          <CloseButton @collapse="close"></CloseButton>
+        </h1>
         <div class="p-4">
           <h2
             class="text-3xl font-bold text-white absolute bottom-0"
             style="bottom: 4px"
           >
-            {{ location.city }}, {{ location.country }}
+            {{ pickedLocationData.location.city }},
+            {{ pickedLocationData.location.country }}
           </h2>
         </div>
       </div>
@@ -46,8 +52,10 @@
 import { mapGetters } from 'vuex'
 import gql from 'graphql-tag'
 import eventPresentation from '@/mixins/eventPresentation'
+import CloseButton from '@/components/CloseButton'
 
 export default {
+  components: { CloseButton },
   mixins: [eventPresentation],
   apollo: {
     location: {
@@ -70,9 +78,23 @@ export default {
       },
     },
   },
-
+  data() {
+    return {
+      isClosed: false,
+    }
+  },
+  watch: {
+    pickedLocationId(newVal, oldVal) {
+      this.isClosed = false
+    },
+  },
   computed: {
     ...mapGetters(['pickedLocationId', 'pickedLocationData']),
+  },
+  methods: {
+    close() {
+      this.isClosed = true
+    },
   },
 }
 </script>
