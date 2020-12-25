@@ -7,29 +7,29 @@ const calculateDistance = function (
   const requestedDestinations = []
   // Calculate distance for those destinations within the viewport.
   const k = `${location.lat},${location.lng}`
-  console.log(store)
   if (!(k in store.getters.travelTimes)) {
     requestedDestinations.push(k)
   }
 
   const travelTimes = store.getters.travelTimes
-
   const service = new google.maps.DistanceMatrixService()
-
   const travelModes = [google.maps.TravelMode.DRIVING]
 
-  if (requestedDestinations.length === 0) return
+  if (requestedDestinations.length === 0) {
+    callback()
+  }
 
+  // only calculate if we have position via browser - and not via IP
+  if (!store.getters.mylocation.isAccurate) {
+    callback()
+  }
+
+  // this would allow calculating travel distance for both driving and train
   const promises = travelModes.map((travelMode) => {
     // Using DistanceMatrix for a 1x1 matrix is a bit pointless. But
     // I think the directions service is a bit too heavy for this kind of task.
     return service.getDistanceMatrix({
-      origins: [
-        new google.maps.LatLng(
-          store.getters.mylocation.lat,
-          store.getters.mylocation.lng
-        ),
-      ],
+      origins: [store.getters.mylocation.latlng],
       destinations: [k],
       transitOptions: {
         // @todo: Is a hardcoded year really good here?

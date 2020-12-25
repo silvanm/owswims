@@ -5,6 +5,7 @@ import { addMonths, formatISO } from 'date-fns'
 export const state = () => ({
   lat: null,
   lng: null,
+  isAccurate: false,
   pickedLocationId: null,
   distanceRange: [0, 30],
   dateRange: [0, 12],
@@ -13,14 +14,13 @@ export const state = () => ({
 })
 
 export const mutations = {
-  mylocation(s, latlng) {
-    s.lat = latlng.lat
-    s.lng = latlng.lng
+  mylocation(s, data) {
+    s.lat = data.latlng.lat
+    s.lng = data.latlng.lng
+    s.isAccurate = data.isAccurate
   },
   pickedLocationId(s, id) {
     s.pickedLocationId = id
-    console.log(s)
-
     const client = this.app.apolloProvider.defaultClient
     client
       .query({
@@ -101,8 +101,11 @@ export const mutations = {
 export const getters = {
   mylocation(s) {
     return {
-      lat: s.lat,
-      lng: s.lng,
+      isAccurate: s.isAccurate,
+      latlng: {
+        lat: s.lat,
+        lng: s.lng,
+      },
     }
   },
   pickedLocationId(s) {

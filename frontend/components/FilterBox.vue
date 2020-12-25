@@ -88,8 +88,11 @@ export default {
             `storing position lat=${position.coords.latitude}, lng=${position.coords.longitude}`
           )
           store.commit('mylocation', {
-            lat: position.coords.latitude,
-            lng: position.coords.longitude,
+            isAccurate: true,
+            latlng: {
+              lat: position.coords.latitude,
+              lng: position.coords.longitude,
+            },
           })
           this.isLoading = false
         },

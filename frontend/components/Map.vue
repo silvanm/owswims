@@ -79,8 +79,16 @@ export default {
     locations(newlocations, oldlocations) {
       this.updateMarker()
     },
+    /**
+     * Update location marker based on currently detected position
+     * @param {google.maps.LatLng|google.maps.ReadonlyLatLngLiteral} newLocation
+     */
     mylocation(newLocation, oldLocation) {
-      if (newLocation.lat && newLocation.lng) {
+      if (
+        newLocation.latlng.lat &&
+        newLocation.latlng.lng &&
+        newLocation.isAccurate
+      ) {
         const icon = {
           path:
             'M 25, 50\n' +
@@ -95,7 +103,7 @@ export default {
         }
         this.myLocationMarker = new this.google.maps.Marker({
           icon,
-          position: newLocation,
+          position: newLocation.latlng,
           map: this.map,
         })
       }
@@ -103,8 +111,16 @@ export default {
   },
   async mounted() {
     this.google = await this.$google()
+    let center
+    if (this.mylocation.latlng.lat && this.mylocation.latlng.lng) {
+      center = this.mylocation.latlng
+    } else {
+      // fallback to switzerland
+      center = { lat: 47.3474476, lng: 8.6733976 }
+    }
+
     this.map = new this.google.maps.Map(document.getElementById('map'), {
-      center: { lat: 47.3474476, lng: 8.6733976 },
+      center,
       zoom: 5,
       disableDefaultUI: false,
       mapTypeId: 'satellite',
@@ -125,10 +141,10 @@ export default {
       }
     },
     centerMap() {
-      if (this.lat && this.lng) {
+      if (this.latlng.mylocation.lat && this.mylocation.latlng.lng) {
         const myLatLng = new this.google.maps.LatLng(
-          this.mylocation.lat,
-          this.mylocation.lng
+          this.latlng.mylocation.lat,
+          this.latlng.mylocation.lng
         )
         this.map.panTo(myLatLng)
       }
@@ -139,7 +155,6 @@ export default {
         .join(', ')
     },
     getFormattedTravelDistance(location, travelMode) {
-      console.log('getFormattedTravelDistance', location)
       const k = `${location.lat},${location.lng}`
       if (
         k in this.$store.getters.travelTimes &&

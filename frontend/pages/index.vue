@@ -22,12 +22,12 @@
 import gql from 'graphql-tag'
 import { addMonths, formatISO } from 'date-fns'
 import 'assets/slider.css'
-// import { Loader } from 'google-maps'
 import Spinner from '@/components/Spinner'
 import Tour from '@/components/Tour'
 import EventPane from '@/components/EventPane'
 import FilterBox from '@/components/FilterBox'
 import { mapGetters } from 'vuex'
+import axios from 'axios'
 
 export default {
   components: { FilterBox, EventPane, Spinner, Tour },
@@ -86,9 +86,21 @@ export default {
     ...mapGetters(['distanceRange', 'dateRange']),
   },
   async mounted() {
-    // const loader = new Loader(process.env.googleMapsKey, { version: 'beta' })
     this.google = await this.$google()
+
+    // detect coarse position via IP
+    const response = await axios.post(
+      'https://www.googleapis.com/geolocation/v1/geolocate?key=' +
+        process.env.googleMapsKey,
+      { considerIp: 'true' }
+    )
+
+    if (response.data.location) {
+      this.$store.commit('mylocation', {
+        isAccurate: false,
+        latlng: response.data.location,
+      })
+    }
   },
-  methods: {},
 }
 </script>
