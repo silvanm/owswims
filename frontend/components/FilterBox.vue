@@ -1,14 +1,17 @@
 <template>
   <div id="filter">
-    <div class="bg-white p-4 md:p-6 relative overflow-hidden">
+    <div class="bg-white p-4 lg:p-6 relative overflow-hidden">
       <Ribbon v-if="!filterCollapsed">alpha</Ribbon>
       <div class="inline">
         <h1 class="text-xl md:text-2xl font-semibold text-primary">
           ‍️European Open-Water Swims 🏊
-          <CloseButton
-            @collapse="filterCollapsed = true"
-            @expand="filterCollapsed = false"
-          ></CloseButton>
+          <span class="text-base">
+            <CloseButton
+              ref="closebutton"
+              @collapse="filterCollapsed = true"
+              @expand="filterCollapsed = false"
+            ></CloseButton>
+          </span>
         </h1>
       </div>
       <div
@@ -61,7 +64,6 @@ export default {
       lng: null,
       geoLocationEnabled: false,
       filterCollapsed: false,
-      isLoading: false,
     }
   },
   watch: {
@@ -79,14 +81,10 @@ export default {
       this.$store.commit('dateRange', range)
     },
     locateMe() {
-      console.log('Locating me')
-      this.isLoading = true
       const store = this.$store
+      store.commit('isLoading', true)
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          console.log(
-            `storing position lat=${position.coords.latitude}, lng=${position.coords.longitude}`
-          )
           store.commit('mylocation', {
             isAccurate: true,
             latlng: {
@@ -94,13 +92,17 @@ export default {
               lng: position.coords.longitude,
             },
           })
-          this.isLoading = false
+          store.commit('isLoading', false)
         },
         () => {
-          this.isLoading = false
-          console.log('Geolocation has failed')
+          store.commit('isLoading', false)
         }
       )
+    },
+    collapse() {
+      if (this.$device.isMobile()) {
+        this.$refs.closebutton.collapse()
+      }
     },
   },
 }

@@ -11,6 +11,7 @@ export const state = () => ({
   dateRange: [0, 12],
   pickedLocationData: null,
   travelTimes: [],
+  isLoading: false,
 })
 
 export const mutations = {
@@ -36,6 +37,8 @@ export const mutations = {
               country
               city
               headerPhoto
+              lat
+              lng
             }
             allEvents(
               dateFrom: $dateFrom
@@ -49,6 +52,18 @@ export const mutations = {
                   dateStart
                   dateEnd
                   website
+                  description
+                  needsMedicalCertificate
+                  needsLicense
+                  soldOut
+                  cancelled
+                  withRanking
+                  waterTemp
+                  waterType
+                  organizer {
+                    name
+                    website
+                  }
                   races(
                     distance_Gte: $distanceFrom
                     distance_Lte: $distanceTo
@@ -96,6 +111,9 @@ export const mutations = {
   travelTimes(s, id) {
     s.travelTimes = id
   },
+  isLoading(s, isLoading) {
+    s.isLoading = isLoading
+  },
 }
 
 export const getters = {
@@ -122,5 +140,8 @@ export const getters = {
   },
   travelTimes(s) {
     return s.travelTimes
+  },
+  isLoading(s) {
+    return s.isLoading
   },
 }

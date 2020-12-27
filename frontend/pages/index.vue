@@ -10,10 +10,11 @@
         :distance-from="distanceRange[0]"
         :distance-to="distanceRange[1]"
         :date-range="dateRange"
+        @locationPicked="locationPicked()"
       />
     </client-only>
     <Spinner :show="isLoading"></Spinner>
-    <FilterBox></FilterBox>
+    <FilterBox ref="filterbox"></FilterBox>
     <EventPane v-if="$store.getters.pickedLocationId"></EventPane>
   </div>
 </template>
@@ -22,6 +23,7 @@
 import gql from 'graphql-tag'
 import { addMonths, formatISO } from 'date-fns'
 import 'assets/slider.css'
+import 'assets/v-tooltip.css'
 import Spinner from '@/components/Spinner'
 import Tour from '@/components/Tour'
 import EventPane from '@/components/EventPane'
@@ -67,9 +69,6 @@ export default {
         }
       },
       debounce: 200,
-      watchLoading(isLoading, countModifier) {
-        this.isLoading = isLoading
-      },
     },
   },
   data() {
@@ -79,11 +78,10 @@ export default {
       lng: null,
       geoLocationEnabled: false,
       filterCollapsed: false,
-      isLoading: false,
     }
   },
   computed: {
-    ...mapGetters(['distanceRange', 'dateRange']),
+    ...mapGetters(['distanceRange', 'dateRange', 'isLoading']),
   },
   async mounted() {
     this.google = await this.$google()
@@ -102,5 +100,24 @@ export default {
       })
     }
   },
+  methods: {
+    locationPicked() {
+      console.log('collapse filterbox')
+      this.$refs.filterbox.collapse()
+    },
+  },
 }
 </script>
+<style lang="scss">
+body {
+  position: fixed;
+}
+
+a {
+  @apply text-blue-600;
+}
+
+a:hover {
+  @apply underline;
+}
+</style>

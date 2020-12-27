@@ -7,6 +7,7 @@ export GOOGLE_APPLICATION_CREDENTIALS=''
 
 docker build --build-arg GOOGLE_MAPS_API_KEY --build-arg GRAPHQL_ENDPOINT \
     --build-arg GOOGLE_APPLICATION_CREDENTIALS \
+    --build-arg DEFAULT_HEADER_IMAGE \
 	  -t gcr.io/owswims/app:latest .
 
 docker push gcr.io/owswims/app:latest

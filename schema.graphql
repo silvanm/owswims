@@ -71,6 +71,7 @@ type EventNode implements Node {
     name: String!
     needsLicense: Boolean
     needsMedicalCertificate: Boolean
+    organizer: OrganizerNode
     races(after: String, before: String, distance_Gte: Float, distance_Lte: Float, first: Int, last: Int): RaceNodeConnection!
     soldOut: Boolean
     source: String
@@ -79,6 +80,7 @@ type EventNode implements Node {
     waterTemp: Float
     waterType: EventWaterType
     website: String!
+    withRanking: Boolean
 }
 
 type EventNodeConnection {
@@ -132,6 +134,14 @@ type Mutation {
     updateLocation(input: LocationMutationInput!): LocationMutationPayload
 }
 
+type OrganizerNode implements Node {
+    events(after: String, before: String, dateEnd_Gte: Date, dateEnd_Lte: Date, dateStart_Gte: Date, dateStart_Lte: Date, first: Int, last: Int, location: ID, location_City: String, location_City_Icontains: String, location_Country: String, name: String, website: String): EventNodeConnection!
+    "The ID of the object."
+    id: ID!
+    name: String!
+    website: String!
+}
+
 "The Relay compliant `PageInfo` type, containing data necessary to paginate this connection."
 type PageInfo {
     "When paginating forwards, the cursor to continue."
@@ -153,18 +163,19 @@ type Query {
     "The ID of the object"
     location(id: ID!): LocationNode
     locationsFiltered(dateFrom: Date, dateTo: Date, raceDistanceGte: Float, raceDistanceLte: Float): [LocationNode]
+    "The ID of the object"
+    organizer(id: ID!): OrganizerNode
 }
 
 type RaceNode implements Node {
     "Date of event, in local time"
     date: Date!
     distance: Float!
-    event: EventNode!
     "The ID of the object."
     id: ID!
     name: String
-    price: Float
     priceCurrency: RacePriceCurrency!
+    priceValue: String
     "Date and time of event, in local time"
     raceTime: Time
     wetsuit: RaceWetsuit

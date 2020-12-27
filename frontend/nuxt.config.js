@@ -18,12 +18,33 @@ export default {
 
   env: {
     googleMapsKey: process.env.GOOGLE_MAPS_API_KEY,
+    defaultHeaderPhotoUrl: process.env.DEFAULT_HEADER_PHOTO_URL,
   },
 
   // Plugins to run before rendering page (https://go.nuxtjs.dev/config-plugins)
   plugins: [
     {
       src: '~plugins/vue-slider-component.js',
+      ssr: false,
+    },
+    {
+      src: '~plugins/vue2-touch-events.js',
+      ssr: false,
+    },
+    {
+      src: '~plugins/vue-tour.js',
+      ssr: false,
+    },
+    {
+      src: '~plugins/google.js',
+      ssr: false,
+    },
+    {
+      src: '~plugins/vue-tooltip.js',
+      ssr: false,
+    },
+    {
+      src: '~plugins/deviceDetect.js',
       ssr: false,
     },
   ],
@@ -38,6 +59,7 @@ export default {
     '@nuxtjs/google-fonts',
     // https://go.nuxtjs.dev/tailwindcss
     '@nuxtjs/tailwindcss',
+    '@nuxtjs/fontawesome',
   ],
 
   // Modules (https://go.nuxtjs.dev/config-modules)
@@ -60,5 +82,9 @@ export default {
   // Build Configuration (https://go.nuxtjs.dev/config-build)
   build: {
     publicPath: '/static/',
+  },
+
+  fontawesome: {
+    icons: { solid: ['faQuestionCircle', 'faGripLines', 'faTimes', 'faPlus'] },
   },
 }

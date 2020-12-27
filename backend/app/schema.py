@@ -7,7 +7,14 @@ from graphene_django.debug import DjangoDebug
 from graphene_django.filter import DjangoFilterConnectionField
 from graphql_relay import from_global_id
 
-from app.models import Location, Race, Event
+from app.models import Location, Race, Event, Organizer
+
+
+class OrganizerNode(DjangoObjectType):
+    class Meta:
+        model = Organizer
+        include = ("__all__",)
+        interfaces = (Node,)
 
 
 def get_header_photo_url(obj, resolve_obj):
@@ -53,7 +60,7 @@ class RaceNode(DjangoObjectType):
     class Meta:
         model = Race
         filter_fields = {"distance": ["lte", "gte"]}
-        fields=("date", "race_time", "name", "distance", "wetsuit", "price_value", "price_currency")
+        fields = ("date", "race_time", "name", "distance", "wetsuit", "price_value", "price_currency")
         interfaces = (Node,)
 
     price_value = graphene.String(resolver=lambda obj, resolve_obj: str(obj.price))
@@ -72,10 +79,7 @@ class EventNode(DjangoObjectType):
             "date_end": ["lte", "gte"],
         }
         include = (
-            "name",
-            "website",
-            "location",
-            "races",
+            "__all__"
         )
         interfaces = (Node,)
 
@@ -132,6 +136,8 @@ class Query(graphene.ObjectType):
             events__date_start__lte=date_to,
         )
         return Location.objects.filter(q).distinct().all()
+
+    organizer = relay.Node.Field(OrganizerNode)
 
 
 class EventMutation(relay.ClientIDMutation):

@@ -28,7 +28,6 @@
 </template>
 <script>
 import MarkerClusterer from '@googlemaps/markerclustererplus'
-import { formatDistance } from 'date-fns'
 import eventPresentation from '@/mixins/eventPresentation'
 import { mapGetters } from 'vuex'
 import calculateDistance from 'assets/js/calculateDistance'
@@ -154,23 +153,6 @@ export default {
         .map((e) => this.humanizeDistance(e.node.distance))
         .join(', ')
     },
-    getFormattedTravelDistance(location, travelMode) {
-      const k = `${location.lat},${location.lng}`
-      if (
-        k in this.$store.getters.travelTimes &&
-        this.$store.getters.travelTimes[k] !== null
-      ) {
-        const formatDuration = (s) => formatDistance(0, s * 1000)
-
-        return `${formatDuration(
-          this.$store.getters.travelTimes[k].duration
-        )} (${(this.$store.getters.travelTimes[k].distance / 1000).toFixed(
-          0
-        )}km)`
-      } else {
-        return '?'
-      }
-    },
     updateMarker() {
       const infowindow = new this.google.maps.InfoWindow({
         content: this.$refs.eventDescription,
@@ -201,14 +183,13 @@ export default {
 
         markerObj.addListener('click', () => {
           this.$store.commit('pickedLocationId', location.id)
+          this.$emit('locationPicked')
           this.pickedLocationId = location.id
           this.pickedLocation = location
           this.location = location
           this.markerObj = markerObj
-          console.log('Marker object click')
           infowindow.close()
           this.calculateDistance(this.location, () => {
-            console.log('Distance calculated callback')
             this.formattedTravelDistance = this.getFormattedTravelDistance(
               location,
               'DRIVING'
