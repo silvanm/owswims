@@ -126,7 +126,7 @@
             </div>
           </div>
           <div class="font-bold">Races</div>
-          <table class="min-w-full">
+          <table class="min-w-full" style="max-height: 200px; overflow: scroll">
             <tbody>
               <tr
                 v-for="race in pickedEvent.node.races.edges"
@@ -255,6 +255,7 @@ export default {
   @screen lg {
     /* on large screen the event pane is attached to the top */
     @apply relative;
+    max-width: 500px;
   }
 }
 

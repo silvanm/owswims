@@ -85,6 +85,15 @@ export default {
   },
 
   fontawesome: {
-    icons: { solid: ['faQuestionCircle', 'faGripLines', 'faTimes', 'faPlus'] },
+    icons: {
+      solid: [
+        'faQuestionCircle',
+        'faGripLines',
+        'faTimes',
+        'faPlus',
+        'faSearch',
+        'faLocationArrow',
+      ],
+    },
   },
 }

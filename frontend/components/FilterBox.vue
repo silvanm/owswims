@@ -5,19 +5,47 @@
       <div class="inline">
         <h1 class="text-xl md:text-2xl font-semibold text-primary">
           ‍️European Open-Water Swims 🏊
-          <span class="text-base">
-            <CloseButton
-              ref="closebutton"
-              @collapse="filterCollapsed = true"
-              @expand="filterCollapsed = false"
-            ></CloseButton>
-          </span>
+          <div class="inline float-right">
+            <span class="text-base">
+              <span
+                class="pr-2 cursor-pointer"
+                @click="clickOptionalSearchParamsButton"
+              >
+                <font-awesome-icon icon="search" size="lg"></font-awesome-icon>
+              </span>
+              <CloseButton
+                ref="closebutton"
+                @collapse="filterCollapsed = true"
+                @expand="filterCollapsed = false"
+              ></CloseButton>
+            </span>
+          </div>
         </h1>
       </div>
       <div
         style="transition: max-height 0.5s linear"
-        :style="{ maxHeight: filterCollapsed ? 0 : '500px' }"
+        :style="{
+          maxHeight: filterCollapsed ? 0 : '500px',
+        }"
       >
+        <div
+          style="transition: max-height 0.5s linear"
+          :style="{
+            maxHeight: !showOptionalSearchParams ? 0 : '500px',
+          }"
+          class="overflow-hidden"
+          id="optional-search-params"
+        >
+          <label class="block font-semibold pb-2 pt-4" for="keyword"
+            >Keyword search</label
+          >
+          <input
+            id="keyword"
+            v-model="keyword"
+            type="text"
+            class="block border p-2 w-full"
+          />
+        </div>
         <h2 class="font-semibold pb-2 pt-4">Race Distance</h2>
         <div id="race-distance-slider" class="pl-4 pr-4 pb-5">
           <client-only>
@@ -38,7 +66,7 @@
         <Toggle
           name="locateMe"
           :is-checked="geoLocationEnabled"
-          @change="(e) => (e ? locateMe() : null)"
+          @change="(e) => (e ? $store.dispatch('locateMe') : null)"
           ><span id="activate-geolocation">Show Travel times</span></Toggle
         >
       </div>
@@ -47,7 +75,6 @@
 </template>
 <script>
 import 'assets/slider.css'
-import { Loader } from 'google-maps'
 import CloseButton from '@/components/CloseButton'
 import Ribbon from '@/components/Ribbon'
 import DaterangeSlider from '@/components/DaterangeSlider'
@@ -57,6 +84,8 @@ export default {
   components: { Ribbon, CloseButton, DaterangeSlider, Toggle },
   data() {
     return {
+      showOptionalSearchParams: false,
+      keyword: '',
       distanceRange: [0, 30],
       // @todo: this must be applied to the slider
       dateRange: [0, 12],
@@ -70,34 +99,23 @@ export default {
     distanceRange(newRange, oldRange) {
       this.$store.commit('distanceRange', newRange)
     },
+    keyword(newKeyword, oldKeyword) {
+      this.$store.commit('keyword', newKeyword)
+    },
   },
   async mounted() {
-    const loader = new Loader(process.env.googleMapsKey, { version: 'beta' })
-    this.google = await loader.load()
+    this.google = await this.$google()
   },
   methods: {
+    clickOptionalSearchParamsButton() {
+      if (this.showOptionalSearchParams) {
+        this.keyword = ''
+      }
+      this.showOptionalSearchParams = !this.showOptionalSearchParams
+    },
     updateDateRange(range) {
       this.dateRange = range
       this.$store.commit('dateRange', range)
-    },
-    locateMe() {
-      const store = this.$store
-      store.commit('isLoading', true)
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          store.commit('mylocation', {
-            isAccurate: true,
-            latlng: {
-              lat: position.coords.latitude,
-              lng: position.coords.longitude,
-            },
-          })
-          store.commit('isLoading', false)
-        },
-        () => {
-          store.commit('isLoading', false)
-        }
-      )
     },
     collapse() {
       if (this.$device.isMobile()) {
@@ -107,3 +125,15 @@ export default {
   },
 }
 </script>
+<style lang="scss" scoped>
+#filter {
+  @apply absolute w-full;
+  transition: top 0.5s;
+
+  @screen lg {
+    /* on large screen the event pane is attached to the top */
+    @apply relative;
+    max-width: 500px;
+  }
+}
+</style>

@@ -124,17 +124,22 @@ class Query(graphene.ObjectType):
     # events
     locations_filtered = graphene.List(
         LocationNode, date_from=graphene.Date(), date_to=graphene.Date(),
-        race_distance_gte=graphene.Float(), race_distance_lte=graphene.Float()
+        race_distance_gte=graphene.Float(), race_distance_lte=graphene.Float(),
+        keyword=graphene.String()
     )
 
     def resolve_locations_filtered(root, info, race_distance_gte, race_distance_lte,
-                                   date_from, date_to):
+                                   date_from, date_to, keyword=''):
         q = Q(
             events__races__distance__gte=race_distance_gte,
             events__races__distance__lte=race_distance_lte,
             events__date_start__gte=date_from,
             events__date_start__lte=date_to,
         )
+
+        if len(keyword) >= 3:
+            q = q & (Q(events__name__istartswith=keyword) | Q(city__istartswith=keyword))
+
         return Location.objects.filter(q).distinct().all()
 
     organizer = relay.Node.Field(OrganizerNode)

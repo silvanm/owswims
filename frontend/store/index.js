@@ -7,6 +7,7 @@ export const state = () => ({
   lng: null,
   isAccurate: false,
   pickedLocationId: null,
+  keyword: '',
   distanceRange: [0, 30],
   dateRange: [0, 12],
   pickedLocationData: null,
@@ -87,6 +88,7 @@ export const mutations = {
         `,
         variables: {
           locationId: s.pickedLocationId,
+          keyword: s.keyword,
           distanceFrom: s.distanceRange[0],
           distanceTo: s.distanceRange[1],
           dateFrom: formatISO(addMonths(new Date(), s.dateRange[0]), {
@@ -101,6 +103,9 @@ export const mutations = {
   },
   pickedLocationData(s, data) {
     s.pickedLocationData = data
+  },
+  keyword(s, keyword) {
+    s.keyword = keyword
   },
   distanceRange(s, id) {
     s.distanceRange = id
@@ -129,6 +134,9 @@ export const getters = {
   pickedLocationId(s) {
     return s.pickedLocationId
   },
+  keyword(s) {
+    return s.keyword
+  },
   distanceRange(s) {
     return s.distanceRange
   },
@@ -143,5 +151,28 @@ export const getters = {
   },
   isLoading(s) {
     return s.isLoading
+  },
+}
+
+export const actions = {
+  async locateMe(context) {
+    context.commit('isLoading', true)
+
+    function getPosition(options) {
+      return new Promise((resolve, reject) =>
+        navigator.geolocation.getCurrentPosition(resolve, reject, options)
+      )
+    }
+
+    const position = await getPosition()
+
+    context.commit('mylocation', {
+      isAccurate: true,
+      latlng: {
+        lat: position.coords.latitude,
+        lng: position.coords.longitude,
+      },
+    })
+    context.commit('isLoading', false)
   },
 }

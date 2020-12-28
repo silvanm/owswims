@@ -1,12 +1,10 @@
 <template>
-  <div class="inline float-right">
-    <font-awesome-icon
-      icon="plus"
-      size="lg"
-      :transform="{ rotate: collapsed ? 0 : 45 }"
-      @click="click"
-    ></font-awesome-icon>
-  </div>
+  <font-awesome-icon
+    icon="plus"
+    size="lg"
+    :transform="{ rotate: collapsed ? 0 : 45 }"
+    @click="click"
+  ></font-awesome-icon>
 </template>
 
 <script>

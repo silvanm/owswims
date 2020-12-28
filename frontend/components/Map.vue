@@ -1,5 +1,20 @@
 <template>
   <div>
+    <div
+      ref="centerButton"
+      class="bg-white"
+      style="
+        border-radius: 2px;
+        margin: 10px;
+        height: 40px;
+        width: 40px;
+        padding: 9px;
+      "
+    >
+      <button @click="centerMap" class="text-gray-600">
+        <font-awesome-icon icon="location-arrow" size="2x"></font-awesome-icon>
+      </button>
+    </div>
     <div ref="eventDescription">
       <div v-if="pickedEvent">
         <h1 class="text-xl font-semibold">
@@ -68,11 +83,10 @@ export default {
       // Stores travel times per location (null == not possible to fetch)
       travelTimes: {},
       formattedTravelDistance: '',
-      isLoading: false,
     }
   },
   computed: {
-    ...mapGetters(['mylocation', 'pickedLocationData']),
+    ...mapGetters(['mylocation', 'pickedLocationData', 'isLoading']),
   },
   watch: {
     locations(newlocations, oldlocations) {
@@ -117,15 +131,20 @@ export default {
       // fallback to switzerland
       center = { lat: 47.3474476, lng: 8.6733976 }
     }
-
     this.map = new this.google.maps.Map(document.getElementById('map'), {
       center,
       zoom: 5,
       disableDefaultUI: false,
       mapTypeId: 'satellite',
       gestureHandling: 'greedy',
-      mapTypeControl: false,
+      mapTypeControlOptions: {
+        style: this.google.maps.MapTypeControlStyle.HORIZONTAL_BAR,
+        position: this.google.maps.ControlPosition.TOP_RIGHT,
+      },
     })
+    this.map.controls[this.google.maps.ControlPosition.RIGHT].push(
+      this.$refs.centerButton
+    )
     this.updateMarker()
   },
   methods: {
@@ -140,11 +159,13 @@ export default {
         scale: 0.7,
       }
     },
-    centerMap() {
-      if (this.latlng.mylocation.lat && this.mylocation.latlng.lng) {
+    async centerMap() {
+      await this.$store.dispatch('locateMe')
+
+      if (this.mylocation.latlng.lat && this.mylocation.latlng.lng) {
         const myLatLng = new this.google.maps.LatLng(
-          this.latlng.mylocation.lat,
-          this.latlng.mylocation.lng
+          this.mylocation.latlng.lat,
+          this.mylocation.latlng.lng
         )
         this.map.panTo(myLatLng)
       }

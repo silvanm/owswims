@@ -37,12 +37,14 @@ export default {
     locationsFiltered: {
       query: gql`
         query(
+          $keyword: String!
           $distanceFrom: Float!
           $distanceTo: Float!
           $dateFrom: Date!
           $dateTo: Date!
         ) {
           locationsFiltered(
+            keyword: $keyword
             raceDistanceGte: $distanceFrom
             raceDistanceLte: $distanceTo
             dateFrom: $dateFrom
@@ -58,6 +60,7 @@ export default {
       `,
       variables() {
         return {
+          keyword: this.keyword,
           distanceFrom: this.distanceRange[0],
           distanceTo: this.distanceRange[1],
           dateFrom: formatISO(addMonths(new Date(), this.dateRange[0]), {
@@ -81,7 +84,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['distanceRange', 'dateRange', 'isLoading']),
+    ...mapGetters(['keyword', 'distanceRange', 'dateRange', 'isLoading']),
   },
   async mounted() {
     this.google = await this.$google()
