@@ -7,10 +7,10 @@
       <input
         :id="name"
         :checked="!!isChecked"
-        @change="(e) => $emit('change', e.target.checked)"
         type="checkbox"
         :name="name"
         class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"
+        @change="(e) => $emit('change', e.target.checked)"
       />
       <label
         :for="name"

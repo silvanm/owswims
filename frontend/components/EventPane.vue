@@ -1,8 +1,8 @@
 <template>
   <div
+    v-if="!isClosed"
     id="event-pane-container"
     class="bg-white lg:mt-4 relative"
-    v-if="!isClosed"
     :style="eventPaneStyle"
   >
     <div v-if="pickedLocationData">
@@ -12,11 +12,7 @@
           backgroundImage: `url(${headerPhotoUrl})`,
         }"
       >
-        <div
-          id="overlay"
-          v-touch:swipe.prevent="slideHandler"
-          @click="slideUp"
-        ></div>
+        <div id="overlay" v-touch:swipe="slideHandler" @click="slideUp"></div>
         <div class="p-4 lg:p-5 absolute text-center text-white w-full">
           <span
             v-if="$device.isMobile()"
@@ -55,89 +51,104 @@
           </h2>
         </div>
       </div>
+      <!-- Start Event -->
       <div class="p-4">
-        <ul>
+        <ul v-if="pickedLocationData.allEvents.edges.length > 1" class="tabs">
           <li
-            v-for="event in pickedLocationData.allEvents.edges"
+            v-for="(event, ix) in pickedLocationData.allEvents.edges"
             :key="event.node.id"
+            :class="{
+              active: activeEventIndex === ix,
+            }"
           >
-            {{ formatEventDate(event.node.dateStart) }}
-            <h3 class="text-xl font-bold py-2">
-              <a :href="event.node.website" target="_blank">
-                {{ event.node.name }}
-              </a>
-            </h3>
-            <div>
-              <span
-                v-for="prop in getBooleanProps(event.node)"
-                :key="prop.id"
-                :class="'badge ' + prop.importance"
-              >
-                {{ prop.label }}
-                <span v-if="prop.info" v-tooltip="prop.info">
-                  <font-awesome-icon icon="question-circle" />
-                </span>
-              </span>
-            </div>
-            <div id="event-textprops" class="grid gap-0 grid-cols-3 my-2">
-              <div v-if="event.node.organizer" class="textprop">
-                <div class="textprop-label">Organizer</div>
-                <a
-                  v-if="event.node.organizer.website"
-                  :href="event.node.organizer.website"
-                  target="_blank"
-                >
-                  <div class="textprop-text">
-                    {{ event.node.organizer.name }}
-                  </div>
-                </a>
-                <div v-else class="textprop-text">
-                  {{ event.node.organizer.name }}
-                </div>
-              </div>
-              <div v-if="event.node.waterType" class="textprop">
-                <div class="textprop-label">Water type</div>
-                <div class="textprop-text">
-                  {{
-                    event.node.waterType[0] +
-                    event.node.waterType.slice(1).toLowerCase()
-                  }}
-                </div>
-              </div>
-              <div v-if="event.node.waterTemp" class="textprop">
-                <div class="textprop-label">Water temperature</div>
-                <div class="textprop-text">{{ event.node.waterTemp }}°</div>
-              </div>
-            </div>
-
-            <div v-if="event.node.description" id="description">
-              <div class="font-bold">Description</div>
-              <div class="mb-2">
-                {{ event.node.description }}
-              </div>
-            </div>
-            <div class="font-bold">Races</div>
-            <table class="min-w-full">
-              <tbody>
-                <tr v-for="race in event.node.races.edges" :key="race.node.id">
-                  <td>
-                    {{ formatEventDate(race.node.date, true) }}
-                    {{ race.node.raceTime }}
-                  </td>
-                  <td class="text-right">
-                    {{ humanizeDistance(race.node.distance) }}
-                  </td>
-                  <td>{{ race.node.name }}</td>
-                  <td>
-                    <span v-if="race.node.priceValue !== 'None'">
-                      {{ race.node.priceValue }}{{ race.node.priceCurrency }}
-                    </span>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+            <span @click="activeEventIndex = ix">{{
+              formatEventDate(event.node.dateStart, false, 'd. MMM yyyy')
+            }}</span>
           </li>
         </ul>
+        <ul v-else>
+          <li :class="{ 'inline-block': true, 'p-0': true, 'm-1': true }">
+            <span>{{ formatEventDate(pickedEvent.node.dateStart) }}</span>
+          </li>
+        </ul>
+
+        <h3 class="text-xl font-bold py-2">
+          <a :href="pickedEvent.node.website" target="_blank">
+            {{ pickedEvent.node.name }}
+          </a>
+        </h3>
+        <div>
+          <span
+            v-for="prop in getBooleanProps(pickedEvent.node)"
+            :key="prop.id"
+            :class="'badge ' + prop.importance"
+          >
+            {{ prop.label }}
+            <span v-if="prop.info" v-tooltip="prop.info">
+              <font-awesome-icon icon="question-circle" />
+            </span>
+          </span>
+          <div id="pickedEvent-textprops" class="grid gap-0 grid-cols-3 my-2">
+            <div v-if="pickedEvent.node.organizer" class="textprop">
+              <div class="textprop-label">Organizer</div>
+              <a
+                v-if="pickedEvent.node.organizer.website"
+                :href="pickedEvent.node.organizer.website"
+                target="_blank"
+              >
+                <div class="textprop-text">
+                  {{ pickedEvent.node.organizer.name }}
+                </div>
+              </a>
+              <div v-else class="textprop-text">
+                {{ pickedEvent.node.organizer.name }}
+              </div>
+            </div>
+            <div v-if="pickedEvent.node.waterType" class="textprop">
+              <div class="textprop-label">Water type</div>
+              <div class="textprop-text">
+                {{
+                  pickedEvent.node.waterType[0] +
+                  pickedEvent.node.waterType.slice(1).toLowerCase()
+                }}
+              </div>
+            </div>
+            <div v-if="pickedEvent.node.waterTemp" class="textprop">
+              <div class="textprop-label">Water temperature</div>
+              <div class="textprop-text">{{ pickedEvent.node.waterTemp }}°</div>
+            </div>
+          </div>
+
+          <div v-if="pickedEvent.node.description" id="description">
+            <div class="font-bold">Description</div>
+            <div class="mb-2">
+              {{ pickedEvent.node.description }}
+            </div>
+          </div>
+          <div class="font-bold">Races</div>
+          <table class="min-w-full">
+            <tbody>
+              <tr
+                v-for="race in pickedEvent.node.races.edges"
+                :key="race.node.id"
+              >
+                <td>
+                  {{ formatEventDate(race.node.date, true) }}
+                  {{ race.node.raceTime }}
+                </td>
+                <td class="text-right">
+                  {{ humanizeDistance(race.node.distance) }}
+                </td>
+                <td>{{ race.node.name }}</td>
+                <td>
+                  <span v-if="race.node.priceValue !== 'None'">
+                    {{ race.node.priceValue }}{{ race.node.priceCurrency }}
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>
@@ -176,6 +187,7 @@ export default {
     return {
       isClosed: false,
       isSliddenUp: false,
+      activeEventIndex: 0,
     }
   },
   computed: {
@@ -195,8 +207,10 @@ export default {
         return {}
       }
     },
+    pickedEvent() {
+      return this.pickedLocationData.allEvents.edges[this.activeEventIndex]
+    },
     headerPhotoUrl() {
-      console.log(process.env.defaultHeaderPhotoUrl)
       return (
         this.pickedLocationData.location.headerPhoto ??
         process.env.defaultHeaderPhotoUrl
@@ -206,6 +220,7 @@ export default {
   watch: {
     pickedLocationId(newVal, oldVal) {
       this.isClosed = false
+      this.activeEventIndex = 0
     },
   },
   methods: {
@@ -214,14 +229,15 @@ export default {
       this.isSliddenUp = false
     },
     slideUp() {
-      console.log('slideUp')
       this.isSliddenUp = true
     },
     slideDown() {
-      console.log('slideDown')
       this.isSliddenUp = false
     },
-    slideHandler(direction) {
+    slideHandler(direction, e) {
+      if (e) {
+        e.preventDefault()
+      }
       if (direction === 'top') {
         this.isSliddenUp = true
       } else if (direction === 'bottom') {
@@ -231,12 +247,7 @@ export default {
   },
 }
 </script>
-<style lang="scss">
-.fa-plus,
-.fa-grip-lines {
-  filter: drop-shadow(0px 0px 3px black);
-}
-
+<style lang="scss" scoped>
 #event-pane-container {
   @apply absolute w-full;
   transition: top 0.5s;
@@ -263,6 +274,16 @@ export default {
   );
   width: 100%;
   height: 160px;
+}
+
+ul.tabs {
+  li {
+    @apply inline-block mr-2 border-b-2 pb-1 cursor-pointer;
+  }
+
+  li.active {
+    @apply border-b-2 border-blue-600;
+  }
 }
 
 #description {

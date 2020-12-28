@@ -44,7 +44,6 @@ const calculateDistance = function (
   Promise.all(promises).then((values) => {
     values.forEach((value, ix) => {
       const results = value.rows[0].elements
-      console.log('Got distancematrix result', results)
       for (let j = 0; j < results.length; j++) {
         if (!travelTimes[requestedDestinations[j]]) {
           travelTimes[requestedDestinations[j]] = {

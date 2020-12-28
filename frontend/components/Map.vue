@@ -123,6 +123,7 @@ export default {
       zoom: 5,
       disableDefaultUI: false,
       mapTypeId: 'satellite',
+      gestureHandling: 'greedy',
       mapTypeControl: false,
     })
     this.updateMarker()

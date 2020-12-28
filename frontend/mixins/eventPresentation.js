@@ -64,12 +64,14 @@ export default {
         })
         .filter((o) => o.label)
     },
-    formatEventDate(dt, short) {
+    formatEventDate(dt, short, custom = null) {
       let fmt
-      if (short) {
-        fmt = 'E dd. MMM.'
+      if (custom) {
+        fmt = custom
+      } else if (short) {
+        fmt = 'E d. MMM.'
       } else {
-        fmt = 'EEEE, dd. MMMM yyyy'
+        fmt = 'EEEE, d. MMMM yyyy'
       }
       return format(new Date(dt), fmt)
     },

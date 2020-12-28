@@ -102,7 +102,6 @@ export default {
   },
   methods: {
     locationPicked() {
-      console.log('collapse filterbox')
       this.$refs.filterbox.collapse()
     },
   },
