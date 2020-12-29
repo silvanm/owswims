@@ -1,5 +1,6 @@
 <template>
   <font-awesome-icon
+    class="cursor-pointer"
     icon="plus"
     size="lg"
     :transform="{ rotate: collapsed ? 0 : 45 }"

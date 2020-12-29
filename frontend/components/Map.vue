@@ -1,39 +1,47 @@
 <template>
   <div>
-    <div
-      ref="centerButton"
-      class="bg-white"
-      style="
-        border-radius: 2px;
-        margin: 10px;
-        height: 40px;
-        width: 40px;
-        padding: 9px;
-      "
-    >
-      <button @click="centerMap" class="text-gray-600">
-        <font-awesome-icon icon="location-arrow" size="2x"></font-awesome-icon>
-      </button>
-    </div>
-    <div ref="eventDescription">
-      <div v-if="pickedEvent">
-        <h1 class="text-xl font-semibold">
-          {{ pickedEvent.city }}, {{ pickedEvent.country }}
-        </h1>
-        <span v-if="mylocation.lat">
-          Travel time: {{ getFormattedTravelDistance(pickedEvent, 'DRIVING') }}
-        </span>
-        <div
-          v-for="event in pickedLocationData.allEvents.edges"
-          :key="event.node.id"
-        >
-          <div style="margin-top: 10px">
-            {{ formatEventDate(event.node.dateStart) }}<br />
-            <a :href="event.node.website" class="font-semibold">{{
-              event.node.name
-            }}</a
-            ><br />
-            {{ formatRaceDistances(event.node.races) }}
+    <!-- Containers which will be included in Google Maps. Hiding them by default -->
+    <div class="hidden">
+      <div
+        ref="centerButton"
+        class="bg-white"
+        style="
+          border-radius: 2px;
+          margin: 10px;
+          height: 40px;
+          width: 40px;
+          padding: 9px;
+        "
+      >
+        <button @click="centerMap" class="text-gray-600">
+          <font-awesome-icon
+            icon="location-arrow"
+            size="2x"
+          ></font-awesome-icon>
+        </button>
+      </div>
+
+      <div ref="eventDescription">
+        <div v-if="pickedLocation && pickedLocationData">
+          <h1 class="text-xl font-semibold">
+            {{ pickedLocation.city }}, {{ pickedLocation.country }}
+          </h1>
+          <span v-if="mylocation.isAccurate">
+            Travel time:
+            {{ formattedTravelDistance }}
+          </span>
+          <div
+            v-for="event in pickedLocationData.allEvents.edges"
+            :key="event.node.id"
+          >
+            <div style="margin-top: 10px">
+              {{ formatEventDate(event.node.dateStart) }}<br />
+              <a :href="event.node.website" class="font-semibold">{{
+                event.node.name
+              }}</a
+              ><br />
+              {{ formatRaceDistances(event.node.races) }}
+            </div>
           </div>
         </div>
       </div>

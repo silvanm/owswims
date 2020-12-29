@@ -135,6 +135,7 @@ class Query(graphene.ObjectType):
             events__races__distance__lte=race_distance_lte,
             events__date_start__gte=date_from,
             events__date_start__lte=date_to,
+            events__invisible=False
         )
 
         if len(keyword) >= 3:

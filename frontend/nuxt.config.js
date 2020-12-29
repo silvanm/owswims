@@ -8,9 +8,30 @@ export default {
     meta: [
       { charset: 'utf-8' },
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-      { hid: 'description', name: 'description', content: '' },
+      { name: 'robots', content: 'index' },
+      {
+        hid: 'description',
+        name: 'description',
+        content: 'Map of open-water swim events in Europe',
+      },
+      {
+        property: 'og:url',
+        content: 'https://open-water-swims.com/',
+      },
+      {
+        property: 'og:title',
+        content: 'European Open-Water Swims',
+      },
+      {
+        property: 'og:description',
+        content: 'Map of open-water swim events in Europe',
+      },
+      {
+        property: 'og:image',
+        content: 'https://open-water-swims.com/static/og-image.jpg',
+      },
     ],
-    link: [{ rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }],
+    link: [{ rel: 'icon', type: 'image/x-icon', href: '/static/favicon.ico' }],
   },
 
   // Global CSS (https://go.nuxtjs.dev/config-css)
@@ -63,7 +84,7 @@ export default {
   ],
 
   // Modules (https://go.nuxtjs.dev/config-modules)
-  modules: ['@nuxtjs/apollo'],
+  modules: ['@nuxtjs/apollo', '@nuxtjs/google-gtag'],
 
   apollo: {
     clientConfigs: {
@@ -93,7 +114,13 @@ export default {
         'faPlus',
         'faSearch',
         'faLocationArrow',
+        'faInfoCircle',
       ],
     },
+  },
+
+  'google-gtag': {
+    id: 'UA-10357230-11',
+    debug: false,
   },
 }

@@ -13,7 +13,7 @@
         }"
       >
         <div id="overlay" v-touch:swipe="slideHandler" @click="slideUp"></div>
-        <div class="p-4 lg:p-5 absolute text-center text-white w-full">
+        <div class="p-4 lg:p-6 absolute text-center text-white w-full">
           <span
             v-if="$device.isMobile()"
             v-touch:swipe="slideHandler"
@@ -22,10 +22,10 @@
             <font-awesome-icon icon="grip-lines" size="lg" />
           </span>
         </div>
-        <div class="p-4 lg:p-5 absolute right-0 text-white">
+        <div class="p-4 lg:p-6 absolute right-0 text-white">
           <CloseButton @collapse="close"></CloseButton>
         </div>
-        <div class="p-4">
+        <div class="p-4 lg:p-6">
           <h2
             class="text-3xl font-bold text-white absolute bottom-0"
             style="bottom: 4px"
@@ -52,7 +52,7 @@
         </div>
       </div>
       <!-- Start Event -->
-      <div class="p-4">
+      <div class="p-4 lg:p-6">
         <ul v-if="pickedLocationData.allEvents.edges.length > 1" class="tabs">
           <li
             v-for="(event, ix) in pickedLocationData.allEvents.edges"
@@ -67,7 +67,7 @@
           </li>
         </ul>
         <ul v-else>
-          <li :class="{ 'inline-block': true, 'p-0': true, 'm-1': true }">
+          <li :class="{ 'inline-block': true, 'p-0': true }">
             <span>{{ formatEventDate(pickedEvent.node.dateStart) }}</span>
           </li>
         </ul>
@@ -188,25 +188,11 @@ export default {
       isClosed: false,
       isSliddenUp: false,
       activeEventIndex: 0,
+      eventPaneStyle: {},
     }
   },
   computed: {
     ...mapGetters(['pickedLocationId', 'pickedLocationData']),
-    eventPaneStyle() {
-      if (this.$device.isMobile()) {
-        if (this.isSliddenUp) {
-          return {
-            top: window.innerHeight - this.$el.clientHeight + 'px',
-          }
-        } else {
-          return {
-            top: window.innerHeight - 160 + 'px', // height of the header
-          }
-        }
-      } else {
-        return {}
-      }
-    },
     pickedEvent() {
       return this.pickedLocationData.allEvents.edges[this.activeEventIndex]
     },
@@ -221,18 +207,44 @@ export default {
     pickedLocationId(newVal, oldVal) {
       this.isClosed = false
       this.activeEventIndex = 0
+      // this is ugly and needs to be fixed
+      window.setTimeout(() => this.updateEventPaneStyle(), 100)
+    },
+    activeEventIndex(newVal, oldVal) {
+      window.setTimeout(() => this.updateEventPaneStyle(), 100)
     },
   },
+  mounted() {
+    this.updateEventPaneStyle()
+  },
   methods: {
+    updateEventPaneStyle() {
+      if (this.$device.isMobile()) {
+        if (this.isSliddenUp) {
+          this.eventPaneStyle = {
+            top: window.innerHeight - this.$el.clientHeight + 'px',
+          }
+        } else {
+          this.eventPaneStyle = {
+            top: window.innerHeight - 160 + 'px', // height of the header
+          }
+        }
+      } else {
+        this.eventPaneStyle = {}
+      }
+    },
     close() {
       this.isClosed = true
       this.isSliddenUp = false
+      this.updateEventPaneStyle()
     },
     slideUp() {
       this.isSliddenUp = true
+      this.updateEventPaneStyle()
     },
     slideDown() {
       this.isSliddenUp = false
+      this.updateEventPaneStyle()
     },
     slideHandler(direction, e) {
       if (e) {
@@ -243,6 +255,7 @@ export default {
       } else if (direction === 'bottom') {
         this.isSliddenUp = false
       }
+      this.updateEventPaneStyle()
     },
   },
 }

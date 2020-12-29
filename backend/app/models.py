@@ -53,6 +53,8 @@ class Event(models.Model):
     needs_license = models.BooleanField(null=True, blank=True)
     sold_out = models.BooleanField(null=True, blank=True)
     cancelled = models.BooleanField(null=True, blank=True, default=False)
+    invisible = models.BooleanField(null=True, blank=True, default=False,
+                                    help_text="Hidden from public")
     with_ranking = models.BooleanField(null=True, blank=True)
     date_start = models.DateField()
     date_end = models.DateField()
