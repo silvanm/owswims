@@ -22,6 +22,7 @@ export const mutations = {
     s.isAccurate = data.isAccurate
   },
   pickedLocationId(s, id) {
+    history.pushState({}, null, `?location=` + encodeURIComponent(id))
     s.pickedLocationId = id
     const client = this.app.apolloProvider.defaultClient
     client
@@ -52,6 +53,7 @@ export const mutations = {
                   name
                   dateStart
                   dateEnd
+                  flyerImage
                   website
                   description
                   needsMedicalCertificate

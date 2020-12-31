@@ -12,7 +12,8 @@ export default {
       {
         hid: 'description',
         name: 'description',
-        content: 'Map of open-water swim events in Europe',
+        content:
+          'Map of open-water swim events in Europe with calculation of trip duration',
       },
       {
         property: 'og:url',
@@ -68,6 +69,10 @@ export default {
       src: '~plugins/deviceDetect.js',
       ssr: false,
     },
+    {
+      src: '~plugins/vue-easy-lightbox.js',
+      ssr: false,
+    },
   ],
 
   // Auto import components (https://go.nuxtjs.dev/config-components)
@@ -115,6 +120,7 @@ export default {
         'faSearch',
         'faLocationArrow',
         'faInfoCircle',
+        'faImage',
       ],
     },
   },

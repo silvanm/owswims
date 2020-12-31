@@ -32,15 +32,12 @@ export default {
         {
           field: 'needsLicense',
           labelTrue: 'needs License',
-          labelFalse: 'no License',
           importanceTrue: 'medium',
-          importanceFalse: 'low',
+          infoTrue: 'License required',
         },
         {
           field: 'withRanking',
-          labelTrue: 'ranking',
           labelFalse: 'no ranking',
-          importanceTrue: 'low',
           importanceFalse: 'low',
         },
       ]
@@ -74,6 +71,9 @@ export default {
         fmt = 'EEEE, d. MMMM yyyy'
       }
       return format(new Date(dt), fmt)
+    },
+    formatRaceTime(tm) {
+      return format(new Date('2020-01-01 ' + tm), 'kk:mm')
     },
     humanizeDistance(d) {
       if (d <= 1.5) {

@@ -51,7 +51,7 @@
           </h2>
         </div>
       </div>
-      <!-- Start Event -->
+      <!-- List of dates -->
       <div class="p-4 lg:p-6">
         <ul v-if="pickedLocationData.allEvents.edges.length > 1" class="tabs">
           <li
@@ -72,11 +72,25 @@
           </li>
         </ul>
 
+        <!-- Single event -->
         <h3 class="text-xl font-bold py-2">
           <a :href="pickedEvent.node.website" target="_blank">
             {{ pickedEvent.node.name }}
           </a>
+          <a
+            v-if="pickedEvent.node.flyerImage"
+            class="cursor-pointer float-right"
+            @click="showFlyer"
+          >
+            <font-awesome-icon icon="image" class></font-awesome-icon>
+          </a>
         </h3>
+        <vue-easy-lightbox
+          v-if="pickedEvent.node.flyerImage"
+          :visible="showLightbox"
+          :imgs="pickedEvent.node.flyerImage"
+          @hide="showLightbox = false"
+        ></vue-easy-lightbox>
         <div>
           <span
             v-for="prop in getBooleanProps(pickedEvent.node)"
@@ -84,7 +98,10 @@
             :class="'badge ' + prop.importance"
           >
             {{ prop.label }}
-            <span v-if="prop.info" v-tooltip="prop.info">
+            <span
+              v-if="prop.info"
+              v-tooltip="{ content: prop.info, trigger: 'click' }"
+            >
               <font-awesome-icon icon="question-circle" />
             </span>
           </span>
@@ -125,8 +142,13 @@
               {{ pickedEvent.node.description }}
             </div>
           </div>
-          <div class="font-bold">Races</div>
           <table class="min-w-full" style="max-height: 200px; overflow: scroll">
+            <thead>
+              <th>Races</th>
+              <th></th>
+              <th></th>
+              <th>Wetsuit</th>
+            </thead>
             <tbody>
               <tr
                 v-for="race in pickedEvent.node.races.edges"
@@ -134,12 +156,19 @@
               >
                 <td>
                   {{ formatEventDate(race.node.date, true) }}
-                  {{ race.node.raceTime }}
+                  <span v-if="race.node.raceTime">
+                    {{ formatRaceTime(race.node.raceTime) }}
+                  </span>
                 </td>
                 <td class="text-right">
                   {{ humanizeDistance(race.node.distance) }}
                 </td>
                 <td>{{ race.node.name }}</td>
+                <td>
+                  <span v-if="race.node.wetsuit" class="badge">
+                    {{ race.node.wetsuit }}
+                  </span>
+                </td>
                 <td>
                   <span v-if="race.node.priceValue !== 'None'">
                     {{ race.node.priceValue }}{{ race.node.priceCurrency }}
@@ -187,6 +216,7 @@ export default {
     return {
       isClosed: false,
       isSliddenUp: false,
+      showLightbox: false,
       activeEventIndex: 0,
       eventPaneStyle: {},
     }
@@ -257,10 +287,18 @@ export default {
       }
       this.updateEventPaneStyle()
     },
+    showFlyer() {
+      this.showLightbox = true
+      this.$gtag('event', 'showEventPaneLightbox')
+    },
   },
 }
 </script>
 <style lang="scss" scoped>
+.has-tooltip {
+  cursor: pointer;
+}
+
 #event-pane-container {
   @apply absolute w-full;
   transition: top 0.5s;
@@ -335,6 +373,10 @@ ul.tabs {
     @apply font-bold;
     /*width: 100px;*/
   }
+}
+
+table th {
+  @apply text-left;
 }
 
 table td {

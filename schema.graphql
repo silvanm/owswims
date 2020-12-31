@@ -63,10 +63,13 @@ type EventNode implements Node {
     "Timestamp of the last edit"
     editedAt: DateTime
     entryQuality: EventEntryQuality
+    flyerImage: String
     "The ID of the object."
     id: ID!
     "Comment NOT shown to the public"
     internalComment: String!
+    "Hidden from public"
+    invisible: Boolean
     location: LocationNode
     name: String!
     needsLicense: Boolean
@@ -162,7 +165,7 @@ type Query {
     event(id: ID!): EventNode
     "The ID of the object"
     location(id: ID!): LocationNode
-    locationsFiltered(dateFrom: Date, dateTo: Date, raceDistanceGte: Float, raceDistanceLte: Float): [LocationNode]
+    locationsFiltered(dateFrom: Date, dateTo: Date, keyword: String, raceDistanceGte: Float, raceDistanceLte: Float): [LocationNode]
     "The ID of the object"
     organizer(id: ID!): OrganizerNode
 }

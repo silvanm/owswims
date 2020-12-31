@@ -39,6 +39,8 @@ class Organizer(models.Model):
 class Event(models.Model):
     name = models.CharField(max_length=100)
     website = models.URLField(max_length=200, blank=True)
+    flyer_image = models.ImageField(upload_to='flyers', null=True, blank=True,
+                                    help_text="Flyer or poster showing event details")
     location = models.ForeignKey(
         Location, on_delete=models.CASCADE, null=True, related_name="events"
     )

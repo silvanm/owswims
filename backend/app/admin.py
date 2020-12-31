@@ -1,8 +1,11 @@
+from urllib.parse import urlencode
+
 import requests
 from django import forms
 from django.contrib import admin
 from django.utils import timezone
 from django.utils.safestring import mark_safe
+from django.utils.timezone import now
 from django.utils.translation import ugettext_lazy
 
 from django_google_maps import widgets as map_widgets
@@ -95,14 +98,8 @@ class EventAdmin(admin.ModelAdmin):
     inlines = [
         RaceInline,
     ]
+    date_hierarchy = 'date_start'
 
-    def get_queryset(self, request):
-        # Only return events in the future
-        return (
-            super(EventAdmin, self)
-                .get_queryset(request)
-                .filter(date_start__gte=timezone.now())
-        )
 
     def locationstr(self, obj):
         if obj.location:

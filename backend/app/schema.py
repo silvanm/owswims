@@ -66,6 +66,12 @@ class RaceNode(DjangoObjectType):
     price_value = graphene.String(resolver=lambda obj, resolve_obj: str(obj.price))
 
 
+def get_flyer_image_url(obj, resolve_obj):
+    if obj.flyer_image:
+        return obj.flyer_image.url
+    else:
+        return None
+
 class EventNode(DjangoObjectType):
     class Meta:
         model = Event
@@ -82,6 +88,8 @@ class EventNode(DjangoObjectType):
             "__all__"
         )
         interfaces = (Node,)
+
+    flyer_image = graphene.String(resolver=get_flyer_image_url)
 
 
 class EventNodeFilter(django_filters.FilterSet):

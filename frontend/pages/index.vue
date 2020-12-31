@@ -1,5 +1,6 @@
 <template>
-  <div class="md:m-4" style="max-width: 500px">
+  <div class="xl:m-4">
+    <Tour></Tour>
     <client-only>
       <Map
         v-if="locationsFiltered"

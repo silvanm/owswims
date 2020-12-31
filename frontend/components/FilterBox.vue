@@ -59,7 +59,7 @@
             >.
           </p>
 
-          <p>Thanks to Andrey Shenko for his collaboration.</p>
+          <p>Thanks to Andrey Sheyko for his collaboration.</p>
         </div>
         <!-- Keyword search -->
         <div
