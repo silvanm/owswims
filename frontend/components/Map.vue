@@ -86,6 +86,7 @@ export default {
   data() {
     return {
       marker: {},
+      locationIdToMarker: {},
       pickedLocationId: 'TG9jYXRpb25Ob2RlOjE4NTg=',
       pickedLocation: null,
       // Stores travel times per location (null == not possible to fetch)
@@ -154,6 +155,9 @@ export default {
       this.$refs.centerButton
     )
     this.updateMarker()
+    if (this.$route.query.location) {
+      this.openLocation(this.$route.query.location)
+    }
   },
   methods: {
     markerPin() {
@@ -211,6 +215,8 @@ export default {
           title: location.name,
         })
 
+        this.locationIdToMarker[location.id] = markerObj
+
         markerObj.addListener('click', () => {
           this.$store.commit('pickedLocationId', location.id)
           this.$emit('locationPicked')
@@ -253,6 +259,11 @@ export default {
     async calculateDistance(location, callback) {
       const google = await this.$google()
       calculateDistance(google, location, this.$store, callback)
+    },
+    openLocation(id) {
+      this.map.panTo(this.locationIdToMarker[id].position)
+      this.map.setZoom(10)
+      this.google.maps.event.trigger(this.locationIdToMarker[id], 'click')
     },
   },
 }

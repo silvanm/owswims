@@ -91,6 +91,11 @@ class Event(models.Model):
     def is_verified(self):
         return self.verified_at is not None
 
+    def get_quality_rating(self):
+        from app.services import EventChecker
+        checker = EventChecker(self)
+        return checker.get_rating()
+    
     def save(self, *args, **kwargs):
         user = get_current_user()
         if user and not user.pk:

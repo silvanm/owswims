@@ -1,34 +1,33 @@
 <template>
   <div id="filter">
-    <div class="bg-white p-4 lg:p-6 relative overflow-hidden">
-      <Ribbon v-if="!filterCollapsed">beta</Ribbon>
-      <div class="inline">
-        <h1 class="text-xl md:text-2xl font-semibold text-primary">
-          ‍️European Open-Water Swims
-          <div class="inline float-right">
-            <span class="text-base">
-              <span
-                v-if="!filterCollapsed"
-                class="pr-2 cursor-pointer"
-                @click="clickOptionalSearchParamsButton"
-              >
-                <font-awesome-icon icon="search" size="lg"></font-awesome-icon>
-              </span>
-              <span class="pr-2 cursor-pointer" @click="clickInfoCircle">
-                <font-awesome-icon
-                  icon="info-circle"
-                  size="lg"
-                ></font-awesome-icon>
-              </span>
-              <CloseButton
-                ref="closebutton"
-                @collapse="clickCollapseFilter"
-                @expand="filterCollapsed = false"
-              ></CloseButton>
+    <!-- pb-3 is a hack because the div which can collapse always has a height of 2 -->
+    <div class="bg-white p-4 pb-3 lg:p-6 lg:pb-5 relative overflow-hidden">
+      <h1 class="text-xl md:text-2xl font-semibold text-primary">
+        ‍️European Open-Water Swims
+        <div class="inline float-right">
+          <span class="text-base">
+            <span
+              v-if="!filterCollapsed"
+              class="pr-2 cursor-pointer"
+              @click="clickOptionalSearchParamsButton"
+            >
+              <font-awesome-icon icon="search" size="lg"></font-awesome-icon>
             </span>
-          </div>
-        </h1>
-      </div>
+            <span class="pr-2 cursor-pointer" @click="clickInfoCircle">
+              <font-awesome-icon
+                icon="info-circle"
+                size="lg"
+              ></font-awesome-icon>
+            </span>
+            <CloseButton
+              ref="closebutton"
+              @collapse="clickCollapseFilter"
+              @expand="filterCollapsed = false"
+            ></CloseButton>
+          </span>
+        </div>
+      </h1>
+      <Ribbon v-if="!filterCollapsed">beta</Ribbon>
       <div
         style="transition: max-height 0.5s linear"
         :style="{

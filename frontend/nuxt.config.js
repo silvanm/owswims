@@ -12,8 +12,15 @@ export default {
       {
         hid: 'description',
         name: 'description',
-        content:
-          'Map of open-water swim events in Europe with calculation of trip duration',
+        content: 'Map of open-water swim events in Europe.',
+      },
+      {
+        name: 'apple-mobile-web-app-capable',
+        content: 'yes',
+      },
+      {
+        name: 'theme-color',
+        content: '#36abff',
       },
       {
         property: 'og:url',
@@ -25,7 +32,7 @@ export default {
       },
       {
         property: 'og:description',
-        content: 'Map of open-water swim events in Europe',
+        content: 'Map of open-water swim events in Europe.',
       },
       {
         property: 'og:image',

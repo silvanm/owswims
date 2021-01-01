@@ -2,7 +2,7 @@
   <div
     v-if="!isClosed"
     id="event-pane-container"
-    class="bg-white lg:mt-4 relative"
+    class="bg-white xl:mt-4 relative"
     :style="eventPaneStyle"
   >
     <div v-if="pickedLocationData">

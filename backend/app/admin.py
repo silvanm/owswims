@@ -1,11 +1,9 @@
-from urllib.parse import urlencode
 
 import requests
 from django import forms
 from django.contrib import admin
-from django.utils import timezone
+from django.utils.html import format_html
 from django.utils.safestring import mark_safe
-from django.utils.timezone import now
 from django.utils.translation import ugettext_lazy
 
 from django_google_maps import widgets as map_widgets
@@ -35,7 +33,7 @@ class LocationForm(forms.ModelForm):
                 r.raw.size = int(r.headers["Content-Length"])
                 import uuid
                 # @todo add support for other image types
-                filename=uuid.uuid4().hex.upper()[0:10] + '.jpeg'
+                filename = uuid.uuid4().hex.upper()[0:10] + '.jpeg'
                 self.instance.header_photo.save(filename, r.raw, save=True)
 
         return super(LocationForm, self).save(commit=commit)
@@ -90,8 +88,10 @@ class IsVerifiedFilter(admin.SimpleListFilter):
 
 @admin.register(models.Event)
 class EventAdmin(admin.ModelAdmin):
-    list_display = ("date_start", "name", "locationstr", "water_type", "source")
-    list_display_links = ("name",)
+    list_per_page = 30
+    list_display = ("date_start", "eventstr", "locationstr",
+                    "entry_quality")
+    list_display_links = ("eventstr",)
     list_filter = ("water_type", "source", IsVerifiedFilter, "organizer", "entry_quality")
     search_fields = ['name', 'location__city', 'location__country', 'organizer__name']
     exclude = ["edited_by", "edited_at"]
@@ -100,7 +100,34 @@ class EventAdmin(admin.ModelAdmin):
     ]
     date_hierarchy = 'date_start'
 
+    def changelist_view(self, request, extra_context=None):
+        if request.GET:
+            return super().changelist_view(request, extra_context=extra_context)
+
+        url = '{}??date_start__year=2021'.format(request.path)
+        from django.shortcuts import redirect
+        return redirect(url)
+
+    def eventstr(self, obj):
+        if (obj.invisible):
+            style = 'color:#999'
+        else:
+            style = ''
+        return format_html(f'<span style="{style}">{obj.name}</span>')
 
     def locationstr(self, obj):
         if obj.location:
             return f"{obj.location.city}, {obj.location.country}"
+
+    def entry_quality(self, obj):
+        rating = obj.get_quality_rating()
+        if (rating < 20):
+            color = 'rgba(244, 0, 0, 0.5)'
+        elif (rating < 26):
+            color = 'rgba(244, 122, 0, 0.5)'
+        else:
+            color = 'rgba(0, 255, 122, 0.5)'
+
+        return format_html(f'<span style="background-color: {color};'
+                           f'padding:2px">'
+                           f'{obj.get_quality_rating()}</span>')
