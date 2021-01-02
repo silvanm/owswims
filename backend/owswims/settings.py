@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     "corsheaders",
     "graphene_django",
     "djmoney",
+    "model_clone",
     "django_google_maps",
     "app",
 ]

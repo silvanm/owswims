@@ -1,13 +1,12 @@
-from datetime import date
 
-from crum import get_current_request, get_current_user
+from crum import get_current_user
 from django.contrib.auth.models import User
 from django.db import models
 from django.utils import timezone
-from django.utils.safestring import mark_safe
 from django_countries.fields import CountryField
 from djmoney.models.fields import MoneyField
 from django_google_maps import fields as map_fields
+from model_clone import CloneMixin
 
 
 class Location(models.Model):
@@ -36,7 +35,7 @@ class Organizer(models.Model):
         return repr(f"{self.name}")
 
 
-class Event(models.Model):
+class Event(CloneMixin, models.Model):
     name = models.CharField(max_length=100)
     website = models.URLField(max_length=200, blank=True)
     flyer_image = models.ImageField(upload_to='flyers', null=True, blank=True,
@@ -85,6 +84,8 @@ class Event(models.Model):
         null=True, blank=True, help_text="set if the event has been verified by the admin"
     )
 
+    _clone_many_to_one_or_one_to_many_fields = ['races']
+
     class Meta:
         ordering = ["date_start"]
 
@@ -95,7 +96,7 @@ class Event(models.Model):
         from app.services import EventChecker
         checker = EventChecker(self)
         return checker.get_rating()
-    
+
     def save(self, *args, **kwargs):
         user = get_current_user()
         if user and not user.pk:
@@ -108,7 +109,7 @@ class Event(models.Model):
         return repr(f"{self.date_start}, {self.name}, {self.location}")
 
 
-class Race(models.Model):
+class Race(CloneMixin, models.Model):
     """
     Represents a single race at one event
     """
