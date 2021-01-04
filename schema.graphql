@@ -81,7 +81,6 @@ type EventNode implements Node {
     "set if the event has been verified by the admin"
     verifiedAt: DateTime
     waterTemp: Float
-    waterType: EventWaterType
     website: String!
     withRanking: Boolean
 }
@@ -115,6 +114,8 @@ type LocationNode implements Node {
     id: ID!
     lat: Float
     lng: Float
+    waterName: String
+    waterType: LocationWaterType
 }
 
 type LocationNodeConnection {
@@ -160,7 +161,7 @@ type PageInfo {
 type Query {
     _debug: DjangoDebug
     allEvents(after: String, before: String, dateFrom: Date, dateTo: Date, first: Int, last: Int, location: ID, name: String, raceDistanceGte: Float, raceDistanceLte: Float, races: [ID], website: String): EventNodeConnection
-    allLocations(after: String, before: String, city: String, country: String, dateFrom: Date, dateTo: Date, events: [ID], first: Int, last: Int, lat: Float, lng: Float, raceDistanceGte: Float, raceDistanceLte: Float): LocationNodeConnection
+    allLocations(after: String, before: String, city: String, country: String, dateFrom: Date, dateTo: Date, events: [ID], first: Int, last: Int, lat: Float, lng: Float, raceDistanceGte: Float, raceDistanceLte: Float, waterName: String, waterType: String): LocationNodeConnection
     "The ID of the object"
     event(id: ID!): EventNode
     "The ID of the object"
@@ -205,18 +206,6 @@ enum EventEntryQuality {
     COMPLETE
     "Incomplete"
     INCOMPLETE
-}
-
-"An enumeration."
-enum EventWaterType {
-    "Lake"
-    LAKE
-    "Pool"
-    POOL
-    "River"
-    RIVER
-    "Sea"
-    SEA
 }
 
 "An enumeration."
@@ -719,6 +708,18 @@ enum LocationCountry {
     ZM
     "Zimbabwe"
     ZW
+}
+
+"An enumeration."
+enum LocationWaterType {
+    "Lake"
+    LAKE
+    "Pool"
+    POOL
+    "River"
+    RIVER
+    "Sea"
+    SEA
 }
 
 "An enumeration."

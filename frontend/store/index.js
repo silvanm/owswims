@@ -41,6 +41,8 @@ export const mutations = {
               headerPhoto
               lat
               lng
+              waterType
+              waterName
             }
             allEvents(
               dateFrom: $dateFrom
@@ -62,7 +64,6 @@ export const mutations = {
                   cancelled
                   withRanking
                   waterTemp
-                  waterType
                   organizer {
                     name
                     website

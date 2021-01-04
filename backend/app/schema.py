@@ -28,7 +28,7 @@ class LocationNode(DjangoObjectType):
     class Meta:
         model = Location
         filter_fields = ["city", "country", "events"]
-        fields = ("city", "country", "lat", "lng", "events", "header_photo")
+        fields = ("city", "water_type", "water_name", "country", "lat", "lng", "events", "header_photo")
         interfaces = (Node,)
 
     # returns the URL of the header photo
@@ -53,7 +53,7 @@ class LocationNodeFilter(django_filters.FilterSet):
 
     class Meta:
         model = Location
-        fields = ("city", "country", "lat", "lng", "events")
+        fields = ("city", "water_type", "water_name", "country", "lat", "lng", "events")
 
 
 class RaceNode(DjangoObjectType):

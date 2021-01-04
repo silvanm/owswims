@@ -30,6 +30,9 @@
             class="text-3xl font-bold text-white absolute bottom-0"
             style="bottom: 4px"
           >
+            <span v-if="pickedLocationData.location.waterName"
+              >{{ pickedLocationData.location.waterName }},
+            </span>
             {{ pickedLocationData.location.city }},
             {{ pickedLocationData.location.country }}
             <div v-if="$store.getters.mylocation.isAccurate" class="text-base">
@@ -105,8 +108,8 @@
               <font-awesome-icon icon="question-circle" />
             </span>
           </span>
-          <div id="pickedEvent-textprops" class="grid gap-0 grid-cols-3 my-2">
-            <div v-if="pickedEvent.node.organizer" class="textprop">
+          <div id="pickedEvent-textprops" class="flex my-2">
+            <div v-if="pickedEvent.node.organizer" class="textprop flex-1">
               <div class="textprop-label">Organizer</div>
               <a
                 v-if="pickedEvent.node.organizer.website"
@@ -121,16 +124,16 @@
                 {{ pickedEvent.node.organizer.name }}
               </div>
             </div>
-            <div v-if="pickedEvent.node.waterType" class="textprop">
+            <div v-if="pickedEvent.node.waterType" class="textprop flex-1">
               <div class="textprop-label">Water type</div>
               <div class="textprop-text">
                 {{
-                  pickedEvent.node.waterType[0] +
-                  pickedEvent.node.waterType.slice(1).toLowerCase()
+                  pickedLocationData.node.waterType[0] +
+                  pickedLocationData.node.waterType.slice(1).toLowerCase()
                 }}
               </div>
             </div>
-            <div v-if="pickedEvent.node.waterTemp" class="textprop">
+            <div v-if="pickedEvent.node.waterTemp" class="textprop flex-1">
               <div class="textprop-label">Water temperature</div>
               <div class="textprop-text">{{ pickedEvent.node.waterTemp }}°</div>
             </div>
@@ -169,7 +172,7 @@
                     {{ race.node.wetsuit }}
                   </span>
                 </td>
-                <td>
+                <td class="text-right">
                   <span v-if="race.node.priceValue !== 'None'">
                     {{ race.node.priceValue }}{{ race.node.priceCurrency }}
                   </span>

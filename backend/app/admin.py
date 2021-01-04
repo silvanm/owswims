@@ -50,7 +50,7 @@ class LocationAdmin(admin.ModelAdmin):
     formfield_overrides = {
         map_fields.AddressField: {'widget': map_widgets.GoogleMapsAddressWidget},
     }
-    list_display = ['city', 'country', 'image_display']
+    list_display = ['city', 'water_name', 'country', 'image_display']
     search_fields = ['city', 'country']
     readonly_fields = ('image_display',)
 
@@ -93,7 +93,7 @@ class EventAdmin(CloneModelAdmin):
     list_display = ("date_start", "eventstr", "locationstr",
                     "entry_quality_rating")
     list_display_links = ("eventstr",)
-    list_filter = ("water_type", "source", IsVerifiedFilter, "organizer", "entry_quality")
+    list_filter = ("source", IsVerifiedFilter, "organizer", "entry_quality")
     search_fields = ['name', 'location__city', 'location__country', 'organizer__name']
     exclude = ["edited_by", "edited_at"]
     inlines = [

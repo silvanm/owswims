@@ -144,7 +144,7 @@ export default {
       center,
       zoom: 5,
       disableDefaultUI: false,
-      mapTypeId: 'satellite',
+      mapTypeId: this.google.maps.MapTypeId.HYBRID,
       gestureHandling: 'greedy',
       mapTypeControlOptions: {
         style: this.google.maps.MapTypeControlStyle.HORIZONTAL_BAR,

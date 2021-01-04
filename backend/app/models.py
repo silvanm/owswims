@@ -11,6 +11,13 @@ from model_clone import CloneMixin
 
 class Location(models.Model):
     city = models.CharField(max_length=50)
+    water_name = models.CharField(max_length=50, null=True, blank=True)
+    water_type = models.CharField(
+        max_length=10,
+        choices=[("river", "River"), ("sea", "Sea"), ("lake", "Lake"), ("pool", "Pool")],
+        null=True,
+        blank=True,
+    )
     country = CountryField()
     lat = models.FloatField(null=True, blank=True)
     lng = models.FloatField(null=True, blank=True)
@@ -67,12 +74,6 @@ class Event(CloneMixin, models.Model):
     entry_quality = models.CharField(
         max_length=10,
         choices=[("incomplete", "Incomplete"), ("complete", "Complete")],
-        null=True,
-        blank=True,
-    )
-    water_type = models.CharField(
-        max_length=10,
-        choices=[("river", "River"), ("sea", "Sea"), ("lake", "Lake"), ("pool", "Pool")],
         null=True,
         blank=True,
     )
