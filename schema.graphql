@@ -134,8 +134,77 @@ type LocationNodeEdge {
 }
 
 type Mutation {
+    """
+
+    Register user with fields defined in the settings.
+
+    If the email field of the user model is part of the
+    registration fields (default), check if there is
+    no user with that email or as a secondary email.
+
+    If it exists, it does not register the user,
+    even if the email field is not defined as unique
+    (default of the default django user model).
+
+    When creating the user, it also creates a `UserStatus`
+    related to that user, making it possible to track
+    if the user is archived, verified and has a secondary
+    email.
+
+    Send account verification email.
+
+    If allowed to not verified users login, return token.
+    """
+    register(email: String!, password1: String!, password2: String!, username: String!): Register
+    """
+
+    Obtain JSON web token for given user.
+
+    Allow to perform login with different fields,
+    and secondary email if set. The fields are
+    defined on settings.
+
+    Not verified users can login by default. This
+    can be changes on settings.
+
+    If user is archived, make it unarchive and
+    return `unarchiving=True` on output.
+    """
+    tokenAuth(email: String, password: String!, username: String): ObtainJSONWebToken
     updateEvent(input: EventMutationInput!): EventMutationPayload
     updateLocation(input: LocationMutationInput!): LocationMutationPayload
+    """
+
+    Verify user account.
+
+    Receive the token that was sent by email.
+    If the token is valid, make the user verified
+    by making the `user.status.verified` field true.
+    """
+    verifyAccount(token: String!): VerifyAccount
+}
+
+"""
+
+Obtain JSON web token for given user.
+
+Allow to perform login with different fields,
+and secondary email if set. The fields are
+defined on settings.
+
+Not verified users can login by default. This
+can be changes on settings.
+
+If user is archived, make it unarchive and
+return `unarchiving=True` on output.
+"""
+type ObtainJSONWebToken {
+    errors: ExpectedErrorType
+    refreshToken: String
+    success: Boolean
+    token: String
+    unarchiving: Boolean
+    user: UserNode
 }
 
 type OrganizerNode implements Node {
@@ -167,8 +236,12 @@ type Query {
     "The ID of the object"
     location(id: ID!): LocationNode
     locationsFiltered(dateFrom: Date, dateTo: Date, keyword: String, raceDistanceGte: Float, raceDistanceLte: Float): [LocationNode]
+    me: UserNode
     "The ID of the object"
     organizer(id: ID!): OrganizerNode
+    "The ID of the object"
+    user(id: ID!): UserNode
+    users(after: String, before: String, email: String, first: Int, isActive: Boolean, last: Int, status_Archived: Boolean, status_SecondaryEmail: String, status_Verified: Boolean, username: String, username_Icontains: String, username_Istartswith: String): UserNodeConnection
 }
 
 type RaceNode implements Node {
@@ -198,6 +271,84 @@ type RaceNodeEdge {
     cursor: String!
     "The item at the end of the edge"
     node: RaceNode
+}
+
+"""
+
+Register user with fields defined in the settings.
+
+If the email field of the user model is part of the
+registration fields (default), check if there is
+no user with that email or as a secondary email.
+
+If it exists, it does not register the user,
+even if the email field is not defined as unique
+(default of the default django user model).
+
+When creating the user, it also creates a `UserStatus`
+related to that user, making it possible to track
+if the user is archived, verified and has a secondary
+email.
+
+Send account verification email.
+
+If allowed to not verified users login, return token.
+"""
+type Register {
+    errors: ExpectedErrorType
+    refreshToken: String
+    success: Boolean
+    token: String
+}
+
+type UserNode implements Node {
+    archived: Boolean
+    dateJoined: DateTime!
+    email: String!
+    "Author who has done the last edit"
+    eventSet(after: String, before: String, dateEnd_Gte: Date, dateEnd_Lte: Date, dateStart_Gte: Date, dateStart_Lte: Date, first: Int, last: Int, location: ID, location_City: String, location_City_Icontains: String, location_Country: String, name: String, website: String): EventNodeConnection!
+    firstName: String!
+    "The ID of the object."
+    id: ID!
+    "Designates whether this user should be treated as active. Unselect this instead of deleting accounts."
+    isActive: Boolean!
+    "Designates whether the user can log into this admin site."
+    isStaff: Boolean!
+    lastLogin: DateTime
+    lastName: String!
+    pk: Int
+    secondaryEmail: String
+    "Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only."
+    username: String!
+    verified: Boolean
+}
+
+type UserNodeConnection {
+    "Contains the nodes in this connection."
+    edges: [UserNodeEdge]!
+    "Pagination data for this connection."
+    pageInfo: PageInfo!
+}
+
+"A Relay edge containing a `UserNode` and its cursor."
+type UserNodeEdge {
+    "A cursor for use in pagination"
+    cursor: String!
+    "The item at the end of the edge"
+    node: UserNode
+}
+
+"""
+
+Verify user account.
+
+Receive the token that was sent by email.
+If the token is valid, make the user verified
+by making the `user.status.verified` field true.
+"""
+type VerifyAccount {
+    errors: ExpectedErrorType
+    success: Boolean
 }
 
 "An enumeration."
@@ -1128,13 +1279,6 @@ input LocationMutationInput {
 
 
 """
-The `Date` scalar type represents a Date
-value as specified by
-[iso8601](https://en.wikipedia.org/wiki/ISO_8601).
-"""
-scalar Date
-
-"""
 The `DateTime` scalar type represents a DateTime
 value as specified by
 [iso8601](https://en.wikipedia.org/wiki/ISO_8601).
@@ -1142,8 +1286,42 @@ value as specified by
 scalar DateTime
 
 """
+The `Date` scalar type represents a Date
+value as specified by
+[iso8601](https://en.wikipedia.org/wiki/ISO_8601).
+"""
+scalar Date
+
+"""
 The `Time` scalar type represents a Time value as
 specified by
 [iso8601](https://en.wikipedia.org/wiki/ISO_8601).
 """
 scalar Time
+
+"""
+Errors messages and codes mapped to
+fields or non fields errors.
+Example:
+{
+field_name: [
+{
+"message": "error message",
+"code": "error_code"
+            }
+],
+other_field: [
+{
+"message": "error message",
+"code": "error_code"
+            }
+],
+nonFieldErrors: [
+{
+"message": "error message",
+"code": "error_code"
+            }
+]
+}
+"""
+scalar ExpectedErrorType

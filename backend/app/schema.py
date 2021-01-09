@@ -5,7 +5,9 @@ import graphene
 from graphene import relay, Node
 from graphene_django.debug import DjangoDebug
 from graphene_django.filter import DjangoFilterConnectionField
+from graphql_auth import mutations
 from graphql_relay import from_global_id
+from graphql_auth.schema import UserQuery, MeQuery
 
 from app.models import Location, Race, Event, Organizer
 
@@ -72,6 +74,7 @@ def get_flyer_image_url(obj, resolve_obj):
     else:
         return None
 
+
 class EventNode(DjangoObjectType):
     class Meta:
         model = Event
@@ -118,7 +121,7 @@ class EventNodeFilter(django_filters.FilterSet):
         )
 
 
-class Query(graphene.ObjectType):
+class Query(UserQuery, MeQuery, graphene.ObjectType):
     location = relay.Node.Field(LocationNode)
     all_locations = DjangoFilterConnectionField(
         LocationNode, filterset_class=LocationNodeFilter
@@ -184,7 +187,13 @@ class LocationMutation(relay.ClientIDMutation):
         return LocationMutation(location=location)
 
 
-class Mutation(graphene.ObjectType):
+class AuthMutation(graphene.ObjectType):
+    register = mutations.Register.Field()
+    verify_account = mutations.VerifyAccount.Field()
+    token_auth = mutations.ObtainJSONWebToken.Field()
+
+
+class Mutation(AuthMutation, graphene.ObjectType):
     update_event = EventMutation.Field()
     update_location = LocationMutation.Field()
 

@@ -26,7 +26,6 @@ dotenv = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".env"))
 if dotenv and os.path.exists(dotenv):
     environ.Env.read_env(dotenv)
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
@@ -41,7 +40,6 @@ DEBUG = env.bool("DEBUG", False)
 
 ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["localhost"])
 
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -51,6 +49,8 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "graphql_auth",
+    'graphql_jwt.refresh_token.apps.RefreshTokenConfig',
     "corsheaders",
     "graphene_django",
     "djmoney",
@@ -97,7 +97,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "owswims.wsgi.application"
 
-
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
@@ -118,7 +117,7 @@ DATABASES = {
 AUTH_PASSWORD_VALIDATORS = [
     {
         "NAME": "django.contrib.auth.password_validation."
-        "UserAttributeSimilarityValidator",
+                "UserAttributeSimilarityValidator",
     },
     {
         "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
@@ -130,7 +129,6 @@ AUTH_PASSWORD_VALIDATORS = [
         "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
-
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.1/topics/i18n/
@@ -145,7 +143,6 @@ USE_L10N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
@@ -155,15 +152,36 @@ STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
 # see https://johnfraney.ca/posts/2019/05/14/integrate-django-vuejs/
 # Vue assets directory (assetsDir)
-#STATICFILES_DIRS = [
+# STATICFILES_DIRS = [
 #    os.path.join(FRONTEND_DIR, "dist/static"),
-#]
+# ]
 
 GOOGLE_MAPS_API_KEY = env.str("GOOGLE_MAPS_API_KEY")
 
-GRAPHENE = {"SCHEMA": "app.schema.schema"}
+GRAPHENE = {"SCHEMA": "app.schema.schema", 'MIDDLEWARE': [
+    'graphql_jwt.middleware.JSONWebTokenMiddleware',
+], }
+
+AUTHENTICATION_BACKENDS = [
+    "graphql_auth.backends.GraphQLAuthBackend",
+    'django.contrib.auth.backends.ModelBackend',
+]
+
+GRAPHQL_JWT = {
+    "JWT_VERIFY_EXPIRATION": True,
+    "JWT_LONG_RUNNING_REFRESH_TOKEN": True,
+    "JWT_ALLOW_ANY_CLASSES": [
+        "graphql_auth.mutations.Register",
+        "graphql_auth.mutations.VerifyAccount",
+        "graphql_auth.mutations.ObtainJSONWebToken",
+    ],
+}
 
 if env.str("GOOGLE_APPLICATION_CREDENTIALS", None):
     GOOGLE_APPLICATION_CREDENTIALS = env.str("GOOGLE_APPLICATION_CREDENTIALS", None)
 DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
 GS_BUCKET_NAME = env.str("GS_BUCKET_NAME", "owswims-local")
+
+GRAPHQL_AUTH = {
+    "ALLOW_LOGIN_NOT_VERIFIED": True
+}
