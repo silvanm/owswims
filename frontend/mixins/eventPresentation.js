@@ -73,7 +73,11 @@ export default {
       return format(new Date(dt), fmt)
     },
     formatRaceTime(tm) {
-      return format(new Date('2020-01-01 ' + tm), 'kk:mm')
+      if (tm) {
+        return ''
+      } else {
+        return format(new Date('2020-01-01 ' + tm), 'kk:mm')
+      }
     },
     humanizeDistance(d) {
       if (d <= 1.5) {

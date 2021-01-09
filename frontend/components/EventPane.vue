@@ -13,7 +13,7 @@
         }"
       >
         <div id="overlay" v-touch:swipe="slideHandler" @click="slideUp"></div>
-        <div class="p-4 lg:p-6 absolute text-center text-white w-full">
+        <div class="p-2 lg:p-6 absolute text-center text-white w-full">
           <span
             v-if="$device.isMobile()"
             v-touch:swipe="slideHandler"
@@ -22,10 +22,10 @@
             <font-awesome-icon icon="grip-lines" size="lg" />
           </span>
         </div>
-        <div class="p-4 lg:p-6 absolute right-0 text-white">
+        <div class="p-2 lg:p-6 absolute right-0 text-white">
           <CloseButton @collapse="close"></CloseButton>
         </div>
-        <div class="p-4 lg:p-6">
+        <div class="p-2 lg:p-6">
           <h2
             class="text-3xl font-bold text-white absolute bottom-0"
             style="bottom: 4px"
@@ -55,7 +55,7 @@
         </div>
       </div>
       <!-- List of dates -->
-      <div class="p-4 lg:p-6">
+      <div class="p-3 lg:p-6">
         <ul v-if="pickedLocationData.allEvents.edges.length > 1" class="tabs">
           <li
             v-for="(event, ix) in pickedLocationData.allEvents.edges"
@@ -145,41 +145,43 @@
               {{ pickedEvent.node.description }}
             </div>
           </div>
-          <table class="min-w-full" style="max-height: 200px; overflow: scroll">
-            <thead>
-              <th>Races</th>
-              <th></th>
-              <th></th>
-              <th>Wetsuit</th>
-            </thead>
-            <tbody>
-              <tr
-                v-for="race in pickedEvent.node.races.edges"
-                :key="race.node.id"
-              >
-                <td>
-                  {{ formatEventDate(race.node.date, true) }}
-                  <span v-if="race.node.raceTime">
-                    {{ formatRaceTime(race.node.raceTime) }}
-                  </span>
-                </td>
-                <td class="text-right">
-                  {{ humanizeDistance(race.node.distance) }}
-                </td>
-                <td>{{ race.node.name }}</td>
-                <td>
-                  <span v-if="race.node.wetsuit" class="badge">
-                    {{ race.node.wetsuit }}
-                  </span>
-                </td>
-                <td class="text-right">
-                  <span v-if="race.node.priceValue !== 'None'">
-                    {{ race.node.priceValue }}{{ race.node.priceCurrency }}
-                  </span>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+          <div id="race-table">
+            <table class="min-w-full">
+              <thead>
+                <th>Races</th>
+                <th></th>
+                <th></th>
+                <th>Wetsuit</th>
+              </thead>
+              <tbody>
+                <tr
+                  v-for="race in pickedEvent.node.races.edges"
+                  :key="race.node.id"
+                >
+                  <td>
+                    {{ formatEventDate(race.node.date, true) }}
+                    <span v-if="race.node.raceTime">
+                      {{ formatRaceTime(race.node.raceTime) }}
+                    </span>
+                  </td>
+                  <td class="text-right">
+                    {{ humanizeDistance(race.node.distance) }}
+                  </td>
+                  <td>{{ race.node.name }}</td>
+                  <td>
+                    <span v-if="race.node.wetsuit" class="badge">
+                      {{ race.node.wetsuit }}
+                    </span>
+                  </td>
+                  <td class="text-right">
+                    <span v-if="race.node.priceValue !== 'None'">
+                      {{ race.node.priceValue }}{{ race.node.priceCurrency }}
+                    </span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>
@@ -258,8 +260,14 @@ export default {
             top: window.innerHeight - this.$el.clientHeight + 'px',
           }
         } else {
+          let height
+          if (this.$device.isSmall()) {
+            height = 120
+          } else {
+            height = 160
+          }
           this.eventPaneStyle = {
-            top: window.innerHeight - 160 + 'px', // height of the header
+            top: window.innerHeight - height + 'px', // height of the header
           }
         }
       } else {
@@ -280,6 +288,7 @@ export default {
       this.updateEventPaneStyle()
     },
     slideHandler(direction, e) {
+      this.$gtag('event', 'eventPaneSlideHandler', direction)
       if (e) {
         e.preventDefault()
       }
@@ -317,7 +326,12 @@ export default {
   position: relative;
   background-size: cover;
   background-position: center;
-  height: 160px;
+  height: 120px;
+  box-shadow: 0 0 7px rgba(0, 0, 0, 0.5);
+
+  @screen sm {
+    height: 160px;
+  }
 }
 
 #overlay {
@@ -328,7 +342,11 @@ export default {
     rgba(0, 0, 0, 0.5)
   );
   width: 100%;
-  height: 160px;
+  height: 120px;
+
+  @screen sm {
+    height: 160px;
+  }
 }
 
 ul.tabs {
@@ -375,6 +393,16 @@ ul.tabs {
   .textprop-label {
     @apply font-bold;
     /*width: 100px;*/
+  }
+}
+
+#race-table {
+  max-height: 200px;
+  overflow: scroll;
+
+  @screen lg {
+    max-height: auto;
+    overflow: auto;
   }
 }
 

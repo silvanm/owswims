@@ -1,7 +1,7 @@
 <template>
   <div id="filter">
     <!-- pb-3 is a hack because the div which can collapse always has a height of 2 -->
-    <div class="bg-white p-4 pb-3 lg:p-6 lg:pb-5 relative overflow-hidden">
+    <div class="bg-white p-3 pb-2 lg:p-6 lg:pb-5 relative overflow-hidden">
       <h1 class="text-xl md:text-2xl font-semibold text-primary">
         ‍️European Open-Water Swims
         <div class="inline float-right">
@@ -80,7 +80,7 @@
           />
         </div>
         <!-- Search by other parameters -->
-        <h2 class="font-semibold pb-2 pt-4">Race Distance</h2>
+        <h2 class="font-semibold pb-2 pt-3 lg:pt-4">Race Distance</h2>
         <div id="race-distance-slider" class="pl-4 pr-4 pb-5">
           <client-only>
             <vue-slider
@@ -138,12 +138,12 @@ export default {
   },
   watch: {
     distanceRange(newRange, oldRange) {
-      this.$gtag('event', 'distanceRange', newRange)
       this.$store.commit('distanceRange', newRange)
+      this.$gtag('event', 'distanceRange')
     },
     keyword(newKeyword, oldKeyword) {
       this.$store.commit('keyword', newKeyword)
-      this.$gtag('event', 'keyword', newKeyword)
+      this.$gtag('event', 'keyword')
     },
   },
   async mounted() {
@@ -168,7 +168,7 @@ export default {
     updateDateRange(range) {
       this.dateRange = range
       this.$store.commit('dateRange', range)
-      this.$gtag('event', 'dateRange', range)
+      this.$gtag('event', 'dateRange')
     },
     collapse() {
       if (this.$device.isMobile()) {
@@ -183,6 +183,7 @@ export default {
 #filter {
   @apply absolute w-full;
   transition: top 0.5s;
+  box-shadow: 0 0 7px rgba(0, 0, 0, 0.5);
 
   @screen lg {
     /* on large screen the event pane is attached to the top */

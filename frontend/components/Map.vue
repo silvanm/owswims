@@ -220,6 +220,7 @@ export default {
         markerObj.addListener('click', () => {
           this.$store.commit('pickedLocationId', location.id)
           this.$emit('locationPicked')
+          this.$gtag('event', 'locationPicked', location.id)
           this.pickedLocationId = location.id
           this.pickedLocation = location
           this.location = location
