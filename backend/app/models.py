@@ -1,6 +1,6 @@
-
 from crum import get_current_user
 from django.contrib.auth.models import User
+from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.utils import timezone
 from django_countries.fields import CountryField
@@ -119,6 +119,15 @@ class Race(CloneMixin, models.Model):
     race_time = models.TimeField(help_text="Date and time of event, in local time", default=None, blank=True, null=True)
     event = models.ForeignKey("Event", related_name="races", on_delete=models.CASCADE)
     distance = models.FloatField(verbose_name="Distance (km)")
+    coordinates = ArrayField(
+        ArrayField(
+            models.FloatField(),
+            size=2,
+        ),
+        null=True,
+        blank=True,
+        help_text="Coordinates (lat/lng) of track"
+    )
     name = models.CharField(max_length=30, null=True, blank=True)
     wetsuit = models.CharField(
         max_length=10,

@@ -1,6 +1,6 @@
 <template>
   <div class="xl:m-4">
-    <Tour></Tour>
+    <LoginBox v-if="loginboxShown" @hide="doHideLogin"></LoginBox>
     <client-only>
       <Map
         v-if="locationsFiltered"
@@ -15,7 +15,7 @@
       />
     </client-only>
     <Spinner :show="isLoading"></Spinner>
-    <FilterBox ref="filterbox"></FilterBox>
+    <FilterBox ref="filterbox" @showLogin="doShowLogin"></FilterBox>
     <EventPane v-if="$store.getters.pickedLocationId"></EventPane>
   </div>
 </template>
@@ -26,14 +26,13 @@ import { addMonths, formatISO } from 'date-fns'
 import 'assets/slider.css'
 import 'assets/v-tooltip.css'
 import Spinner from '@/components/Spinner'
-import Tour from '@/components/Tour'
 import EventPane from '@/components/EventPane'
 import FilterBox from '@/components/FilterBox'
 import { mapGetters } from 'vuex'
 import axios from 'axios'
 
 export default {
-  components: { FilterBox, EventPane, Spinner, Tour },
+  components: { FilterBox, EventPane, Spinner },
   apollo: {
     locationsFiltered: {
       query: gql`
@@ -82,6 +81,7 @@ export default {
       lng: null,
       geoLocationEnabled: false,
       filterCollapsed: false,
+      loginboxShown: false,
     }
   },
   computed: {
@@ -107,6 +107,12 @@ export default {
   methods: {
     locationPicked() {
       this.$refs.filterbox.collapse()
+    },
+    doShowLogin() {
+      this.loginboxShown = true
+    },
+    doHideLogin() {
+      this.loginboxShown = false
     },
   },
 }

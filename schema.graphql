@@ -173,6 +173,7 @@ type Mutation {
     tokenAuth(email: String, password: String!, username: String): ObtainJSONWebToken
     updateEvent(input: EventMutationInput!): EventMutationPayload
     updateLocation(input: LocationMutationInput!): LocationMutationPayload
+    updateRace(input: RaceMutationInput!): RaceMutationPayload
     """
 
     Verify user account.
@@ -240,11 +241,20 @@ type Query {
     "The ID of the object"
     organizer(id: ID!): OrganizerNode
     "The ID of the object"
+    race(id: ID!): RaceNode
+    "The ID of the object"
     user(id: ID!): UserNode
     users(after: String, before: String, email: String, first: Int, isActive: Boolean, last: Int, status_Archived: Boolean, status_SecondaryEmail: String, status_Verified: Boolean, username: String, username_Icontains: String, username_Istartswith: String): UserNodeConnection
 }
 
+type RaceMutationPayload {
+    clientMutationId: String
+    race: RaceNode
+}
+
 type RaceNode implements Node {
+    "Coordinates (lat/lng) of track"
+    coordinates: [[Float!]]
     "Date of event, in local time"
     date: Date!
     distance: Float!
@@ -1274,6 +1284,12 @@ input EventMutationInput {
 input LocationMutationInput {
     city: String!
     clientMutationId: String
+    id: ID
+}
+
+input RaceMutationInput {
+    clientMutationId: String
+    coordinates: [Float]!
     id: ID
 }
 

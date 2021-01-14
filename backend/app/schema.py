@@ -6,6 +6,7 @@ from graphene import relay, Node
 from graphene_django.debug import DjangoDebug
 from graphene_django.filter import DjangoFilterConnectionField
 from graphql_auth import mutations
+from graphql_jwt.decorators import login_required
 from graphql_relay import from_global_id
 from graphql_auth.schema import UserQuery, MeQuery
 
@@ -62,7 +63,7 @@ class RaceNode(DjangoObjectType):
     class Meta:
         model = Race
         filter_fields = {"distance": ["lte", "gte"]}
-        fields = ("date", "race_time", "name", "distance", "wetsuit", "price_value", "price_currency")
+        fields = ("date", "race_time", "name", "distance", "wetsuit", "price_value", "price_currency", "coordinates")
         interfaces = (Node,)
 
     price_value = graphene.String(resolver=lambda obj, resolve_obj: str(obj.price))
@@ -131,6 +132,8 @@ class Query(UserQuery, MeQuery, graphene.ObjectType):
     event = relay.Node.Field(EventNode)
     all_events = DjangoFilterConnectionField(EventNode, filterset_class=EventNodeFilter)
 
+    race = relay.Node.Field(RaceNode)
+
     # Not GraphQL style, but leads to fast query not returning dates without
     # events
     locations_filtered = graphene.List(
@@ -180,11 +183,28 @@ class LocationMutation(relay.ClientIDMutation):
     location = graphene.Field(LocationNode)
 
     @classmethod
+    @login_required
     def mutate_and_get_payload(cls, root, info, city, id, client_mutation_id=None):
         location = Location.objects.get(pk=from_global_id(id)[1])
         location.city = city
         location.save()
         return LocationMutation(location=location)
+
+
+class RaceMutation(relay.ClientIDMutation):
+    class Input:
+        coordinates = graphene.List(graphene.Float, required=True)
+        id = graphene.ID()
+
+    race = graphene.Field(RaceNode)
+
+    @classmethod
+    @login_required
+    def mutate_and_get_payload(cls, root, info, coordinates, id, client_mutation_id=None):
+        race = Race.objects.get(pk=from_global_id(id)[1])
+        race.coordinates = [coordinates[i:i + 2] for i in range(0, len(coordinates), 2)]
+        race.save()
+        return RaceMutation(race=race)
 
 
 class AuthMutation(graphene.ObjectType):
@@ -196,6 +216,7 @@ class AuthMutation(graphene.ObjectType):
 class Mutation(AuthMutation, graphene.ObjectType):
     update_event = EventMutation.Field()
     update_location = LocationMutation.Field()
+    update_race = RaceMutation.Field()
 
 
 schema = graphene.Schema(query=Query, mutation=Mutation)

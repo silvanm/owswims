@@ -5,7 +5,10 @@ export default ({ app }, inject) => {
     if (window.google) {
       return window.google
     } else {
-      const loader = new Loader(process.env.googleMapsKey, { version: 'beta' })
+      const loader = new Loader(process.env.googleMapsKey, {
+        version: 'beta',
+        libraries: ['drawing'],
+      })
       window.google = await loader.load()
     }
   })

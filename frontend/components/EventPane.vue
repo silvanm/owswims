@@ -178,6 +178,15 @@
                       {{ race.node.priceValue }}{{ race.node.priceCurrency }}
                     </span>
                   </td>
+                  <td v-if="$store.getters['auth/loggedIn']">
+                    <button
+                      @click="
+                        $store.commit('raceTrackUnderEditId', race.node.id)
+                      "
+                    >
+                      edit
+                    </button>
+                  </td>
                 </tr>
               </tbody>
             </table>

@@ -13,7 +13,7 @@
           padding: 9px;
         "
       >
-        <button @click="centerMap" class="text-gray-600">
+        <button class="text-gray-600" @click="centerMap">
           <font-awesome-icon
             icon="location-arrow"
             size="2x"
@@ -47,6 +47,11 @@
       </div>
     </div>
     <div id="map"></div>
+    <CourseEditor
+      v-if="$store.getters.raceTrackUnderEditId && google.maps"
+      :map="map"
+      :google="google"
+    ></CourseEditor>
   </div>
 </template>
 <script>
@@ -89,9 +94,13 @@ export default {
       locationIdToMarker: {},
       pickedLocationId: 'TG9jYXRpb25Ob2RlOjE4NTg=',
       pickedLocation: null,
-      // Stores travel times per location (null == not possible to fetch)
+      // Travel times per location (null == not possible to fetch)
       travelTimes: {},
       formattedTravelDistance: '',
+      google: {},
+      map: {},
+      // TrackOverlays. Key: RaceId
+      raceTrackOverlays: {},
     }
   },
   computed: {
@@ -129,6 +138,37 @@ export default {
           map: this.map,
         })
       }
+    },
+    pickedLocationData(newData, oldData) {
+      // Draw Race Track Overlays
+      newData.allEvents.edges.forEach((event) => {
+        event.node.races.edges.forEach((race) => {
+          if (
+            race.node.coordinates &&
+            race.node.coordinates.length > 0 &&
+            !(race.node.id in this.raceTrackOverlays)
+          ) {
+            const coordinateObj = race.node.coordinates
+
+            const coordinateArray = coordinateObj.map((i) => {
+              return {
+                lat: i[0],
+                lng: i[1],
+              }
+            })
+
+            const raceTrackOverlay = new this.google.maps.Polyline({
+              path: coordinateArray,
+              geodesic: true,
+              strokeColor: '#FF0000',
+              strokeOpacity: 1.0,
+              strokeWeight: 2,
+            })
+            raceTrackOverlay.setMap(this.map)
+            this.raceTrackOverlays[race.node.id] = raceTrackOverlay
+          }
+        })
+      })
     },
   },
   async mounted() {

@@ -13,6 +13,7 @@ export const state = () => ({
   pickedLocationData: null,
   travelTimes: [],
   isLoading: false,
+  raceTrackUnderEditId: null,
 })
 
 export const mutations = {
@@ -74,6 +75,7 @@ export const mutations = {
                   ) {
                     edges {
                       node {
+                        id
                         distance
                         date
                         raceTime
@@ -81,6 +83,7 @@ export const mutations = {
                         distance
                         wetsuit
                         priceValue
+                        coordinates
                       }
                     }
                   }
@@ -122,6 +125,9 @@ export const mutations = {
   isLoading(s, isLoading) {
     s.isLoading = isLoading
   },
+  raceTrackUnderEditId(s, raceTrackUnderEditId) {
+    s.raceTrackUnderEditId = raceTrackUnderEditId
+  },
 }
 
 export const getters = {
@@ -154,6 +160,9 @@ export const getters = {
   },
   isLoading(s) {
     return s.isLoading
+  },
+  raceTrackUnderEditId(s) {
+    return s.raceTrackUnderEditId
   },
 }
 

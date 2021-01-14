@@ -102,6 +102,7 @@ export default {
     clientConfigs: {
       default: {
         httpEndpoint: process.env.GRAPHQL_ENDPOINT,
+        tokenName: 'apollo-token',
       },
     },
   },

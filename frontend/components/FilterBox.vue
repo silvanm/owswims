@@ -35,12 +35,12 @@
         }"
       >
         <div
+          id="infos"
+          class="overflow-hidden mt-2"
           style="transition: max-height 0.5s linear"
           :style="{
             maxHeight: !showInfos ? 0 : '500px',
           }"
-          class="overflow-hidden mt-2"
-          id="infos"
         >
           <p>
             If you plan your vacations around open-water swim events, then this
@@ -62,12 +62,12 @@
         </div>
         <!-- Keyword search -->
         <div
+          id="optional-search-params"
           style="transition: max-height 0.5s linear"
           :style="{
             maxHeight: !showOptionalSearchParams ? 0 : '500px',
           }"
           class="overflow-hidden"
-          id="optional-search-params"
         >
           <label class="block font-semibold pb-2 pt-4" for="keyword"
             >Keyword search</label
@@ -103,11 +103,24 @@
           @change="(e) => (e ? $store.dispatch('locateMe') : null)"
           ><span id="activate-geolocation">Show trip duration</span></Toggle
         >
-        <div v-if="!$device.isMobile()" class="mt-2 text-gray-600">
-          Powered by
-          <a href="https://muehlemann-popp.ch" target="_blank"
-            >Mühlemann&Popp</a
-          >
+        <div v-if="!$device.isMobile()" class="mt-2">
+          <span class="cursor-pointer">
+            <a
+              v-if="$store.getters['auth/loggedIn']"
+              @click="$store.dispatch('auth/logout')"
+              class="mr-2"
+              >Logout</a
+            >
+            <span v-else>
+              <a @click="$emit('showLogin')">Login</a>
+            </span>
+          </span>
+          <!--<div class="text-gray-600">
+            Powered by
+            <a href="https://muehlemann-popp.ch" target="_blank"
+              >Mühlemann&Popp</a
+            ></div
+          >-->
         </div>
       </div>
     </div>
