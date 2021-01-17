@@ -37,18 +37,19 @@ export default {
             password,
           },
         })
-        .then(
-          (result) => {
-            this.$apolloHelpers.onLogin(result.data.tokenAuth.token)
+        .then((result) => {
+          this.$apolloHelpers.onLogin(result.data.tokenAuth.token)
+          if (result.data.tokenAuth.success) {
             commit('loginSuccess', result.data.tokenAuth.user.username)
             localStorage.setItem('user', result.data.tokenAuth.user.username)
-            this.$router.push('/')
-          },
-          (error) => {
-            commit('loginFailure', error)
-            dispatch('alert/error', error, { root: true })
+            this.$toast.success('Successfully authenticated')
+          } else {
+            const message =
+              result.data.tokenAuth.errors.nonFieldErrors[0].message
+            commit('loginFailure')
+            this.$toast.error(message)
           }
-        )
+        })
     },
     logout({ commit }) {
       this.$apolloHelpers.onLogout()
@@ -65,7 +66,7 @@ export default {
       state.status = { loggedIn: true }
       state.user = user
     },
-    loginFailure(state) {
+    loginFailure(state, message) {
       state.status = {}
       state.user = null
     },

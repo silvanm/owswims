@@ -1,14 +1,6 @@
 <template>
-  <div
-    style="
-      position: absolute;
-      background-color: white;
-      top: 0;
-      left: 0;
-      z-index: 10;
-    "
-  >
-    <button @click="cancelEdit">Cancel</button>
+  <div ref="drawingcontrols" id="drawing-controls">
+    <button @click="cancelEdit">Close</button>
     <button @click="deleteTrack">Delete</button>
   </div>
 </template>
@@ -41,6 +33,10 @@ export default {
       },
     })
 
+    this.map.controls[this.google.maps.ControlPosition.TOP_CENTER].push(
+      this.$refs.drawingcontrols
+    )
+
     const self = this
 
     this.google.maps.event.addListener(
@@ -67,10 +63,15 @@ export default {
   },
   methods: {
     cancelEdit() {
-      self.$store.commit('raceTrackUnderEditId', null)
+      this.$store.commit('raceTrackUnderEditId', null)
     },
     deleteTrack() {
       this.saveTrack([])
+      this.$store.commit(
+        'raceTrackDeletedId',
+        this.$store.getters.raceTrackUnderEditId
+      )
+      this.$toast.info('Track deleted')
     },
     async saveTrack(coordinateStream) {
       this.$store.commit('isLoading', true)
@@ -91,7 +92,17 @@ export default {
         },
       })
       this.$store.commit('isLoading', false)
+      this.$toast.info('Track saved')
     },
   },
 }
 </script>
+<style lang="scss">
+#drawing-controls {
+  margin: 5px;
+  button {
+    @apply bg-white font-bold cursor-pointer m-0 p-1;
+    height: 24px;
+  }
+}
+</style>

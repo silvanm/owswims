@@ -1,6 +1,9 @@
 <template>
   <div class="xl:m-4">
-    <LoginBox v-if="loginboxShown" @hide="doHideLogin"></LoginBox>
+    <LoginBox
+      v-if="loginboxShown && !$store.getters['auth/loggedIn']"
+      @hide="doHideLogin"
+    ></LoginBox>
     <client-only>
       <Map
         v-if="locationsFiltered"

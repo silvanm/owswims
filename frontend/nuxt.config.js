@@ -96,7 +96,7 @@ export default {
   ],
 
   // Modules (https://go.nuxtjs.dev/config-modules)
-  modules: ['@nuxtjs/apollo', '@nuxtjs/google-gtag'],
+  modules: ['@nuxtjs/apollo', '@nuxtjs/google-gtag', '@nuxtjs/toast'],
 
   apollo: {
     clientConfigs: {
@@ -129,6 +129,7 @@ export default {
         'faLocationArrow',
         'faInfoCircle',
         'faImage',
+        'faEdit',
       ],
     },
   },
@@ -136,5 +137,10 @@ export default {
   'google-gtag': {
     id: 'UA-10357230-11',
     debug: false,
+  },
+
+  toast: {
+    position: 'bottom-center',
+    duration: 2000,
   },
 }

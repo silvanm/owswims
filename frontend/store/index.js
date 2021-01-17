@@ -14,6 +14,8 @@ export const state = () => ({
   travelTimes: [],
   isLoading: false,
   raceTrackUnderEditId: null,
+  raceTrackUnderFocusId: null,
+  raceTrackDeletedId: null,
 })
 
 export const mutations = {
@@ -128,6 +130,12 @@ export const mutations = {
   raceTrackUnderEditId(s, raceTrackUnderEditId) {
     s.raceTrackUnderEditId = raceTrackUnderEditId
   },
+  raceTrackUnderFocusId(s, raceTrackUnderFocusId) {
+    s.raceTrackUnderFocusId = raceTrackUnderFocusId
+  },
+  raceTrackDeletedId(s, raceTrackDeletedId) {
+    s.raceTrackDeletedId = raceTrackDeletedId
+  },
 }
 
 export const getters = {
@@ -163,6 +171,12 @@ export const getters = {
   },
   raceTrackUnderEditId(s) {
     return s.raceTrackUnderEditId
+  },
+  raceTrackUnderFocusId(s) {
+    return s.raceTrackUnderFocusId
+  },
+  raceTrackDeletedId(s) {
+    return s.raceTrackDeletedId
   },
 }
 

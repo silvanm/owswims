@@ -104,7 +104,14 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['mylocation', 'pickedLocationData', 'isLoading']),
+    ...mapGetters([
+      'mylocation',
+      'pickedLocationData',
+      'isLoading',
+      'raceTrackUnderEditId',
+      'raceTrackUnderFocusId',
+      'raceTrackDeletedId',
+    ]),
   },
   watch: {
     locations(newlocations, oldlocations) {
@@ -160,15 +167,58 @@ export default {
             const raceTrackOverlay = new this.google.maps.Polyline({
               path: coordinateArray,
               geodesic: true,
-              strokeColor: '#FF0000',
+              strokeColor: '#FFFFFF',
               strokeOpacity: 1.0,
               strokeWeight: 2,
             })
+
+            // take the middle coordinate and apply a label there
+            const middleCoordinate =
+              coordinateArray[Math.floor(coordinateArray.length / 2)]
+
+            // add a marker
+            // eslint-disable-next-line no-new
+            const label = new this.google.maps.Marker({
+              position: middleCoordinate,
+              // position: { lat: 0, lng: 0 },
+              map: this.map,
+              icon:
+                'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=',
+              label: {
+                color: '#FFFFFF',
+                text: this.humanizeDistance(race.node.distance),
+                fontSize: '12px',
+              },
+            })
+
             raceTrackOverlay.setMap(this.map)
-            this.raceTrackOverlays[race.node.id] = raceTrackOverlay
+            this.raceTrackOverlays[race.node.id] = {
+              polyline: raceTrackOverlay,
+              label,
+            }
           }
         })
       })
+    },
+    raceTrackUnderEditId(newData, oldData) {
+      for (const raceId of Object.keys(this.raceTrackOverlays)) {
+        const color = newData === raceId ? '#FFFF00' : '#FFFFFF'
+        this.raceTrackOverlays[raceId].polyline.setOptions({
+          strokeColor: color,
+        })
+      }
+    },
+    raceTrackUnderFocusId(newData, oldData) {
+      for (const raceId of Object.keys(this.raceTrackOverlays)) {
+        const weight = newData === raceId ? 4 : 2
+        this.raceTrackOverlays[raceId].polyline.setOptions({
+          strokeWeight: weight,
+        })
+      }
+    },
+    raceTrackDeletedId(newData, oldData) {
+      this.raceTrackOverlays[newData].label.setMap(null)
+      this.raceTrackOverlays[newData].polylined.setMap(null)
     },
   },
   async mounted() {
@@ -198,6 +248,9 @@ export default {
     if (this.$route.query.location) {
       this.openLocation(this.$route.query.location)
     }
+    this.map.addListener('zoom_changed', () => {
+      this.zoomChanged()
+    })
   },
   methods: {
     markerPin() {
@@ -305,6 +358,13 @@ export default {
       this.map.panTo(this.locationIdToMarker[id].position)
       this.map.setZoom(10)
       this.google.maps.event.trigger(this.locationIdToMarker[id], 'click')
+    },
+    zoomChanged() {
+      const zoom = this.map.getZoom()
+      // hide labels if zoomed out
+      for (const raceId of Object.keys(this.raceTrackOverlays)) {
+        this.raceTrackOverlays[raceId].label.setVisible(zoom > 9)
+      }
     },
   },
 }

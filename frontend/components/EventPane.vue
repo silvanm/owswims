@@ -155,6 +155,8 @@
               </thead>
               <tbody>
                 <tr
+                  @mouseover="raceRowHover(race.node.id)"
+                  @mouseleave="raceRowHover(null)"
                   v-for="race in pickedEvent.node.races.edges"
                   :key="race.node.id"
                 >
@@ -180,11 +182,16 @@
                   </td>
                   <td v-if="$store.getters['auth/loggedIn']">
                     <button
+                      :class="{
+                        'edit-button': true,
+                        'is-editing':
+                          race.node.id == $store.getters.raceTrackUnderEditId,
+                      }"
                       @click="
                         $store.commit('raceTrackUnderEditId', race.node.id)
                       "
                     >
-                      edit
+                      <font-awesome-icon icon="edit" />
                     </button>
                   </td>
                 </tr>
@@ -312,6 +319,10 @@ export default {
       this.showLightbox = true
       this.$gtag('event', 'showEventPaneLightbox')
     },
+    raceRowHover(id) {
+      console.log(id)
+      this.$store.commit('raceTrackUnderFocusId', id)
+    },
   },
 }
 </script>
@@ -412,6 +423,14 @@ ul.tabs {
   @screen lg {
     max-height: auto;
     overflow: auto;
+  }
+
+  .edit-button {
+    @apply rounded px-1 text-blue-600;
+
+    &.is-editing {
+      @apply bg-blue-600 text-white;
+    }
   }
 }
 

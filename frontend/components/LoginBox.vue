@@ -3,19 +3,34 @@
     class="absolute flex items-center justify-center h-screen w-screen"
     style="z-index: 5"
   >
-    <div class="rounded border-blue-600 border-2 p-4 bg-white">
+    <div class="p-4 bg-white shadow-xl">
+      <div class="float-right">
+        <CloseButton ref="closebutton" @collapse="$emit('hide')"></CloseButton>
+      </div>
       <h1 class="font-bold text-xl">Login</h1>
-      <div>
-        <label for="username">Username</label>
-        <input id="username" v-model="username" />
-      </div>
+      <form>
+        <div class="my-2">
+          <label for="username" class="block">Username</label>
+          <input
+            id="username"
+            class="block"
+            v-model="username"
+            autocomplete="username"
+          />
+        </div>
 
-      <div>
-        <label>Password</label>
-        <input id="password" type="password" v-model="password" />
-      </div>
-      <button type="submit" @click="login">Login</button>
-      <pre>{{ result }}</pre>
+        <div class="my-2">
+          <label class="block">Password</label>
+          <input
+            id="password"
+            class="block"
+            type="password"
+            autocomplete="current-password"
+            v-model="password"
+          />
+        </div>
+        <button type="button" @click="login">Login</button>
+      </form>
     </div>
   </div>
 </template>
@@ -30,11 +45,14 @@ export default {
   },
   methods: {
     async login() {
-      await this.$store.dispatch('auth/login', {
-        username: this.username,
-        password: this.password,
-      })
-      this.$emit('hide')
+      try {
+        await this.$store.dispatch('auth/login', {
+          username: this.username,
+          password: this.password,
+        })
+      } catch (e) {
+        console.log(e)
+      }
     },
   },
 }
@@ -42,7 +60,8 @@ export default {
 <style lang="scss" scoped>
 div {
   input {
-    @apply border m-2 p-2;
+    @apply border p-2;
+    width: 300px;
   }
 
   button {
