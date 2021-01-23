@@ -119,6 +119,7 @@ class EventNodeFilter(django_filters.FilterSet):
             "website",
             "location",
             "races",
+            "slug"
         )
 
 
@@ -139,7 +140,7 @@ class Query(UserQuery, MeQuery, graphene.ObjectType):
     locations_filtered = graphene.List(
         LocationNode, date_from=graphene.Date(), date_to=graphene.Date(),
         race_distance_gte=graphene.Float(), race_distance_lte=graphene.Float(),
-        keyword=graphene.String()
+        keyword=graphene.String(), event_slug=graphene.String()
     )
 
     def resolve_locations_filtered(root, info, race_distance_gte, race_distance_lte,

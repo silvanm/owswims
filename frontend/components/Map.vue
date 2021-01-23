@@ -59,6 +59,7 @@ import MarkerClusterer from '@googlemaps/markerclustererplus'
 import eventPresentation from '@/mixins/eventPresentation'
 import { mapGetters } from 'vuex'
 import calculateDistance from 'assets/js/calculateDistance'
+import gql from 'graphql-tag'
 
 export default {
   mixins: [eventPresentation],
@@ -110,6 +111,7 @@ export default {
       'isLoading',
       'raceTrackUnderEditId',
       'raceTrackUnderFocusId',
+      'raceTrackUnderHoverId',
       'raceTrackDeletedId',
     ]),
   },
@@ -164,23 +166,41 @@ export default {
               }
             })
 
+            const arrowSymbol = {
+              path: this.google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
+              fillColor: 'white',
+              fillOpacity: 1,
+            }
+
             const raceTrackOverlay = new this.google.maps.Polyline({
               path: coordinateArray,
               geodesic: true,
               strokeColor: '#FFFFFF',
-              strokeOpacity: 1.0,
+              strokeOpacity: 0.5,
               strokeWeight: 2,
+              icons: [
+                {
+                  icon: arrowSymbol,
+                  offset: '33%',
+                },
+                {
+                  icon: arrowSymbol,
+                  offset: '66%',
+                },
+                {
+                  icon: arrowSymbol,
+                  offset: '100%',
+                },
+              ],
             })
 
             // take the middle coordinate and apply a label there
             const middleCoordinate =
               coordinateArray[Math.floor(coordinateArray.length / 2)]
 
-            // add a marker
-            // eslint-disable-next-line no-new
+            // add a marker without icon to achieve a label
             const label = new this.google.maps.Marker({
               position: middleCoordinate,
-              // position: { lat: 0, lng: 0 },
               map: this.map,
               icon:
                 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=',
@@ -208,12 +228,25 @@ export default {
         })
       }
     },
+    raceTrackUnderHoverId(newData, oldData) {
+      // Called when one hovers over a racetrack
+      this.highlightRacetrack(newData)
+    },
     raceTrackUnderFocusId(newData, oldData) {
-      for (const raceId of Object.keys(this.raceTrackOverlays)) {
-        const weight = newData === raceId ? 4 : 2
-        this.raceTrackOverlays[raceId].polyline.setOptions({
-          strokeWeight: weight,
-        })
+      // Called when one *clicks* on a racetrack
+      this.highlightRacetrack(newData)
+
+      if (newData && this.raceTrackOverlays[newData]) {
+        // get bounds of racetrack
+        const self = this
+        this.google.maps.Polyline.prototype.getBounds = function () {
+          const bounds = new self.google.maps.LatLngBounds()
+          this.getPath().forEach(function (item, index) {
+            bounds.extend(new self.google.maps.LatLng(item.lat(), item.lng()))
+          })
+          return bounds
+        }
+        this.map.fitBounds(this.raceTrackOverlays[newData].polyline.getBounds())
       }
     },
     raceTrackDeletedId(newData, oldData) {
@@ -248,6 +281,10 @@ export default {
     if (this.$route.query.location) {
       this.openLocation(this.$route.query.location)
     }
+    if (this.$route.query.event) {
+      this.openLocationBySlug(this.$route.query.event)
+    }
+
     this.map.addListener('zoom_changed', () => {
       this.zoomChanged()
     })
@@ -359,11 +396,43 @@ export default {
       this.map.setZoom(10)
       this.google.maps.event.trigger(this.locationIdToMarker[id], 'click')
     },
+    async openLocationBySlug(slug) {
+      // @todo move this to VueX?
+      const result = await this.$apollo.query({
+        query: gql`
+          query($slug: String!) {
+            allEvents(slug: $slug) {
+              edges {
+                node {
+                  id
+                  location {
+                    id
+                  }
+                }
+              }
+            }
+          }
+        `,
+        variables: {
+          slug,
+        },
+      })
+      this.$store.commit('focusedEventId', result.data.allEvents.edges[0].node)
+      this.openLocation(result.data.allEvents.edges[0].node.location.id)
+    },
     zoomChanged() {
       const zoom = this.map.getZoom()
       // hide labels if zoomed out
       for (const raceId of Object.keys(this.raceTrackOverlays)) {
         this.raceTrackOverlays[raceId].label.setVisible(zoom > 9)
+      }
+    },
+    highlightRacetrack(id) {
+      for (const raceId of Object.keys(this.raceTrackOverlays)) {
+        const op = id === raceId ? 1 : 0.5
+        this.raceTrackOverlays[raceId].polyline.setOptions({
+          strokeOpacity: op,
+        })
       }
     },
   },

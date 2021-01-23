@@ -76,6 +76,7 @@ type EventNode implements Node {
     needsMedicalCertificate: Boolean
     organizer: OrganizerNode
     races(after: String, before: String, distance_Gte: Float, distance_Lte: Float, first: Int, last: Int): RaceNodeConnection!
+    slug: String
     soldOut: Boolean
     source: String
     "set if the event has been verified by the admin"
@@ -230,13 +231,13 @@ type PageInfo {
 
 type Query {
     _debug: DjangoDebug
-    allEvents(after: String, before: String, dateFrom: Date, dateTo: Date, first: Int, last: Int, location: ID, name: String, raceDistanceGte: Float, raceDistanceLte: Float, races: [ID], website: String): EventNodeConnection
+    allEvents(after: String, before: String, dateFrom: Date, dateTo: Date, first: Int, last: Int, location: ID, name: String, raceDistanceGte: Float, raceDistanceLte: Float, races: [ID], slug: String, website: String): EventNodeConnection
     allLocations(after: String, before: String, city: String, country: String, dateFrom: Date, dateTo: Date, events: [ID], first: Int, last: Int, lat: Float, lng: Float, raceDistanceGte: Float, raceDistanceLte: Float, waterName: String, waterType: String): LocationNodeConnection
     "The ID of the object"
     event(id: ID!): EventNode
     "The ID of the object"
     location(id: ID!): LocationNode
-    locationsFiltered(dateFrom: Date, dateTo: Date, keyword: String, raceDistanceGte: Float, raceDistanceLte: Float): [LocationNode]
+    locationsFiltered(dateFrom: Date, dateTo: Date, eventSlug: String, keyword: String, raceDistanceGte: Float, raceDistanceLte: Float): [LocationNode]
     me: UserNode
     "The ID of the object"
     organizer(id: ID!): OrganizerNode

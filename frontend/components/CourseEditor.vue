@@ -18,7 +18,6 @@ export default {
   },
   computed: {},
   mounted() {
-    console.log(this.google.maps)
     this.drawingManager = new this.google.maps.drawing.DrawingManager({
       drawingMode: this.google.maps.drawing.OverlayType.POLYLINE,
       drawingControl: true,
@@ -57,6 +56,10 @@ export default {
       }
     )
     this.drawingManager.setMap(this.map)
+
+    this.$toast.success(
+      'Click on the map to add waypoints. Double-click to save the track. Drag to move the map.'
+    )
   },
   beforeDestroy() {
     this.drawingManager.setMap(null)
@@ -71,7 +74,7 @@ export default {
         'raceTrackDeletedId',
         this.$store.getters.raceTrackUnderEditId
       )
-      this.$toast.info('Track deleted')
+      this.$toast.success('Track deleted')
     },
     async saveTrack(coordinateStream) {
       this.$store.commit('isLoading', true)
@@ -92,7 +95,7 @@ export default {
         },
       })
       this.$store.commit('isLoading', false)
-      this.$toast.info('Track saved')
+      this.$toast.success('Track saved')
     },
   },
 }

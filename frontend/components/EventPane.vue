@@ -180,11 +180,12 @@
                       {{ race.node.priceValue }}{{ race.node.priceCurrency }}
                     </span>
                   </td>
-                  <td v-if="$store.getters['auth/loggedIn']">
+                  <td>
                     <button
+                      v-if="$store.getters['auth/loggedIn']"
                       :class="{
                         'edit-button': true,
-                        'is-editing':
+                        active:
                           race.node.id == $store.getters.raceTrackUnderEditId,
                       }"
                       @click="
@@ -192,6 +193,17 @@
                       "
                     >
                       <font-awesome-icon icon="edit" />
+                    </button>
+                    <button
+                      v-if="race.node.coordinates"
+                      :class="{
+                        'edit-button': true,
+                        active:
+                          race.node.id == $store.getters.raceTrackUnderFocusId,
+                      }"
+                      @click="viewRaceDetail(race.node.id)"
+                    >
+                      <font-awesome-icon icon="search" />
                     </button>
                   </td>
                 </tr>
@@ -319,9 +331,11 @@ export default {
       this.showLightbox = true
       this.$gtag('event', 'showEventPaneLightbox')
     },
-    raceRowHover(id) {
-      console.log(id)
+    viewRaceDetail(id) {
       this.$store.commit('raceTrackUnderFocusId', id)
+    },
+    raceRowHover(id) {
+      this.$store.commit('raceTrackUnderHoverId', id)
     },
   },
 }
@@ -428,7 +442,7 @@ ul.tabs {
   .edit-button {
     @apply rounded px-1 text-blue-600;
 
-    &.is-editing {
+    &.active {
       @apply bg-blue-600 text-white;
     }
   }

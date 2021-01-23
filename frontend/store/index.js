@@ -11,10 +11,12 @@ export const state = () => ({
   distanceRange: [0, 30],
   dateRange: [0, 12],
   pickedLocationData: null,
+  focusedEventId: null,
   travelTimes: [],
   isLoading: false,
   raceTrackUnderEditId: null,
   raceTrackUnderFocusId: null,
+  raceTrackUnderHoverId: null,
   raceTrackDeletedId: null,
 })
 
@@ -25,7 +27,6 @@ export const mutations = {
     s.isAccurate = data.isAccurate
   },
   pickedLocationId(s, id) {
-    history.pushState({}, null, `?location=` + encodeURIComponent(id))
     s.pickedLocationId = id
     const client = this.app.apolloProvider.defaultClient
     client
@@ -55,6 +56,7 @@ export const mutations = {
               edges {
                 node {
                   id
+                  slug
                   name
                   dateStart
                   dateEnd
@@ -110,7 +112,24 @@ export const mutations = {
       .then((result) => this.commit('pickedLocationData', result.data))
   },
   pickedLocationData(s, data) {
+    // if there is only one event, then use the slug of this event
+    if (data.allEvents.edges.length === 1) {
+      history.pushState(
+        {},
+        data.allEvents.edges[0].node.name,
+        `?event=` + encodeURIComponent(data.allEvents.edges[0].node.slug)
+      )
+    } else {
+      history.pushState(
+        {},
+        `${data.location.city}, ${data.location.country}`,
+        `?location=` + encodeURIComponent(s.pickedLocationId)
+      )
+    }
     s.pickedLocationData = data
+  },
+  focusedEventId(s, data) {
+    s.focusedEventId = data
   },
   keyword(s, keyword) {
     s.keyword = keyword
@@ -132,6 +151,9 @@ export const mutations = {
   },
   raceTrackUnderFocusId(s, raceTrackUnderFocusId) {
     s.raceTrackUnderFocusId = raceTrackUnderFocusId
+  },
+  raceTrackUnderHoverId(s, raceTrackUnderHoverId) {
+    s.raceTrackUnderHoverId = raceTrackUnderHoverId
   },
   raceTrackDeletedId(s, raceTrackDeletedId) {
     s.raceTrackDeletedId = raceTrackDeletedId
@@ -163,6 +185,9 @@ export const getters = {
   pickedLocationData(s) {
     return s.pickedLocationData
   },
+  focusedEventId(s) {
+    return s.focusedEventId
+  },
   travelTimes(s) {
     return s.travelTimes
   },
@@ -174,6 +199,9 @@ export const getters = {
   },
   raceTrackUnderFocusId(s) {
     return s.raceTrackUnderFocusId
+  },
+  raceTrackUnderHoverId(s) {
+    return s.raceTrackUnderHoverId
   },
   raceTrackDeletedId(s) {
     return s.raceTrackDeletedId

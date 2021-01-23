@@ -1,3 +1,4 @@
+from urllib.parse import urlencode
 
 import requests
 from django import forms
@@ -67,6 +68,7 @@ class LocationAdmin(admin.ModelAdmin):
 
 class RaceInline(admin.TabularInline):
     model = Race
+    exclude = ['coordinates']
 
 
 class IsVerifiedFilter(admin.SimpleListFilter):
@@ -96,10 +98,12 @@ class EventAdmin(CloneModelAdmin):
     list_filter = ("source", IsVerifiedFilter, "organizer", "entry_quality")
     search_fields = ['name', 'location__city', 'location__country', 'organizer__name']
     exclude = ["edited_by", "edited_at"]
+    readonly_fields = ['public_url']
     inlines = [
         RaceInline,
     ]
     date_hierarchy = 'date_start'
+    prepopulated_fields = {"slug": ("name", "date_start")}
 
     def changelist_view(self, request, extra_context=None):
         if request.GET:
@@ -132,3 +136,9 @@ class EventAdmin(CloneModelAdmin):
         return format_html(f'<span style="background-color: {color};'
                            f'padding:2px">'
                            f'{obj.get_quality_rating()}</span>')
+
+    def public_url(self, obj):
+        url = '/?' + urlencode({'event': obj.slug})
+        return format_html(f'<a target="_blank" href="{url}">{url}</a>')
+
+    public_url.allow_tags = True
