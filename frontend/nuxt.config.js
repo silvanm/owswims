@@ -61,10 +61,6 @@ export default {
       ssr: false,
     },
     {
-      src: '~plugins/vue-tour.js',
-      ssr: false,
-    },
-    {
       src: '~plugins/vue-tooltip.js',
       ssr: false,
     },
