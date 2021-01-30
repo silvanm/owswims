@@ -6,6 +6,7 @@ WORKDIR /code
 
 COPY ./frontend/package.json ./frontend/yarn.lock ./
 RUN yarn install
+RUN yarn build
 
 ENV PATH="./node_modules/.bin:$PATH"
 
