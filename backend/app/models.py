@@ -28,7 +28,8 @@ class Location(models.Model):
         ordering = ["city"]
 
     def __str__(self):
-        return repr(f"{self.city}, {self.country}")
+        s = f"{self.water_name}, " if self.water_name else ""
+        return s + f"{self.city}, {self.country}"
 
 
 class Organizer(models.Model):
