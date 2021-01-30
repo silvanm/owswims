@@ -2,7 +2,10 @@
 
 FROM node:14 as frontend
 
+WORKDIR /code
+
 COPY ./frontend/package.json ./frontend/yarn.lock ./
+RUN yarn install
 
 ENV PATH="./node_modules/.bin:$PATH"
 
@@ -12,7 +15,6 @@ ARG DEFAULT_HEADER_IMAGE
 
 COPY frontend/ ./
 
-RUN yarn install
 
 RUN nuxt generate
 
