@@ -40,7 +40,7 @@ class Organizer(models.Model):
         ordering = ["name"]
 
     def __str__(self):
-        return repr(f"{self.name}")
+        return f"{self.name}"
 
 
 class Event(CloneMixin, models.Model):
