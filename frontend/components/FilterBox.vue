@@ -42,24 +42,7 @@
             maxHeight: !showInfos ? 0 : '500px',
           }"
         >
-          <p>
-            If you plan your vacations around open-water swim events, then this
-            app is for you. Select the desired distance and timerange and all
-            matching events will be shown to you. Enable the "Show trip
-            duration" switch to let the app calculate you the time to get there
-            by car.
-          </p>
-
-          <p>
-            Additions or corrections can be reported to
-            <a href="https://muehlemann.com" target="_blank">me</a> at
-            <a href="mailto:silvan@open-water-swims.com"
-              >silvan@open-water-swims.com</a
-            >.
-          </p>
-
-          <p>Thanks to Andrey Sheyko for his collaboration.</p>
-
+          <Infotext></Infotext>
           <div class="inline-block cursor-pointer">
             <a
               v-if="$store.getters['auth/loggedIn']"
@@ -201,9 +184,5 @@ export default {
     @apply relative;
     max-width: 500px;
   }
-}
-
-p {
-  @apply my-2;
 }
 </style>

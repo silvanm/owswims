@@ -1,5 +1,6 @@
 <template>
   <div class="xl:m-4">
+    <WelcomeBox @hide="hideWelcomeBox()" v-if="welcomeboxShown"></WelcomeBox>
     <LoginBox
       v-if="loginboxShown && !$store.getters['auth/loggedIn']"
       @hide="doHideLogin"
@@ -96,6 +97,7 @@ export default {
       geoLocationEnabled: false,
       filterCollapsed: false,
       loginboxShown: false,
+      welcomeboxShown: false,
     }
   },
   computed: {
@@ -115,6 +117,10 @@ export default {
         latlng: response.data.location,
       })
     }
+
+    if (!this.$device.isMobile() && !localStorage.getItem('welcomeBoxHidden')) {
+      this.welcomeboxShown = true
+    }
   },
   methods: {
     locationPicked() {
@@ -125,6 +131,10 @@ export default {
     },
     doHideLogin() {
       this.loginboxShown = false
+    },
+    hideWelcomeBox() {
+      this.welcomeboxShown = false
+      localStorage.setItem('welcomeBoxHidden', true)
     },
   },
 }
