@@ -8,6 +8,9 @@ stages:
 
 variables:
   IMAGE: registry.gitlab.com/silvan.muehlemann/owswims:latest
+  GRAPHQL_ENDPOINT: /graphql
+  GOOGLE_APPLICATION_CREDENTIALS: ""
+  DEFAULT_HEADER_IMAGE: https://storage.googleapis.com/owswims-prod/photos/default-image.jpg
 
 before_script:
   - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
@@ -22,6 +25,11 @@ release:
   stage: release
   script:
     - docker pull $IMAGE
-    - docker push $IMAGE
+    - 'which ssh-agent || ( apt-get install -qq openssh-client )'
+    - eval $(ssh-agent -s)
+    - ssh-add <(echo "$SSH_PRIVATE_KEY")
+    - mkdir -p ~/.ssh
+    - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
+
   only:
     - master
