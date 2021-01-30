@@ -1,0 +1,27 @@
+image: docker:latest
+services:
+- docker:dind
+
+stages:
+- build
+- release
+
+variables:
+  $IMAGE: registry.gitlab.com/silvan.muehlemann/owswims:latest
+
+before_script:
+  - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+
+build:
+  stage: build
+  script:
+    - docker build --pull -t $IMAGE .
+    - docker push $TEST_IMAGE
+
+release:
+  stage: release
+  script:
+    - docker pull $IMAGE
+    - docker push $IMAGE
+  only:
+    - master
