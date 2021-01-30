@@ -48,9 +48,8 @@
     </div>
     <div id="map"></div>
     <CourseEditor
-      v-if="$store.getters.raceTrackUnderEditId && google.maps"
+      v-if="$store.getters.raceTrackUnderEditId"
       :map="map"
-      :google="google"
     ></CourseEditor>
   </div>
 </template>

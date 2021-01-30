@@ -9,9 +9,6 @@ import gql from 'graphql-tag'
 
 export default {
   props: {
-    google: {
-      type: Object,
-    },
     map: {
       type: Object,
     },
