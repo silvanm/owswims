@@ -24,6 +24,7 @@ build:
         --build-arg GOOGLE_MAPS_API_KEY
         --build-arg GRAPHQL_ENDPOINT
         --build-arg DEFAULT_HEADER_IMAGE
+        --build-arg SECRET_KEY
         -t $IMAGE .
     - docker push $IMAGE
 
