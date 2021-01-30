@@ -34,7 +34,18 @@ import FilterBox from '@/components/FilterBox'
 import { mapGetters } from 'vuex'
 import axios from 'axios'
 
+const apiKey = process.env.googleMapsKey
+
 export default {
+  head() {
+    return {
+      script: [
+        {
+          src: `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=drawing&v=beta`,
+        },
+      ],
+    }
+  },
   components: { FilterBox, EventPane, Spinner },
   apollo: {
     locationsFiltered: {
@@ -91,8 +102,6 @@ export default {
     ...mapGetters(['keyword', 'distanceRange', 'dateRange', 'isLoading']),
   },
   async mounted() {
-    this.google = await this.$google()
-
     // detect coarse position via IP
     const response = await axios.post(
       'https://www.googleapis.com/geolocation/v1/geolocate?key=' +

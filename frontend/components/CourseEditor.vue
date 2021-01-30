@@ -18,12 +18,12 @@ export default {
   },
   computed: {},
   mounted() {
-    this.drawingManager = new this.google.maps.drawing.DrawingManager({
-      drawingMode: this.google.maps.drawing.OverlayType.POLYLINE,
+    this.drawingManager = new google.maps.drawing.DrawingManager({
+      drawingMode: google.maps.drawing.OverlayType.POLYLINE,
       drawingControl: true,
       drawingControlOptions: {
-        position: this.google.maps.ControlPosition.TOP_CENTER,
-        drawingModes: [this.google.maps.drawing.OverlayType.POLYLINE],
+        position: google.maps.ControlPosition.TOP_CENTER,
+        drawingModes: [google.maps.drawing.OverlayType.POLYLINE],
       },
       polylineOptions: {
         strokeColor: '#FFFF00',
@@ -32,13 +32,13 @@ export default {
       },
     })
 
-    this.map.controls[this.google.maps.ControlPosition.TOP_CENTER].push(
+    this.map.controls[google.maps.ControlPosition.TOP_CENTER].push(
       this.$refs.drawingcontrols
     )
 
     const self = this
 
-    this.google.maps.event.addListener(
+    google.maps.event.addListener(
       this.drawingManager,
       'polylinecomplete',
       function (polyline) {

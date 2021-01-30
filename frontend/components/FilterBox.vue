@@ -160,9 +160,6 @@ export default {
       this.$gtag('event', 'keyword')
     },
   },
-  async mounted() {
-    this.google = await this.$google()
-  },
   methods: {
     clickCollapseFilter() {
       this.filterCollapsed = true

@@ -136,12 +136,12 @@ export default {
             '    a 25,25 0 1,1 -50,0',
           fillColor: '#4299E1',
           fillOpacity: 1,
-          anchor: new this.google.maps.Point(0, 0),
+          anchor: new google.maps.Point(0, 0),
           strokeWeight: 1,
           strokeColor: '#fff',
           scale: 0.25,
         }
-        this.myLocationMarker = new this.google.maps.Marker({
+        this.myLocationMarker = new google.maps.Marker({
           icon,
           position: newLocation.latlng,
           map: this.map,
@@ -167,7 +167,7 @@ export default {
             })
 
             const arrowSymbol = {
-              path: this.google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
+              path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
               fillColor: 'white',
               fillOpacity: 0,
               strokeOpacity: 0,
@@ -191,14 +191,14 @@ export default {
               icons,
             }
 
-            const raceTrackOverlay = new this.google.maps.Polyline(options)
+            const raceTrackOverlay = new google.maps.Polyline(options)
 
             // take the middle coordinate and apply a label there
             const middleCoordinate =
               coordinateArray[Math.floor(coordinateArray.length / 2)]
 
             // add a marker without icon to achieve a label
-            const label = new this.google.maps.Marker({
+            const label = new google.maps.Marker({
               position: middleCoordinate,
               map: this.map,
               icon:
@@ -241,7 +241,7 @@ export default {
       if (newData && this.raceTrackOverlays[newData]) {
         // get bounds of racetrack
         const self = this
-        this.google.maps.Polyline.prototype.getBounds = function () {
+        google.maps.Polyline.prototype.getBounds = function () {
           const bounds = new self.google.maps.LatLngBounds()
           this.getPath().forEach(function (item, index) {
             bounds.extend(new self.google.maps.LatLng(item.lat(), item.lng()))
@@ -259,8 +259,7 @@ export default {
       this.raceTrackOverlays[newData].polylined.setMap(null)
     },
   },
-  async mounted() {
-    this.google = await this.$google()
+  mounted() {
     let center
     if (this.mylocation.latlng.lat && this.mylocation.latlng.lng) {
       center = this.mylocation.latlng
@@ -268,18 +267,18 @@ export default {
       // fallback to switzerland
       center = { lat: 47.3474476, lng: 8.6733976 }
     }
-    this.map = new this.google.maps.Map(document.getElementById('map'), {
+    this.map = new google.maps.Map(document.getElementById('map'), {
       center,
       zoom: 5,
       disableDefaultUI: false,
-      mapTypeId: this.google.maps.MapTypeId.HYBRID,
+      mapTypeId: google.maps.MapTypeId.HYBRID,
       gestureHandling: 'greedy',
       mapTypeControlOptions: {
-        style: this.google.maps.MapTypeControlStyle.HORIZONTAL_BAR,
-        position: this.google.maps.ControlPosition.TOP_RIGHT,
+        style: google.maps.MapTypeControlStyle.HORIZONTAL_BAR,
+        position: google.maps.ControlPosition.TOP_RIGHT,
       },
     })
-    this.map.controls[this.google.maps.ControlPosition.RIGHT].push(
+    this.map.controls[google.maps.ControlPosition.RIGHT].push(
       this.$refs.centerButton
     )
     this.updateMarker()
@@ -301,7 +300,7 @@ export default {
           'M66.9,41.8c0-11.3-9.1-20.4-20.4-20.4c-11.3,0-20.4,9.1-20.4,20.4c0,11.3,20.4,32.4,20.4,32.4S66.9,53.1,66.9,41.8z    M37,41.4c0-5.2,4.3-9.5,9.5-9.5c5.2,0,9.5,4.2,9.5,9.5c0,5.2-4.2,9.5-9.5,9.5C41.3,50.9,37,46.6,37,41.4z',
         fillColor: '#fff',
         fillOpacity: 1,
-        anchor: new this.google.maps.Point(50, 70),
+        anchor: new google.maps.Point(50, 70),
         strokeWeight: 0,
         scale: 0.7,
       }
@@ -310,7 +309,7 @@ export default {
       await this.$store.dispatch('locateMe')
 
       if (this.mylocation.latlng.lat && this.mylocation.latlng.lng) {
-        const myLatLng = new this.google.maps.LatLng(
+        const myLatLng = new google.maps.LatLng(
           this.mylocation.latlng.lat,
           this.mylocation.latlng.lng
         )
@@ -323,7 +322,7 @@ export default {
         .join(', ')
     },
     updateMarker() {
-      const infowindow = new this.google.maps.InfoWindow({
+      const infowindow = new google.maps.InfoWindow({
         content: this.$refs.eventDescription,
         fontFamily: "'Source Sans Pro', sans-serif",
       })
@@ -343,7 +342,7 @@ export default {
           continue
         }
 
-        const markerObj = new this.google.maps.Marker({
+        const markerObj = new google.maps.Marker({
           icon: this.markerPin(),
           position: location,
           map: this.map,
@@ -392,14 +391,13 @@ export default {
         clusterClass: 'custom-clustericon',
       })
     },
-    async calculateDistance(location, callback) {
-      const google = await this.$google()
+    calculateDistance(location, callback) {
       calculateDistance(google, location, this.$store, callback)
     },
     openLocation(id) {
       this.map.panTo(this.locationIdToMarker[id].position)
       this.map.setZoom(14)
-      this.google.maps.event.trigger(this.locationIdToMarker[id], 'click')
+      google.maps.event.trigger(this.locationIdToMarker[id], 'click')
     },
     async openLocationBySlug(slug) {
       // @todo move this to VueX?
