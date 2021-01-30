@@ -169,30 +169,29 @@ export default {
             const arrowSymbol = {
               path: this.google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
               fillColor: 'white',
-              fillOpacity: 1,
+              fillOpacity: 0,
+              strokeOpacity: 0,
             }
 
-            const raceTrackOverlay = new this.google.maps.Polyline({
+            const icons = []
+            const numArrows = 6
+            for (let i = 0; i < numArrows; i++) {
+              icons.push({
+                icon: arrowSymbol,
+                offset: ((100 / numArrows) * i).toString() + '%',
+              })
+            }
+
+            const options = {
               path: coordinateArray,
               geodesic: true,
               strokeColor: '#FFFFFF',
               strokeOpacity: 0.5,
-              strokeWeight: 2,
-              icons: [
-                {
-                  icon: arrowSymbol,
-                  offset: '33%',
-                },
-                {
-                  icon: arrowSymbol,
-                  offset: '66%',
-                },
-                {
-                  icon: arrowSymbol,
-                  offset: '100%',
-                },
-              ],
-            })
+              strokeWeight: 3,
+              icons,
+            }
+
+            const raceTrackOverlay = new this.google.maps.Polyline(options)
 
             // take the middle coordinate and apply a label there
             const middleCoordinate =
@@ -214,6 +213,9 @@ export default {
             raceTrackOverlay.setMap(this.map)
             this.raceTrackOverlays[race.node.id] = {
               polyline: raceTrackOverlay,
+              // did not find out how I can retrieve the options from an existing polyline
+              // so I can modify them. That's why I am storing the option object
+              polylineOptions: options,
               label,
             }
           }
@@ -246,7 +248,10 @@ export default {
           })
           return bounds
         }
-        this.map.fitBounds(this.raceTrackOverlays[newData].polyline.getBounds())
+        this.map.fitBounds(
+          this.raceTrackOverlays[newData].polyline.getBounds(),
+          { top: 100, left: 50, bottom: 100, right: 50 }
+        )
       }
     },
     raceTrackDeletedId(newData, oldData) {
@@ -393,7 +398,7 @@ export default {
     },
     openLocation(id) {
       this.map.panTo(this.locationIdToMarker[id].position)
-      this.map.setZoom(10)
+      this.map.setZoom(14)
       this.google.maps.event.trigger(this.locationIdToMarker[id], 'click')
     },
     async openLocationBySlug(slug) {
@@ -427,12 +432,25 @@ export default {
         this.raceTrackOverlays[raceId].label.setVisible(zoom > 9)
       }
     },
+    setArrowVisibilityAccordingToZoomLevel() {
+      const zoom = this.map.getZoom()
+      for (const raceId of Object.keys(this.raceTrackOverlays)) {
+        console.log(this.raceTrackOverlays[raceId].polyline.options)
+        if (zoom < 9) {
+        }
+      }
+    },
     highlightRacetrack(id) {
       for (const raceId of Object.keys(this.raceTrackOverlays)) {
-        const op = id === raceId ? 1 : 0.5
-        this.raceTrackOverlays[raceId].polyline.setOptions({
-          strokeOpacity: op,
-        })
+        const po = this.raceTrackOverlays[raceId].polylineOptions
+        if (id === raceId) {
+          po.strokeOpacity = 1
+          po.icons.forEach((i) => (i.icon.fillOpacity = 1))
+        } else {
+          po.strokeOpacity = 0.5
+          po.icons.forEach((i) => (i.icon.fillOpacity = 0))
+        }
+        this.raceTrackOverlays[raceId].polyline.setOptions(po)
       }
     },
   },

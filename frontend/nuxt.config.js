@@ -130,6 +130,7 @@ export default {
         'faInfoCircle',
         'faImage',
         'faEdit',
+        'faExternalLinkSquareAlt',
       ],
     },
   },

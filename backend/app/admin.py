@@ -1,3 +1,4 @@
+from datetime import datetime
 from urllib.parse import urlencode
 
 import requests
@@ -69,6 +70,26 @@ class LocationAdmin(admin.ModelAdmin):
 class RaceInline(admin.TabularInline):
     model = Race
     exclude = ['coordinates']
+    fields = ['date', 'race_time', 'distance', 'name', 'has_coordinates', 'wetsuit', 'price']
+    readonly_fields = ['has_coordinates', ]
+
+    def has_coordinates(self, obj: Race):
+        return obj.coordinates is not None
+
+
+class IsUpcomingFilter(admin.SimpleListFilter):
+    title = 'is upcoming'
+
+    parameter_name = 'is_upcoming'
+
+    def lookups(self, request, model_admin):
+        return (
+            ('yes', 'Yes'),
+        )
+
+    def queryset(self, request, queryset):
+        if self.value() == 'yes':
+            return queryset.filter(date_start__gt=datetime.now())
 
 
 class IsVerifiedFilter(admin.SimpleListFilter):
@@ -93,9 +114,9 @@ class IsVerifiedFilter(admin.SimpleListFilter):
 class EventAdmin(CloneModelAdmin):
     list_per_page = 30
     list_display = ("date_start", "eventstr", "locationstr",
-                    "entry_quality_rating")
+                    "entry_quality_rating", "verified_at")
     list_display_links = ("eventstr",)
-    list_filter = ("source", IsVerifiedFilter, "organizer", "entry_quality")
+    list_filter = (IsUpcomingFilter, "entry_quality", IsVerifiedFilter, "organizer")
     search_fields = ['name', 'location__city', 'location__country', 'organizer__name']
     exclude = ["edited_by", "edited_at"]
     readonly_fields = ['public_url']
@@ -124,11 +145,12 @@ class EventAdmin(CloneModelAdmin):
         if obj.location:
             return f"{obj.location.city}, {obj.location.country}"
 
+
     def entry_quality_rating(self, obj):
         rating = obj.get_quality_rating()
-        if (rating < 20):
+        if (rating < 25):
             color = 'rgba(244, 0, 0, 0.5)'
-        elif (rating < 26):
+        elif (rating < 32):
             color = 'rgba(244, 122, 0, 0.5)'
         else:
             color = 'rgba(0, 255, 122, 0.5)'

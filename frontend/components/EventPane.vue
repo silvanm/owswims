@@ -1,3 +1,4 @@
+<!--suppress ALL -->
 <template>
   <div
     v-if="!isClosed"
@@ -26,10 +27,7 @@
           <CloseButton @collapse="close"></CloseButton>
         </div>
         <div class="p-2 lg:p-6">
-          <h2
-            class="text-3xl font-bold text-white absolute bottom-0"
-            style="bottom: 4px"
-          >
+          <h2 class="text-3xl font-bold text-white absolute bottom-0">
             <span v-if="pickedLocationData.location.waterName"
               >{{ pickedLocationData.location.waterName }},
             </span>
@@ -77,9 +75,17 @@
 
         <!-- Single event -->
         <h3 class="text-xl font-bold py-2">
-          <a :href="pickedEvent.node.website" target="_blank">
+          <a
+            v-if="pickedEvent.node.website"
+            :href="pickedEvent.node.website"
+            target="_blank"
+          >
             {{ pickedEvent.node.name }}
+            <font-awesome-icon
+              icon="external-link-square-alt"
+            ></font-awesome-icon>
           </a>
+          <span v-else>{{ pickedEvent.node.name }}</span>
           <a
             v-if="pickedEvent.node.flyerImage"
             class="cursor-pointer float-right"
@@ -145,6 +151,7 @@
               {{ pickedEvent.node.description }}
             </div>
           </div>
+          <!-- Race table -->
           <div id="race-table">
             <table class="min-w-full">
               <thead>
@@ -155,8 +162,9 @@
               </thead>
               <tbody>
                 <tr
+                  @click="raceRowHover(race.node.id)"
+                  @mouseout="raceRowHover(null)"
                   @mouseover="raceRowHover(race.node.id)"
-                  @mouseleave="raceRowHover(null)"
                   v-for="race in pickedEvent.node.races.edges"
                   :key="race.node.id"
                 >
@@ -255,7 +263,11 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['pickedLocationId', 'pickedLocationData']),
+    ...mapGetters([
+      'pickedLocationId',
+      'pickedLocationData',
+      'raceTrackUnderFocusId',
+    ]),
     pickedEvent() {
       return this.pickedLocationData.allEvents.edges[this.activeEventIndex]
     },
@@ -274,6 +286,11 @@ export default {
       window.setTimeout(() => this.updateEventPaneStyle(), 100)
     },
     activeEventIndex(newVal, oldVal) {
+      window.setTimeout(() => this.updateEventPaneStyle(), 100)
+    },
+    raceTrackUnderFocusId(newData, oldData) {
+      // close the slider if someone wants to see a detail of a race
+      this.isSliddenUp = false
       window.setTimeout(() => this.updateEventPaneStyle(), 100)
     },
   },
@@ -450,6 +467,14 @@ ul.tabs {
 
 table th {
   @apply text-left;
+}
+
+table tr {
+  @apply cursor-pointer;
+
+  &:hover {
+    @apply bg-gray-400;
+  }
 }
 
 table td {
