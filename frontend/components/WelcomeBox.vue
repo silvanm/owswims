@@ -3,12 +3,16 @@
     class="absolute flex items-center justify-center h-screen w-screen"
     style="z-index: 5"
   >
-    <div class="p-4 bg-white shadow-xl">
+    <div class="p-4 bg-white shadow-xl" style="z-index: 5">
       <div class="float-right">
         <CloseButton ref="closebutton" @collapse="$emit('hide')"></CloseButton>
       </div>
       <Infotext :extended="true"></Infotext>
     </div>
+    <div
+      class="absolute h-screen w-screen bg-black opacity-25"
+      style="z-index: 1; top: 0"
+    ></div>
   </div>
 </template>
 <script>

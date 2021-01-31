@@ -35,7 +35,27 @@
   </div>
 </template>
 <script>
-export default {}
+export default {
+  data() {
+    return {
+      username: '',
+      password: '',
+      result: '',
+    }
+  },
+  methods: {
+    async login() {
+      try {
+        await this.$store.dispatch('auth/login', {
+          username: this.username,
+          password: this.password,
+        })
+      } catch (e) {
+        console.log(e)
+      }
+    },
+  },
+}
 </script>
 <style lang="scss" scoped>
 div {

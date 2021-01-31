@@ -1,26 +1,28 @@
 <template>
-  <div class="xl:m-4">
+  <div>
     <WelcomeBox @hide="hideWelcomeBox()" v-if="welcomeboxShown"></WelcomeBox>
-    <LoginBox
-      v-if="loginboxShown && !$store.getters['auth/loggedIn']"
-      @hide="doHideLogin"
-    ></LoginBox>
-    <client-only>
-      <Map
-        v-if="locationsFiltered"
-        ref="map"
-        :locations="locationsFiltered"
-        :lat="lat"
-        :lng="lng"
-        :distance-from="distanceRange[0]"
-        :distance-to="distanceRange[1]"
-        :date-range="dateRange"
-        @locationPicked="locationPicked()"
-      />
-    </client-only>
-    <Spinner :show="isLoading"></Spinner>
-    <FilterBox ref="filterbox" @showLogin="doShowLogin"></FilterBox>
-    <EventPane v-if="$store.getters.pickedLocationId"></EventPane>
+    <div class="xl:m-4">
+      <LoginBox
+        v-if="loginboxShown && !$store.getters['auth/loggedIn']"
+        @hide="doHideLogin"
+      ></LoginBox>
+      <client-only>
+        <Map
+          v-if="locationsFiltered"
+          ref="map"
+          :locations="locationsFiltered"
+          :lat="lat"
+          :lng="lng"
+          :distance-from="distanceRange[0]"
+          :distance-to="distanceRange[1]"
+          :date-range="dateRange"
+          @locationPicked="locationPicked()"
+        />
+      </client-only>
+      <Spinner :show="isLoading"></Spinner>
+      <FilterBox ref="filterbox" @showLogin="doShowLogin"></FilterBox>
+      <EventPane v-if="$store.getters.pickedLocationId"></EventPane>
+    </div>
   </div>
 </template>
 
