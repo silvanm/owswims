@@ -142,8 +142,13 @@ export default {
       })
     }
 
-    if (!this.$device.isMobile() && !localStorage.getItem('welcomeBoxHidden')) {
-      this.welcomeboxShown = true
+    if (typeof localStorage !== 'undefined') {
+      if (
+        !this.$device.isMobile() &&
+        !localStorage.getItem('welcomeBoxHidden')
+      ) {
+        this.welcomeboxShown = true
+      }
     }
   },
   methods: {
@@ -160,7 +165,9 @@ export default {
     },
     hideWelcomeBox() {
       this.welcomeboxShown = false
-      localStorage.setItem('welcomeBoxHidden', true)
+      if (typeof localStorage !== 'undefined') {
+        localStorage.setItem('welcomeBoxHidden', true)
+      }
     },
   },
   head() {
