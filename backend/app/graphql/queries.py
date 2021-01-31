@@ -9,13 +9,20 @@ from graphql_auth.schema import UserQuery, MeQuery
 
 from app.models import Organizer, Location, Race, Event
 
+def get_organization_logo_url(obj, resolve_obj):
+    if obj.logo:
+        return obj.logo.url
+    else:
+        return None
 
 class OrganizerNode(DjangoObjectType):
     class Meta:
         model = Organizer
         filter_fields = ["name"]
-        fields = ["name", "website"]
+        fields = ["name", "website", "logo"]
         interfaces = (Node,)
+
+    logo = graphene.String(resolver=get_organization_logo_url)
 
 
 def get_header_photo_url(obj, resolve_obj):

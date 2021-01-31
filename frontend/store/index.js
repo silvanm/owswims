@@ -76,6 +76,7 @@ export const mutations = {
                   organizer {
                     name
                     website
+                    logo
                   }
                   races(
                     distance_Gte: $distanceFrom

@@ -10,7 +10,7 @@ variables:
   IMAGE: registry.gitlab.com/silvan.muehlemann/owswims:latest
   GRAPHQL_ENDPOINT: /graphql
   GOOGLE_APPLICATION_CREDENTIALS: ""
-  DEFAULT_HEADER_IMAGE: https://storage.googleapis.com/owswims-prod/photos/default-image.jpg
+  DEFAULT_HEADER_PHOTO_URL: https://storage.googleapis.com/owswims-prod/photos/default-image.jpg
 
 before_script:
   - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY

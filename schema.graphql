@@ -212,6 +212,7 @@ type ObtainJSONWebToken {
 type OrganizerNode implements Node {
     "The ID of the object."
     id: ID!
+    logo: String
     name: String!
     website: String!
 }

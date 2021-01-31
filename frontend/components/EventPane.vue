@@ -122,12 +122,32 @@
                 :href="pickedEvent.node.organizer.website"
                 target="_blank"
               >
-                <div class="textprop-text">
+                <div
+                  class="textprop-text"
+                  v-if="pickedEvent.node.organizer.logo"
+                >
+                  <img
+                    :src="pickedEvent.node.organizer.logo"
+                    style="width: 200px"
+                  />
+                </div>
+                <div v-else class="textprop-text">
                   {{ pickedEvent.node.organizer.name }}
                 </div>
               </a>
               <div v-else class="textprop-text">
-                {{ pickedEvent.node.organizer.name }}
+                <div
+                  class="textprop-text"
+                  v-if="pickedEvent.node.organizer.logo"
+                >
+                  <img
+                    :src="pickedEvent.node.organizer.logo"
+                    style="width: 200px"
+                  />
+                </div>
+                <div v-else class="textprop-text">
+                  {{ pickedEvent.node.organizer.name }}
+                </div>
               </div>
             </div>
             <div v-if="pickedEvent.node.waterType" class="textprop flex-1">
