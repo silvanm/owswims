@@ -46,8 +46,8 @@
           <div class="inline-block cursor-pointer">
             <a
               v-if="$store.getters['auth/loggedIn']"
-              @click="$store.dispatch('auth/logout')"
               class="mr-2"
+              @click="$store.dispatch('auth/logout')"
               >Logout</a
             >
             <span v-else>

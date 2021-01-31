@@ -13,8 +13,8 @@
           <label for="username" class="block">Username</label>
           <input
             id="username"
-            class="block"
             v-model="username"
+            class="block"
             autocomplete="username"
           />
         </div>
@@ -23,10 +23,10 @@
           <label class="block">Password</label>
           <input
             id="password"
+            v-model="password"
             class="block"
             type="password"
             autocomplete="current-password"
-            v-model="password"
           />
         </div>
         <button type="button" @click="login">Login</button>
@@ -50,9 +50,7 @@ export default {
           username: this.username,
           password: this.password,
         })
-      } catch (e) {
-        console.log(e)
-      }
+      } catch (e) {}
     },
   },
 }

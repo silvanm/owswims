@@ -429,14 +429,6 @@ export default {
         this.raceTrackOverlays[raceId].label.setVisible(zoom > 9)
       }
     },
-    setArrowVisibilityAccordingToZoomLevel() {
-      const zoom = this.map.getZoom()
-      for (const raceId of Object.keys(this.raceTrackOverlays)) {
-        console.log(this.raceTrackOverlays[raceId].polyline.options)
-        if (zoom < 9) {
-        }
-      }
-    },
     highlightRacetrack(id) {
       for (const raceId of Object.keys(this.raceTrackOverlays)) {
         const po = this.raceTrackOverlays[raceId].polylineOptions

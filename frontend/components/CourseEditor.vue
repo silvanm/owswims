@@ -1,5 +1,5 @@
 <template>
-  <div ref="drawingcontrols" id="drawing-controls">
+  <div id="drawing-controls" ref="drawingcontrols">
     <button @click="cancelEdit">Close</button>
     <button @click="deleteTrack">Delete</button>
   </div>
@@ -10,6 +10,7 @@ import gql from 'graphql-tag'
 export default {
   props: {
     map: {
+      default: null,
       type: Object,
     },
   },
@@ -39,7 +40,6 @@ export default {
       this.drawingManager,
       'polylinecomplete',
       function (polyline) {
-        console.log(polyline)
         const coordinates = []
         polyline
           .getPath()
@@ -48,8 +48,6 @@ export default {
             coordinates.push(o.lat(), o.lng())
           })
         self.saveTrack(coordinates)
-
-        console.log(coordinates)
       }
     )
     this.drawingManager.setMap(this.map)

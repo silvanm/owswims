@@ -3,11 +3,15 @@
     class="absolute flex items-center justify-center h-screen w-screen"
     style="z-index: 5"
   >
-    <div class="p-4 bg-white shadow-xl" style="z-index: 5">
-      <div class="float-right">
+    <div
+      id="welcomebox"
+      class="p-6 bg-white shadow-xl relative"
+      style="z-index: 5"
+    >
+      <Infotext :extended="true" @hide="$emit('hide')"></Infotext>
+      <div class="absolute right-0 top-0 p-6" style="z-index: 10">
         <CloseButton ref="closebutton" @collapse="$emit('hide')"></CloseButton>
       </div>
-      <Infotext :extended="true"></Infotext>
     </div>
     <div
       class="absolute h-screen w-screen bg-black opacity-25"
@@ -19,9 +23,7 @@
 export default {}
 </script>
 <style lang="scss" scoped>
-div {
-  @apply p-4;
-
+div#welcomebox {
   button {
     @apply bg-blue-600 rounded p-2 text-white font-bold;
   }

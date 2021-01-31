@@ -9,6 +9,7 @@
       </h1>
       <div class="absolute right-0 bottom-0">
         <button
+          v-if="extended"
           class="bg-blue-600 rounded p-2 text-white font-bold float-right"
           @click="$emit('hide')"
         >
@@ -22,8 +23,8 @@
           style="width: 100px; padding-left: 4px"
         />
         This is a non-for-profit personal project from open-water swimmers for
-        open-water swimmers. We want to help you find the your perfect events in
-        Europe.
+        open-water swimmers. We want to help you find the your perfect swim
+        events in Europe.
       </p>
       <p>
         If you plan your vacations around open-water swim events, then this app

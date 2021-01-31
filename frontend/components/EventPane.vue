@@ -162,11 +162,11 @@
               </thead>
               <tbody>
                 <tr
+                  v-for="race in pickedEvent.node.races.edges"
+                  :key="race.node.id"
                   @click="raceRowHover(race.node.id)"
                   @mouseout="raceRowHover(null)"
                   @mouseover="raceRowHover(race.node.id)"
-                  v-for="race in pickedEvent.node.races.edges"
-                  :key="race.node.id"
                 >
                   <td>
                     {{ formatEventDate(race.node.date, true) }}

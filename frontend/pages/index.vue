@@ -1,6 +1,9 @@
 <template>
   <div>
-    <WelcomeBox @hide="hideWelcomeBox()" v-if="welcomeboxShown"></WelcomeBox>
+    <WelcomeBox
+      v-if="welcomeboxShown && !this.$store.getters.pickedLocationId"
+      @hide="hideWelcomeBox()"
+    ></WelcomeBox>
     <div class="xl:m-4">
       <LoginBox
         v-if="loginboxShown && !$store.getters['auth/loggedIn']"
@@ -40,15 +43,6 @@ import axios from 'axios'
 const apiKey = process.env.googleMapsKey
 
 export default {
-  head() {
-    return {
-      script: [
-        {
-          src: `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=drawing&v=beta`,
-        },
-      ],
-    }
-  },
   components: { FilterBox, EventPane, Spinner },
   apollo: {
     locationsFiltered: {
@@ -123,7 +117,6 @@ export default {
     if (!this.$device.isMobile() && !localStorage.getItem('welcomeBoxHidden')) {
       this.welcomeboxShown = true
     }
-    this.welcomeboxShown = false
   },
   methods: {
     locationPicked() {
@@ -139,6 +132,15 @@ export default {
       this.welcomeboxShown = false
       localStorage.setItem('welcomeBoxHidden', true)
     },
+  },
+  head() {
+    return {
+      script: [
+        {
+          src: `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=drawing&v=beta`,
+        },
+      ],
+    }
   },
 }
 </script>
