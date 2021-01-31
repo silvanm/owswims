@@ -1,16 +1,13 @@
 import django_filters
-from django.db.models import Q
-from graphene_django import DjangoObjectType
 import graphene
-from graphene import relay, Node
+from django.db.models import Q
+from graphene import Node, relay
+from graphene_django import DjangoObjectType
 from graphene_django.debug import DjangoDebug
 from graphene_django.filter import DjangoFilterConnectionField
-from graphql_auth import mutations
-from graphql_jwt.decorators import login_required
-from graphql_relay import from_global_id
 from graphql_auth.schema import UserQuery, MeQuery
 
-from app.models import Location, Race, Event, Organizer
+from app.models import Organizer, Location, Race, Event
 
 
 class OrganizerNode(DjangoObjectType):
@@ -31,7 +28,16 @@ class LocationNode(DjangoObjectType):
     class Meta:
         model = Location
         filter_fields = ["city", "country", "events"]
-        fields = ("city", "water_type", "water_name", "country", "lat", "lng", "events", "header_photo")
+        fields = (
+            "city",
+            "water_type",
+            "water_name",
+            "country",
+            "lat",
+            "lng",
+            "events",
+            "header_photo",
+        )
         interfaces = (Node,)
 
     # returns the URL of the header photo
@@ -63,7 +69,16 @@ class RaceNode(DjangoObjectType):
     class Meta:
         model = Race
         filter_fields = {"distance": ["lte", "gte"]}
-        fields = ("date", "race_time", "name", "distance", "wetsuit", "price_value", "price_currency", "coordinates")
+        fields = (
+            "date",
+            "race_time",
+            "name",
+            "distance",
+            "wetsuit",
+            "price_value",
+            "price_currency",
+            "coordinates",
+        )
         interfaces = (Node,)
 
     price_value = graphene.String(resolver=lambda obj, resolve_obj: str(obj.price))
@@ -88,9 +103,7 @@ class EventNode(DjangoObjectType):
             "date_start": ["lte", "gte"],
             "date_end": ["lte", "gte"],
         }
-        include = (
-            "__all__"
-        )
+        include = "__all__"
         interfaces = (Node,)
 
     flyer_image = graphene.String(resolver=get_flyer_image_url)
@@ -119,7 +132,7 @@ class EventNodeFilter(django_filters.FilterSet):
             "website",
             "location",
             "races",
-            "slug"
+            "slug",
         )
 
 
@@ -138,86 +151,31 @@ class Query(UserQuery, MeQuery, graphene.ObjectType):
     # Not GraphQL style, but leads to fast query not returning dates without
     # events
     locations_filtered = graphene.List(
-        LocationNode, date_from=graphene.Date(), date_to=graphene.Date(),
-        race_distance_gte=graphene.Float(), race_distance_lte=graphene.Float(),
-        keyword=graphene.String(), event_slug=graphene.String()
+        LocationNode,
+        date_from=graphene.Date(),
+        date_to=graphene.Date(),
+        race_distance_gte=graphene.Float(),
+        race_distance_lte=graphene.Float(),
+        keyword=graphene.String(),
+        event_slug=graphene.String(),
     )
 
-    def resolve_locations_filtered(root, info, race_distance_gte, race_distance_lte,
-                                   date_from, date_to, keyword=''):
+    def resolve_locations_filtered(
+        root, info, race_distance_gte, race_distance_lte, date_from, date_to, keyword=""
+    ):
         q = Q(
             events__races__distance__gte=race_distance_gte,
             events__races__distance__lte=race_distance_lte,
             events__date_start__gte=date_from,
             events__date_start__lte=date_to,
-            events__invisible=False
+            events__invisible=False,
         )
 
         if len(keyword) >= 3:
-            q = q & (Q(events__name__istartswith=keyword) | Q(city__istartswith=keyword))
+            q = q & (
+                Q(events__name__istartswith=keyword) | Q(city__istartswith=keyword)
+            )
 
         return Location.objects.filter(q).distinct().all()
 
     organizer = relay.Node.Field(OrganizerNode)
-
-
-class EventMutation(relay.ClientIDMutation):
-    class Input:
-        name = graphene.String(required=True)
-        id = graphene.ID()
-
-    event = graphene.Field(EventNode)
-
-    @classmethod
-    def mutate_and_get_payload(cls, root, info, name, id, client_mutation_id=None):
-        event = Event.objects.get(pk=from_global_id(id)[1])
-        event.name = name
-        event.save()
-        return EventMutation(event=event)
-
-
-class LocationMutation(relay.ClientIDMutation):
-    class Input:
-        city = graphene.String(required=True)
-        id = graphene.ID()
-
-    location = graphene.Field(LocationNode)
-
-    @classmethod
-    @login_required
-    def mutate_and_get_payload(cls, root, info, city, id, client_mutation_id=None):
-        location = Location.objects.get(pk=from_global_id(id)[1])
-        location.city = city
-        location.save()
-        return LocationMutation(location=location)
-
-
-class RaceMutation(relay.ClientIDMutation):
-    class Input:
-        coordinates = graphene.List(graphene.Float, required=True)
-        id = graphene.ID()
-
-    race = graphene.Field(RaceNode)
-
-    @classmethod
-    @login_required
-    def mutate_and_get_payload(cls, root, info, coordinates, id, client_mutation_id=None):
-        race = Race.objects.get(pk=from_global_id(id)[1])
-        race.coordinates = [coordinates[i:i + 2] for i in range(0, len(coordinates), 2)]
-        race.save()
-        return RaceMutation(race=race)
-
-
-class AuthMutation(graphene.ObjectType):
-    register = mutations.Register.Field()
-    verify_account = mutations.VerifyAccount.Field()
-    token_auth = mutations.ObtainJSONWebToken.Field()
-
-
-class Mutation(AuthMutation, graphene.ObjectType):
-    update_event = EventMutation.Field()
-    update_location = LocationMutation.Field()
-    update_race = RaceMutation.Field()
-
-
-schema = graphene.Schema(query=Query, mutation=Mutation)

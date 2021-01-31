@@ -50,7 +50,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "graphql_auth",
-    'graphql_jwt.refresh_token.apps.RefreshTokenConfig',
+    "graphql_jwt.refresh_token.apps.RefreshTokenConfig",
     "corsheaders",
     "graphene_django",
     "djmoney",
@@ -117,7 +117,7 @@ DATABASES = {
 AUTH_PASSWORD_VALIDATORS = [
     {
         "NAME": "django.contrib.auth.password_validation."
-                "UserAttributeSimilarityValidator",
+        "UserAttributeSimilarityValidator",
     },
     {
         "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
@@ -158,13 +158,16 @@ STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
 GOOGLE_MAPS_API_KEY = env.str("GOOGLE_MAPS_API_KEY")
 
-GRAPHENE = {"SCHEMA": "app.schema.schema", 'MIDDLEWARE': [
-    'graphql_jwt.middleware.JSONWebTokenMiddleware',
-], }
+GRAPHENE = {
+    "SCHEMA": "app.graphql.schema.schema",
+    "MIDDLEWARE": [
+        "graphql_jwt.middleware.JSONWebTokenMiddleware",
+    ],
+}
 
 AUTHENTICATION_BACKENDS = [
     "graphql_auth.backends.GraphQLAuthBackend",
-    'django.contrib.auth.backends.ModelBackend',
+    "django.contrib.auth.backends.ModelBackend",
 ]
 
 GRAPHQL_JWT = {
@@ -181,9 +184,7 @@ GRAPHQL_JWT = {
 
 if env.str("GOOGLE_APPLICATION_CREDENTIALS", None):
     GOOGLE_APPLICATION_CREDENTIALS = env.str("GOOGLE_APPLICATION_CREDENTIALS", None)
-DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
+DEFAULT_FILE_STORAGE = "storages.backends.gcloud.GoogleCloudStorage"
 GS_BUCKET_NAME = env.str("GS_BUCKET_NAME", "owswims-local")
 
-GRAPHQL_AUTH = {
-    "ALLOW_LOGIN_NOT_VERIFIED": True
-}
+GRAPHQL_AUTH = {"ALLOW_LOGIN_NOT_VERIFIED": True}
