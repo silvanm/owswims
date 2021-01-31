@@ -107,7 +107,7 @@ export default {
       'mylocation',
       'pickedLocationData',
       'pickedLocationZoomedIn',
-      'organizationId',
+      'organizerData',
       'isLoading',
       'raceTrackUnderEditId',
       'raceTrackUnderFocusId',
@@ -233,7 +233,7 @@ export default {
     }
 
     // filter by organization --> pan so that all markers are seen
-    if (this.organizationId) {
+    if (this.organizerData) {
       const bounds = new self.google.maps.LatLngBounds()
       this.locations.forEach(function (item, index) {
         bounds.extend(new self.google.maps.LatLng(item.lat, item.lng))

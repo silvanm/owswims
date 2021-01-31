@@ -9,7 +9,7 @@ export const state = () => ({
   pickedLocationId: null,
   pickedLocationZoomedIn: null,
   keyword: '',
-  organizationId: null,
+  organizerData: null,
   isEmbedded: false,
   distanceRange: [0, 30],
   dateRange: [0, 12],
@@ -151,8 +151,8 @@ export const mutations = {
   travelTimes(s, id) {
     s.travelTimes = id
   },
-  organizationId(s, id) {
-    s.organizationId = id
+  organizerData(s, id) {
+    s.organizerData = id
   },
   isEmbedded(s, isEmbedded) {
     s.isEmbedded = isEmbedded
@@ -208,8 +208,8 @@ export const getters = {
   travelTimes(s) {
     return s.travelTimes
   },
-  organizationId(s) {
-    return s.organizationId
+  organizerData(s) {
+    return s.organizerData
   },
   isEmbedded(s) {
     return s.isEmbedded

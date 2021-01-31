@@ -8,6 +8,15 @@
       "
       @hide="hideWelcomeBox()"
     ></WelcomeBox>
+    <div
+      v-if="organizerData && !pickedLocationId && !this.$device.isMobile()"
+      class="p-4"
+    >
+      <OrganizerLogo
+        :image="organizerData.logo"
+        :url="organizerData.website"
+      ></OrganizerLogo>
+    </div>
     <div class="xl:m-4">
       <LoginBox
         v-if="loginboxShown && !$store.getters['auth/loggedIn']"
@@ -61,7 +70,7 @@ export default {
           $distanceTo: Float!
           $dateFrom: Date!
           $dateTo: Date!
-          $organizationId: ID!
+          $organizerSlug: String!
         ) {
           locationsFiltered(
             keyword: $keyword
@@ -69,7 +78,7 @@ export default {
             raceDistanceLte: $distanceTo
             dateFrom: $dateFrom
             dateTo: $dateTo
-            organizer: $organizationId
+            organizerSlug: $organizerSlug
           ) {
             id
             country
@@ -90,7 +99,7 @@ export default {
           dateTo: formatISO(addMonths(new Date(), this.dateRange[1]), {
             representation: 'date',
           }),
-          organizationId: this.organizationId ?? '',
+          organizerSlug: this.organizerData ? this.organizerData.slug : '',
         }
       },
       debounce: 200,
@@ -113,7 +122,8 @@ export default {
       'distanceRange',
       'dateRange',
       'isLoading',
-      'organizationId',
+      'pickedLocationId',
+      'organizerData',
       'isEmbedded',
     ]),
   },

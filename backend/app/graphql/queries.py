@@ -18,8 +18,8 @@ def get_organization_logo_url(obj, resolve_obj):
 class OrganizerNode(DjangoObjectType):
     class Meta:
         model = Organizer
-        filter_fields = ["name"]
-        fields = ["name", "website", "logo"]
+        filter_fields = ["name", "slug"]
+        fields = ["name", "website", "logo", "slug"]
         interfaces = (Node,)
 
     logo = graphene.String(resolver=get_organization_logo_url)
@@ -164,7 +164,7 @@ class Query(UserQuery, MeQuery, graphene.ObjectType):
         race_distance_lte=graphene.Float(),
         keyword=graphene.String(),
         event_slug=graphene.String(),
-        organizer=graphene.ID(),
+        organizer_slug=graphene.String(),
     )
 
     def resolve_locations_filtered(
@@ -175,7 +175,7 @@ class Query(UserQuery, MeQuery, graphene.ObjectType):
             date_from,
             date_to,
             keyword="",
-            organizer=None,
+            organizer_slug=None,
     ):
         q = Q(
             events__races__distance__gte=race_distance_gte,
@@ -190,11 +190,8 @@ class Query(UserQuery, MeQuery, graphene.ObjectType):
                     Q(events__name__istartswith=keyword) | Q(city__istartswith=keyword)
             )
 
-        if organizer:
-            from base64 import b64decode
-            model_with_pk = b64decode(organizer).decode("utf-8")
-            model_name, pk = model_with_pk.split(":")
-            q = q & Q(events__organizer__id=pk)
+        if organizer_slug:
+            q = q & Q(events__organizer__slug=organizer_slug)
 
         return Location.objects.filter(q).distinct().all()
 

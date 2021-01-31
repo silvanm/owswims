@@ -16,7 +16,10 @@ from .models import Race, Event, Location
 
 admin.site.site_header = ugettext_lazy('Open-Water-Swims Admin')
 
-admin.site.register(models.Organizer)
+
+@admin.register(models.Organizer)
+class OrganizerAdmin(admin.ModelAdmin):
+    prepopulated_fields = {"slug": ("name",)}
 
 
 class LocationForm(forms.ModelForm):
@@ -144,7 +147,6 @@ class EventAdmin(CloneModelAdmin):
     def locationstr(self, obj):
         if obj.location:
             return f"{obj.location.city}, {obj.location.country}"
-
 
     def entry_quality_rating(self, obj):
         rating = obj.get_quality_rating()

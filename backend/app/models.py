@@ -36,6 +36,7 @@ class Organizer(models.Model):
     name = models.CharField(max_length=100)
     website = models.URLField(max_length=200)
     logo = models.ImageField(upload_to='organizer_logo', null=True, blank=True)
+    slug = models.SlugField(max_length=100, null=True)
 
     class Meta:
         ordering = ["name"]
