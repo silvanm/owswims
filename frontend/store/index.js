@@ -7,6 +7,7 @@ export const state = () => ({
   lng: null,
   isAccurate: false,
   pickedLocationId: null,
+  pickedLocationZoomedIn: null,
   keyword: '',
   distanceRange: [0, 30],
   dateRange: [0, 12],
@@ -40,6 +41,7 @@ export const mutations = {
             $locationId: ID!
           ) {
             location(id: $locationId) {
+              id
               country
               city
               headerPhoto
@@ -128,6 +130,9 @@ export const mutations = {
     }
     s.pickedLocationData = data
   },
+  pickedLocationZoomedIn(s, data) {
+    s.pickedLocationZoomedIn = data
+  },
   focusedEventId(s, data) {
     s.focusedEventId = data
   },
@@ -184,6 +189,9 @@ export const getters = {
   },
   pickedLocationData(s) {
     return s.pickedLocationData
+  },
+  pickedLocationZoomedIn(s) {
+    return s.pickedLocationZoomedIn
   },
   focusedEventId(s) {
     return s.focusedEventId

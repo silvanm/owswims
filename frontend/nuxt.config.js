@@ -136,4 +136,8 @@ export default {
     position: 'bottom-center',
     duration: 2000,
   },
+
+  router: {
+    middleware: 'querystringHandler',
+  },
 }

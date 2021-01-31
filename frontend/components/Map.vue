@@ -107,6 +107,7 @@ export default {
     ...mapGetters([
       'mylocation',
       'pickedLocationData',
+      'pickedLocationZoomedIn',
       'isLoading',
       'raceTrackUnderEditId',
       'raceTrackUnderFocusId',
@@ -221,6 +222,9 @@ export default {
         })
       })
     },
+    pickedLocationZoomedIn(newData, oldData) {
+      this.openLocation(newData)
+    },
     raceTrackUnderEditId(newData, oldData) {
       for (const raceId of Object.keys(this.raceTrackOverlays)) {
         const color = newData === raceId ? '#FFFF00' : '#FFFFFF'
@@ -284,13 +288,19 @@ export default {
     if (this.$route.query.location) {
       this.openLocation(this.$route.query.location)
     }
-    if (this.$route.query.event) {
+    /* if (this.$route.query.event) {
       this.openLocationBySlug(this.$route.query.event)
-    }
+    } */
 
     this.map.addListener('zoom_changed', () => {
       this.zoomChanged()
     })
+
+    // this is set by the query string "event"
+    const zoomedInLocation = this.$store.getters.pickedLocationZoomedIn
+    if (zoomedInLocation) {
+      this.openLocation(zoomedInLocation)
+    }
   },
   methods: {
     markerPin() {
