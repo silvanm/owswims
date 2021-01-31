@@ -1,7 +1,11 @@
 <template>
   <div>
     <WelcomeBox
-      v-if="welcomeboxShown && !this.$store.getters.pickedLocationId"
+      v-if="
+        welcomeboxShown &&
+        !this.$store.getters.pickedLocationId &&
+        !this.isEmbedded
+      "
       @hide="hideWelcomeBox()"
     ></WelcomeBox>
     <div class="xl:m-4">
@@ -23,7 +27,11 @@
         />
       </client-only>
       <Spinner :show="isLoading"></Spinner>
-      <FilterBox ref="filterbox" @showLogin="doShowLogin"></FilterBox>
+      <FilterBox
+        ref="filterbox"
+        v-if="!this.isEmbedded"
+        @showLogin="doShowLogin"
+      ></FilterBox>
       <EventPane v-if="$store.getters.pickedLocationId"></EventPane>
     </div>
   </div>
@@ -53,6 +61,7 @@ export default {
           $distanceTo: Float!
           $dateFrom: Date!
           $dateTo: Date!
+          $organizationId: ID!
         ) {
           locationsFiltered(
             keyword: $keyword
@@ -60,6 +69,7 @@ export default {
             raceDistanceLte: $distanceTo
             dateFrom: $dateFrom
             dateTo: $dateTo
+            organizer: $organizationId
           ) {
             id
             country
@@ -80,6 +90,7 @@ export default {
           dateTo: formatISO(addMonths(new Date(), this.dateRange[1]), {
             representation: 'date',
           }),
+          organizationId: this.organizationId ?? '',
         }
       },
       debounce: 200,
@@ -97,7 +108,14 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['keyword', 'distanceRange', 'dateRange', 'isLoading']),
+    ...mapGetters([
+      'keyword',
+      'distanceRange',
+      'dateRange',
+      'isLoading',
+      'organizationId',
+      'isEmbedded',
+    ]),
   },
   async mounted() {
     // detect coarse position via IP
@@ -120,7 +138,9 @@ export default {
   },
   methods: {
     locationPicked() {
-      this.$refs.filterbox.collapse()
+      if (this.$refs.filterbox) {
+        this.$refs.filterbox.collapse()
+      }
     },
     doShowLogin() {
       this.loginboxShown = true

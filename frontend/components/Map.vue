@@ -58,7 +58,6 @@ import MarkerClusterer from '@googlemaps/markerclustererplus'
 import eventPresentation from '@/mixins/eventPresentation'
 import { mapGetters } from 'vuex'
 import calculateDistance from 'assets/js/calculateDistance'
-import gql from 'graphql-tag'
 
 export default {
   mixins: [eventPresentation],
@@ -108,6 +107,7 @@ export default {
       'mylocation',
       'pickedLocationData',
       'pickedLocationZoomedIn',
+      'organizationId',
       'isLoading',
       'raceTrackUnderEditId',
       'raceTrackUnderFocusId',
@@ -149,78 +149,7 @@ export default {
       }
     },
     pickedLocationData(newData, oldData) {
-      // Draw Race Track Overlays
-      newData.allEvents.edges.forEach((event) => {
-        event.node.races.edges.forEach((race) => {
-          if (
-            race.node.coordinates &&
-            race.node.coordinates.length > 0 &&
-            !(race.node.id in this.raceTrackOverlays)
-          ) {
-            const coordinateObj = race.node.coordinates
-
-            const coordinateArray = coordinateObj.map((i) => {
-              return {
-                lat: i[0],
-                lng: i[1],
-              }
-            })
-
-            const arrowSymbol = {
-              path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
-              fillColor: 'white',
-              fillOpacity: 0,
-              strokeOpacity: 0,
-            }
-
-            const icons = []
-            const numArrows = 6
-            for (let i = 0; i < numArrows; i++) {
-              icons.push({
-                icon: arrowSymbol,
-                offset: ((100 / numArrows) * i).toString() + '%',
-              })
-            }
-
-            const options = {
-              path: coordinateArray,
-              geodesic: true,
-              strokeColor: '#FFFFFF',
-              strokeOpacity: 0.5,
-              strokeWeight: 3,
-              icons,
-            }
-
-            const raceTrackOverlay = new google.maps.Polyline(options)
-
-            // take the middle coordinate and apply a label there
-            const middleCoordinate =
-              coordinateArray[Math.floor(coordinateArray.length / 2)]
-
-            // add a marker without icon to achieve a label
-            const label = new google.maps.Marker({
-              position: middleCoordinate,
-              map: this.map,
-              icon:
-                'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=',
-              label: {
-                color: '#FFFFFF',
-                text: this.humanizeDistance(race.node.distance),
-                fontSize: '12px',
-              },
-            })
-
-            raceTrackOverlay.setMap(this.map)
-            this.raceTrackOverlays[race.node.id] = {
-              polyline: raceTrackOverlay,
-              // did not find out how I can retrieve the options from an existing polyline
-              // so I can modify them. That's why I am storing the option object
-              polylineOptions: options,
-              label,
-            }
-          }
-        })
-      })
+      this.drawRaceTrackOverlays(newData)
     },
     pickedLocationZoomedIn(newData, oldData) {
       this.openLocation(newData)
@@ -243,17 +172,21 @@ export default {
 
       if (newData && this.raceTrackOverlays[newData]) {
         // get bounds of racetrack
-        const self = this
         google.maps.Polyline.prototype.getBounds = function () {
-          const bounds = new self.google.maps.LatLngBounds()
+          const bounds = new google.maps.LatLngBounds()
           this.getPath().forEach(function (item, index) {
-            bounds.extend(new self.google.maps.LatLng(item.lat(), item.lng()))
+            bounds.extend(new google.maps.LatLng(item.lat(), item.lng()))
           })
           return bounds
         }
         this.map.fitBounds(
           this.raceTrackOverlays[newData].polyline.getBounds(),
-          { top: 100, left: 50, bottom: 100, right: 50 }
+          {
+            top: window.innerHeight / 10,
+            left: window.innerWidth / 10,
+            bottom: window.innerHeight / 10,
+            right: window.innerWidth / 10,
+          }
         )
       }
     },
@@ -288,9 +221,6 @@ export default {
     if (this.$route.query.location) {
       this.openLocation(this.$route.query.location)
     }
-    /* if (this.$route.query.event) {
-      this.openLocationBySlug(this.$route.query.event)
-    } */
 
     this.map.addListener('zoom_changed', () => {
       this.zoomChanged()
@@ -300,6 +230,20 @@ export default {
     const zoomedInLocation = this.$store.getters.pickedLocationZoomedIn
     if (zoomedInLocation) {
       this.openLocation(zoomedInLocation)
+    }
+
+    // filter by organization --> pan so that all markers are seen
+    if (this.organizationId) {
+      const bounds = new self.google.maps.LatLngBounds()
+      this.locations.forEach(function (item, index) {
+        bounds.extend(new self.google.maps.LatLng(item.lat, item.lng))
+      })
+      this.map.fitBounds(bounds, {
+        top: window.innerHeight / 10,
+        left: window.innerWidth / 10,
+        bottom: window.innerHeight / 10,
+        right: window.innerWidth / 10,
+      })
     }
   },
   methods: {
@@ -408,36 +352,86 @@ export default {
       this.map.setZoom(14)
       google.maps.event.trigger(this.locationIdToMarker[id], 'click')
     },
-    async openLocationBySlug(slug) {
-      // @todo move this to VueX?
-      const result = await this.$apollo.query({
-        query: gql`
-          query($slug: String!) {
-            allEvents(slug: $slug) {
-              edges {
-                node {
-                  id
-                  location {
-                    id
-                  }
-                }
-              }
-            }
-          }
-        `,
-        variables: {
-          slug,
-        },
-      })
-      this.$store.commit('focusedEventId', result.data.allEvents.edges[0].node)
-      this.openLocation(result.data.allEvents.edges[0].node.location.id)
-    },
     zoomChanged() {
       const zoom = this.map.getZoom()
       // hide labels if zoomed out
       for (const raceId of Object.keys(this.raceTrackOverlays)) {
         this.raceTrackOverlays[raceId].label.setVisible(zoom > 9)
       }
+    },
+    drawRaceTrackOverlays(location) {
+      // Draw Race Track Overlays
+      location.allEvents.edges.forEach((event) => {
+        event.node.races.edges.forEach((race) => {
+          if (
+            race.node.coordinates &&
+            race.node.coordinates.length > 0 &&
+            !(race.node.id in this.raceTrackOverlays)
+          ) {
+            const coordinateObj = race.node.coordinates
+
+            const coordinateArray = coordinateObj.map((i) => {
+              return {
+                lat: i[0],
+                lng: i[1],
+              }
+            })
+
+            const arrowSymbol = {
+              path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
+              fillColor: 'white',
+              fillOpacity: 0,
+              strokeOpacity: 0,
+            }
+
+            const icons = []
+            const numArrows = 6
+            for (let i = 0; i < numArrows; i++) {
+              icons.push({
+                icon: arrowSymbol,
+                offset: ((100 / numArrows) * i).toString() + '%',
+              })
+            }
+
+            const options = {
+              path: coordinateArray,
+              geodesic: true,
+              strokeColor: '#FFFFFF',
+              strokeOpacity: 0.5,
+              strokeWeight: 3,
+              icons,
+            }
+
+            const raceTrackOverlay = new google.maps.Polyline(options)
+
+            // take the middle coordinate and apply a label there
+            const middleCoordinate =
+              coordinateArray[Math.floor(coordinateArray.length / 2)]
+
+            // add a marker without icon to achieve a label
+            const label = new google.maps.Marker({
+              position: middleCoordinate,
+              map: this.map,
+              icon:
+                'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=',
+              label: {
+                color: '#FFFFFF',
+                text: this.humanizeDistance(race.node.distance),
+                fontSize: '12px',
+              },
+            })
+
+            raceTrackOverlay.setMap(this.map)
+            this.raceTrackOverlays[race.node.id] = {
+              polyline: raceTrackOverlay,
+              // did not find out how I can retrieve the options from an existing polyline
+              // so I can modify them. That's why I am storing the option object
+              polylineOptions: options,
+              label,
+            }
+          }
+        })
+      })
     },
     highlightRacetrack(id) {
       for (const raceId of Object.keys(this.raceTrackOverlays)) {

@@ -210,11 +210,25 @@ type ObtainJSONWebToken {
 }
 
 type OrganizerNode implements Node {
-    events(after: String, before: String, dateEnd_Gte: Date, dateEnd_Lte: Date, dateStart_Gte: Date, dateStart_Lte: Date, first: Int, last: Int, location: ID, location_City: String, location_City_Icontains: String, location_Country: String, name: String, website: String): EventNodeConnection!
     "The ID of the object."
     id: ID!
     name: String!
     website: String!
+}
+
+type OrganizerNodeConnection {
+    "Contains the nodes in this connection."
+    edges: [OrganizerNodeEdge]!
+    "Pagination data for this connection."
+    pageInfo: PageInfo!
+}
+
+"A Relay edge containing a `OrganizerNode` and its cursor."
+type OrganizerNodeEdge {
+    "A cursor for use in pagination"
+    cursor: String!
+    "The item at the end of the edge"
+    node: OrganizerNode
 }
 
 "The Relay compliant `PageInfo` type, containing data necessary to paginate this connection."
@@ -233,11 +247,12 @@ type Query {
     _debug: DjangoDebug
     allEvents(after: String, before: String, dateFrom: Date, dateTo: Date, first: Int, last: Int, location: ID, name: String, raceDistanceGte: Float, raceDistanceLte: Float, races: [ID], slug: String, website: String): EventNodeConnection
     allLocations(after: String, before: String, city: String, country: String, dateFrom: Date, dateTo: Date, events: [ID], first: Int, last: Int, lat: Float, lng: Float, raceDistanceGte: Float, raceDistanceLte: Float, waterName: String, waterType: String): LocationNodeConnection
+    allOrganizers(after: String, before: String, first: Int, last: Int, name: String): OrganizerNodeConnection
     "The ID of the object"
     event(id: ID!): EventNode
     "The ID of the object"
     location(id: ID!): LocationNode
-    locationsFiltered(dateFrom: Date, dateTo: Date, eventSlug: String, keyword: String, raceDistanceGte: Float, raceDistanceLte: Float): [LocationNode]
+    locationsFiltered(dateFrom: Date, dateTo: Date, eventSlug: String, keyword: String, organizer: ID, raceDistanceGte: Float, raceDistanceLte: Float): [LocationNode]
     me: UserNode
     "The ID of the object"
     organizer(id: ID!): OrganizerNode

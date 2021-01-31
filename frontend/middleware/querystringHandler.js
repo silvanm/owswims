@@ -1,6 +1,12 @@
 import gql from 'graphql-tag'
 
 export default async function ({ route, app, store }) {
+  if (route.query.organization_id) {
+    store.commit('organizationId', route.query.organization_id)
+  }
+  if (route.query.embedded) {
+    store.commit('isEmbedded', true)
+  }
   if (route.query.event) {
     const slug = route.query.event
     const client = app.apolloProvider.defaultClient
