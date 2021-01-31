@@ -22,15 +22,15 @@
           :src="require('@/assets/silvan-muehlemann.jpg')"
           style="width: 100px; padding-left: 4px"
         />
-        This is a non-for-profit personal project from open-water swimmers for
-        open-water swimmers. We want to help you find the your perfect swim
-        events in Europe.
+        This is a not-for-profit personal project from open-water swimmers for
+        open-water swimmers. We want to help you find your perfect swim events
+        in Europe.
       </p>
       <p>
         If you plan your vacations around open-water swim events, then this app
-        is for you. Select the desired distance and timerange and all matching
-        events will be shown to you. Enable the "Show trip duration" switch to
-        let the app calculate you the time to get there by car.
+        is for you. Select the desired distance and time range, and we show all
+        matching events to you. Enable the "Show trip duration" switch to let
+        the app calculate the time to get there by car.
       </p>
       <p>
         Each
