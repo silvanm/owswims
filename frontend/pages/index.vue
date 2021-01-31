@@ -123,6 +123,7 @@ export default {
     if (!this.$device.isMobile() && !localStorage.getItem('welcomeBoxHidden')) {
       this.welcomeboxShown = true
     }
+    this.welcomeboxShown = false
   },
   methods: {
     locationPicked() {
