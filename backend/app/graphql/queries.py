@@ -13,7 +13,8 @@ from app.models import Organizer, Location, Race, Event
 class OrganizerNode(DjangoObjectType):
     class Meta:
         model = Organizer
-        include = ("__all__",)
+        filter_fields = ["name"]
+        fields = ["name", "website"]
         interfaces = (Node,)
 
 
@@ -141,8 +142,6 @@ class Query(UserQuery, MeQuery, graphene.ObjectType):
     all_locations = DjangoFilterConnectionField(
         LocationNode, filterset_class=LocationNodeFilter
     )
-    debug = graphene.Field(DjangoDebug, name="_debug")
-
     event = relay.Node.Field(EventNode)
     all_events = DjangoFilterConnectionField(EventNode, filterset_class=EventNodeFilter)
 
@@ -158,10 +157,18 @@ class Query(UserQuery, MeQuery, graphene.ObjectType):
         race_distance_lte=graphene.Float(),
         keyword=graphene.String(),
         event_slug=graphene.String(),
+        organizer=graphene.ID(),
     )
 
     def resolve_locations_filtered(
-        root, info, race_distance_gte, race_distance_lte, date_from, date_to, keyword=""
+            root,
+            info,
+            race_distance_gte,
+            race_distance_lte,
+            date_from,
+            date_to,
+            keyword="",
+            organizer=None,
     ):
         q = Q(
             events__races__distance__gte=race_distance_gte,
@@ -173,9 +180,18 @@ class Query(UserQuery, MeQuery, graphene.ObjectType):
 
         if len(keyword) >= 3:
             q = q & (
-                Q(events__name__istartswith=keyword) | Q(city__istartswith=keyword)
+                    Q(events__name__istartswith=keyword) | Q(city__istartswith=keyword)
             )
+
+        if organizer:
+            from base64 import b64decode
+            model_with_pk = b64decode(organizer).decode("utf-8")
+            model_name, pk = model_with_pk.split(":")
+            q = q & Q(events__organizer__id=pk)
 
         return Location.objects.filter(q).distinct().all()
 
     organizer = relay.Node.Field(OrganizerNode)
+    all_organizers = DjangoFilterConnectionField(OrganizerNode)
+
+    debug = graphene.Field(DjangoDebug, name="_debug")
