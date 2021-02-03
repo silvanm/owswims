@@ -20,6 +20,24 @@
           ></font-awesome-icon>
         </button>
       </div>
+      <div
+        ref="seeAllButton"
+        class="bg-white"
+        style="
+          border-radius: 2px;
+          margin: 10px;
+          height: 40px;
+          width: 40px;
+          padding: 9px 9px 9px 11px;
+        "
+      >
+        <button class="text-gray-600" @click="seeAll">
+          <font-awesome-icon
+            icon="expand-arrows-alt"
+            size="2x"
+          ></font-awesome-icon>
+        </button>
+      </div>
 
       <div ref="eventDescription">
         <div v-if="pickedLocation && pickedLocationData">
@@ -217,6 +235,9 @@ export default {
     this.map.controls[google.maps.ControlPosition.RIGHT].push(
       this.$refs.centerButton
     )
+    this.map.controls[google.maps.ControlPosition.RIGHT].push(
+      this.$refs.seeAllButton
+    )
     this.updateMarker()
     if (this.$route.query.location) {
       this.openLocation(this.$route.query.location)
@@ -234,6 +255,12 @@ export default {
 
     // filter by organization --> pan so that all markers are seen
     if (this.organizerData) {
+      this.seeAll()
+    }
+  },
+  methods: {
+    seeAll() {
+      /* Expand map to see all markers */
       const bounds = new self.google.maps.LatLngBounds()
       this.locations.forEach(function (item, index) {
         bounds.extend(new self.google.maps.LatLng(item.lat, item.lng))
@@ -244,9 +271,7 @@ export default {
         bottom: window.innerHeight / 10,
         right: window.innerWidth / 10,
       })
-    }
-  },
-  methods: {
+    },
     markerPin() {
       return {
         path:

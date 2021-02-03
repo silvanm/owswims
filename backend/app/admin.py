@@ -73,8 +73,8 @@ class LocationAdmin(admin.ModelAdmin):
 class RaceInline(admin.TabularInline):
     model = Race
     exclude = ['coordinates']
-    fields = ['date', 'race_time', 'distance', 'name', 'has_coordinates', 'wetsuit', 'price']
-    readonly_fields = ['has_coordinates', ]
+    fields = ['id', 'date', 'race_time', 'distance', 'name', 'has_coordinates', 'wetsuit', 'price']
+    readonly_fields = ['id', 'has_coordinates']
 
     def has_coordinates(self, obj: Race):
         return obj.coordinates is not None
