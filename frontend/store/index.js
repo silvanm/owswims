@@ -35,13 +35,7 @@ export const mutations = {
     client
       .query({
         query: gql`
-          query(
-            $distanceFrom: Float!
-            $distanceTo: Float!
-            $dateFrom: Date!
-            $dateTo: Date!
-            $locationId: ID!
-          ) {
+          query($dateFrom: Date!, $dateTo: Date!, $locationId: ID!) {
             location(id: $locationId) {
               id
               country
@@ -78,10 +72,7 @@ export const mutations = {
                     website
                     logo
                   }
-                  races(
-                    distance_Gte: $distanceFrom
-                    distance_Lte: $distanceTo
-                  ) {
+                  races {
                     edges {
                       node {
                         id
@@ -104,8 +95,6 @@ export const mutations = {
         variables: {
           locationId: s.pickedLocationId,
           keyword: s.keyword,
-          distanceFrom: s.distanceRange[0],
-          distanceTo: s.distanceRange[1],
           dateFrom: formatISO(addMonths(new Date(), s.dateRange[0]), {
             representation: 'date',
           }),

@@ -282,17 +282,6 @@ export default {
         right: window.innerWidth / 10,
       })
     },
-    markerPin() {
-      return {
-        path:
-          'M66.9,41.8c0-11.3-9.1-20.4-20.4-20.4c-11.3,0-20.4,9.1-20.4,20.4c0,11.3,20.4,32.4,20.4,32.4S66.9,53.1,66.9,41.8z    M37,41.4c0-5.2,4.3-9.5,9.5-9.5c5.2,0,9.5,4.2,9.5,9.5c0,5.2-4.2,9.5-9.5,9.5C41.3,50.9,37,46.6,37,41.4z',
-        fillColor: '#fff',
-        fillOpacity: 1,
-        anchor: new google.maps.Point(50, 70),
-        strokeWeight: 0,
-        scale: 0.7,
-      }
-    },
     async centerMap() {
       await this.$store.dispatch('locateMe')
 
@@ -304,9 +293,25 @@ export default {
         this.map.panTo(myLatLng)
       }
     },
+    markerPin() {
+      return {
+        path:
+          'M66.9,41.8c0-11.3-9.1-20.4-20.4-20.4c-11.3,0-20.4,9.1-20.4,20.4c0,11.3,20.4,32.4,20.4,32.4S66.9,53.1,66.9,41.8z    M37,41.4c0-5.2,4.3-9.5,9.5-9.5c5.2,0,9.5,4.2,9.5,9.5c0,5.2-4.2,9.5-9.5,9.5C41.3,50.9,37,46.6,37,41.4z',
+        fillColor: '#fff',
+        fillOpacity: 1,
+        anchor: new google.maps.Point(50, 70),
+        strokeWeight: 0,
+        scale: 0.7,
+      }
+    },
     formatRaceDistances(races) {
+      function onlyUnique(value, index, self) {
+        return self.indexOf(value) === index
+      }
+
       return races.edges
         .map((e) => this.humanizeDistance(e.node.distance))
+        .filter(onlyUnique)
         .join(', ')
     },
     updateMarker() {
@@ -388,10 +393,9 @@ export default {
       google.maps.event.trigger(this.locationIdToMarker[id], 'click')
     },
     zoomChanged() {
-      const zoom = this.map.getZoom()
       // hide labels if zoomed out
       for (const raceId of Object.keys(this.raceTrackOverlays)) {
-        this.raceTrackOverlays[raceId].label.setVisible(zoom > 9)
+        this.raceTrackOverlays[raceId].label.setVisible(this.isLabelVisible())
       }
     },
     drawRaceTrackOverlays(location) {
@@ -428,7 +432,7 @@ export default {
               })
             }
 
-            const options = {
+            const polylineOptions = {
               path: coordinateArray,
               geodesic: true,
               strokeColor: '#FFFFFF',
@@ -437,48 +441,61 @@ export default {
               icons,
             }
 
-            const raceTrackOverlay = new google.maps.Polyline(options)
+            const raceTrackOverlay = new google.maps.Polyline(polylineOptions)
 
             // take the middle coordinate and apply a label there
             const middleCoordinate =
               coordinateArray[Math.floor(coordinateArray.length / 2)]
 
-            // add a marker without icon to achieve a label
-            const label = new google.maps.Marker({
+            const labelOptions = {
               position: middleCoordinate,
               map: this.map,
               icon:
                 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=',
               label: {
-                color: '#FFFFFF',
+                className: 'marker-passive',
+                color: 'white',
                 text: this.humanizeDistance(race.node.distance),
                 fontSize: '12px',
               },
-            })
+              visible: this.isLabelVisible(),
+            }
+
+            // add a marker without icon to achieve a label
+            const label = new google.maps.Marker(labelOptions)
 
             raceTrackOverlay.setMap(this.map)
             this.raceTrackOverlays[race.node.id] = {
               polyline: raceTrackOverlay,
               // did not find out how I can retrieve the options from an existing polyline
               // so I can modify them. That's why I am storing the option object
-              polylineOptions: options,
+              polylineOptions,
+              labelOptions,
               label,
             }
           }
         })
       })
     },
+    isLabelVisible() {
+      const zoom = this.map.getZoom()
+      return zoom > 9
+    },
     highlightRacetrack(id) {
       for (const raceId of Object.keys(this.raceTrackOverlays)) {
         const po = this.raceTrackOverlays[raceId].polylineOptions
+        const lo = this.raceTrackOverlays[raceId].labelOptions
         if (id === raceId) {
           po.strokeOpacity = 1
           po.icons.forEach((i) => (i.icon.fillOpacity = 1))
+          lo.label.className = 'marker-active'
         } else {
           po.strokeOpacity = 0.5
           po.icons.forEach((i) => (i.icon.fillOpacity = 0))
+          lo.label.className = 'marker-passive'
         }
         this.raceTrackOverlays[raceId].polyline.setOptions(po)
+        this.raceTrackOverlays[raceId].label.setOptions(lo)
       }
     },
   },
@@ -498,6 +515,18 @@ body {
   height: 100%;
   top: 0;
   left: 0;
+}
+
+.marker-active {
+  position: relative;
+  top: 10px;
+  opacity: 1;
+}
+
+.marker-passive {
+  position: relative;
+  top: 10px;
+  opacity: 0.5;
 }
 
 .gm-style .gm-style-iw {
