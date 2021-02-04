@@ -19,6 +19,10 @@ export default {
         content: 'yes',
       },
       {
+        name: 'mobile-web-app-capable',
+        content: 'yes',
+      },
+      {
         name: 'theme-color',
         content: '#36abff',
       },
@@ -39,7 +43,18 @@ export default {
         content: 'https://open-water-swims.com/static/og-image.jpg',
       },
     ],
-    link: [{ rel: 'icon', type: 'image/x-icon', href: '/static/favicon.ico' }],
+    link: [
+      { rel: 'icon', type: 'image/x-icon', href: '/static/favicon.ico' },
+      {
+        rel: 'shortcut icon',
+        sizes: '192x192',
+        href: '/static/android-chrome-192x192.png',
+      },
+      {
+        rel: 'apple-touch-icon',
+        href: '/static/apple-touch-icon.png',
+      },
+    ],
   },
 
   // Global CSS (https://go.nuxtjs.dev/config-css)
