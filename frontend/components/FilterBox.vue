@@ -80,11 +80,11 @@
           <client-only>
             <vue-slider
               v-model="distanceRange"
-              :marks="(val) => val % 5 === 0"
+              :marks="rangeSliderMarks()"
               :tooltip-formatter="(val) => `${val}km`"
               dot-size="25"
               :min="0"
-              :max="30"
+              :max="distanceRange[1]"
             ></vue-slider>
           </client-only>
         </div>
@@ -96,8 +96,18 @@
           name="locateMe"
           :is-checked="geoLocationEnabled"
           @change="(e) => (e ? $store.dispatch('locateMe') : null)"
-          ><span id="activate-geolocation">Show trip duration</span></Toggle
         >
+          <span id="activate-geolocation">Show trip duration</span>
+          <span
+            class="text-gray-800 cursor-pointer"
+            v-tooltip="{
+              content:
+                'Use your location to calculate trip duration to the races',
+              trigger: 'hover',
+            }"
+            ><font-awesome-icon icon="question-circle"
+          /></span>
+        </Toggle>
         <div v-if="!$device.isMobile()" class="mt-2">
           <div class="text-gray-600">
             Powered by
@@ -135,6 +145,10 @@ export default {
   },
   watch: {
     distanceRange(newRange, oldRange) {
+      // if the slider is at the upper edge, then don't have a limit
+      if (newRange[1] === this.distanceRange) {
+        newRange[1] = 1000
+      }
       this.$store.commit('distanceRange', newRange)
       this.$gtag('event', 'distanceRange')
     },
@@ -169,6 +183,14 @@ export default {
         this.$refs.closebutton.collapse()
         this.clickCollapseFilter()
       }
+    },
+    rangeSliderMarks() {
+      const marks = {}
+      for (let i = 0; i < this.distanceRange[1]; i += 5) {
+        marks[i.toString()] = i.toString()
+      }
+      marks[this.distanceRange[1].toString()] = this.distanceRange[1] + '+'
+      return marks
     },
   },
 }

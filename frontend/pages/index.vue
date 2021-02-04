@@ -1,11 +1,7 @@
 <template>
   <div>
     <WelcomeBox
-      v-if="
-        welcomeboxShown &&
-        !this.$store.getters.pickedLocationId &&
-        !this.isEmbedded
-      "
+      v-if="welcomeboxShown && !$store.getters.pickedLocationId && !isEmbedded"
       @hide="hideWelcomeBox()"
     ></WelcomeBox>
     <div

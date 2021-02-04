@@ -12,6 +12,11 @@
           width: 40px;
           padding: 9px;
         "
+        v-tooltip="{
+          content: 'Center map at your location',
+          trigger: 'hover',
+          placement: 'left',
+        }"
       >
         <button class="text-gray-600" @click="centerMap">
           <font-awesome-icon
@@ -30,6 +35,11 @@
           width: 40px;
           padding: 9px 9px 9px 11px;
         "
+        v-tooltip="{
+          content: 'Zoom out to see all events',
+          trigger: 'hover',
+          placement: 'left',
+        }"
       >
         <button class="text-gray-600" @click="seeAll">
           <font-awesome-icon
