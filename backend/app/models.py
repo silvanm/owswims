@@ -148,7 +148,7 @@ class Race(CloneMixin, models.Model):
     )
 
     class Meta:
-        ordering = ["distance"]
+        ordering = ["date", "race_time", "distance"]
 
     def __str__(self):
         return repr(f"{self.event.name}, {self.distance}")
