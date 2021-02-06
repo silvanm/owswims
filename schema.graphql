@@ -75,7 +75,7 @@ type EventNode implements Node {
     needsLicense: Boolean
     needsMedicalCertificate: Boolean
     organizer: OrganizerNode
-    races(after: String, before: String, distance_Gte: Float, distance_Lte: Float, first: Int, last: Int): RaceNodeConnection!
+    races(after: String, before: String, distance_Gte: Float, distance_Lte: Float, first: Int, last: Int, offset: Int): RaceNodeConnection!
     slug: String
     soldOut: Boolean
     source: String
@@ -109,7 +109,7 @@ type LocationMutationPayload {
 type LocationNode implements Node {
     city: String!
     country: LocationCountry!
-    events(after: String, before: String, dateEnd_Gte: Date, dateEnd_Lte: Date, dateStart_Gte: Date, dateStart_Lte: Date, first: Int, last: Int, location: ID, location_City: String, location_City_Icontains: String, location_Country: String, name: String, website: String): EventNodeConnection!
+    events(after: String, before: String, dateEnd_Gte: Date, dateEnd_Lte: Date, dateStart_Gte: Date, dateStart_Lte: Date, first: Int, last: Int, location: ID, location_City: String, location_City_Icontains: String, location_Country: String, name: String, offset: Int, website: String): EventNodeConnection!
     headerPhoto: String
     "The ID of the object."
     id: ID!
@@ -247,14 +247,14 @@ type PageInfo {
 
 type Query {
     _debug: DjangoDebug
-    allEvents(after: String, before: String, dateFrom: Date, dateTo: Date, first: Int, last: Int, location: ID, name: String, raceDistanceGte: Float, raceDistanceLte: Float, races: [ID], slug: String, website: String): EventNodeConnection
-    allLocations(after: String, before: String, city: String, country: String, dateFrom: Date, dateTo: Date, events: [ID], first: Int, last: Int, lat: Float, lng: Float, raceDistanceGte: Float, raceDistanceLte: Float, waterName: String, waterType: String): LocationNodeConnection
-    allOrganizers(after: String, before: String, first: Int, last: Int, name: String, slug: String): OrganizerNodeConnection
+    allEvents(after: String, before: String, dateFrom: Date, dateTo: Date, first: Int, last: Int, location: ID, name: String, offset: Int, raceDistanceGte: Float, raceDistanceLte: Float, races: [ID], slug: String, website: String): EventNodeConnection
+    allLocations(after: String, before: String, city: String, country: String, dateFrom: Date, dateTo: Date, events: [ID], first: Int, last: Int, lat: Float, lng: Float, offset: Int, raceDistanceGte: Float, raceDistanceLte: Float, waterName: String, waterType: String): LocationNodeConnection
+    allOrganizers(after: String, before: String, first: Int, last: Int, name: String, offset: Int, slug: String): OrganizerNodeConnection
     "The ID of the object"
     event(id: ID!): EventNode
     "The ID of the object"
     location(id: ID!): LocationNode
-    locationsFiltered(dateFrom: Date, dateTo: Date, eventSlug: String, keyword: String, organizerSlug: String, raceDistanceGte: Float, raceDistanceLte: Float): [LocationNode]
+    locationsFiltered(dateFrom: Date, dateTo: Date, eventSlug: String, keyword: String, organizerId: ID, organizerSlug: String, raceDistanceGte: Float, raceDistanceLte: Float): [LocationNode]
     me: UserNode
     "The ID of the object"
     organizer(id: ID!): OrganizerNode
@@ -262,7 +262,7 @@ type Query {
     race(id: ID!): RaceNode
     "The ID of the object"
     user(id: ID!): UserNode
-    users(after: String, before: String, email: String, first: Int, isActive: Boolean, last: Int, status_Archived: Boolean, status_SecondaryEmail: String, status_Verified: Boolean, username: String, username_Icontains: String, username_Istartswith: String): UserNodeConnection
+    users(after: String, before: String, email: String, first: Int, isActive: Boolean, last: Int, offset: Int, status_Archived: Boolean, status_SecondaryEmail: String, status_Verified: Boolean, username: String, username_Icontains: String, username_Istartswith: String): UserNodeConnection
 }
 
 type RaceMutationPayload {
@@ -334,7 +334,7 @@ type UserNode implements Node {
     dateJoined: DateTime!
     email: String!
     "Author who has done the last edit"
-    eventSet(after: String, before: String, dateEnd_Gte: Date, dateEnd_Lte: Date, dateStart_Gte: Date, dateStart_Lte: Date, first: Int, last: Int, location: ID, location_City: String, location_City_Icontains: String, location_Country: String, name: String, website: String): EventNodeConnection!
+    eventSet(after: String, before: String, dateEnd_Gte: Date, dateEnd_Lte: Date, dateStart_Gte: Date, dateStart_Lte: Date, first: Int, last: Int, location: ID, location_City: String, location_City_Icontains: String, location_Country: String, name: String, offset: Int, website: String): EventNodeConnection!
     firstName: String!
     "The ID of the object."
     id: ID!

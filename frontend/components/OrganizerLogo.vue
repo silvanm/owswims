@@ -1,6 +1,6 @@
 <template>
   <div class="p-6 bg-white shadow-xl relative z-10" style="width: 300px">
-    <a :href="url" v-if="url"><img :src="image" /></a>
+    <a v-if="url" :href="url"><img :src="image" /></a>
     <div v-else><img :src="image" /></div>
   </div>
 </template>

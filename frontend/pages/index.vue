@@ -33,8 +33,8 @@
       </client-only>
       <Spinner :show="isLoading"></Spinner>
       <FilterBox
+        v-if="!isEmbedded"
         ref="filterbox"
-        v-if="!this.isEmbedded"
         @showLogin="doShowLogin"
       ></FilterBox>
       <EventPane v-if="$store.getters.pickedLocationId"></EventPane>
@@ -67,6 +67,7 @@ export default {
           $dateFrom: Date!
           $dateTo: Date!
           $organizerSlug: String!
+          $organizerId: ID!
         ) {
           locationsFiltered(
             keyword: $keyword
@@ -75,6 +76,7 @@ export default {
             dateFrom: $dateFrom
             dateTo: $dateTo
             organizerSlug: $organizerSlug
+            organizerId: $organizerId
           ) {
             id
             country
@@ -96,6 +98,7 @@ export default {
             representation: 'date',
           }),
           organizerSlug: this.organizerData ? this.organizerData.slug : '',
+          organizerId: this.organizerId ?? '',
         }
       },
       debounce: 200,
@@ -115,6 +118,7 @@ export default {
   computed: {
     ...mapGetters([
       'keyword',
+      'organizerId',
       'distanceRange',
       'dateRange',
       'isLoading',

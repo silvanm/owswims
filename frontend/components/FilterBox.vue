@@ -64,15 +64,20 @@
           }"
           class="overflow-hidden"
         >
-          <label class="block font-semibold pb-2 pt-4" for="keyword"
-            >Keyword search</label
-          >
-          <input
-            id="keyword"
-            v-model="keyword"
-            type="text"
-            class="block border p-2 w-full"
-          />
+          <label class="block font-semibold pt-4" for="keyword"
+            ><div class="pb-2">Keyword search</div>
+            <input
+              id="keyword"
+              v-model="keyword"
+              type="text"
+              placeholder="e.g. Oceanman"
+              class="form-input block border p-2 w-full"
+            />
+          </label>
+          <label class="block font-semibold pb-2 pt-4"
+            ><div class="pb-2">Organizer / Serie</div>
+            <OrganizerSelector></OrganizerSelector>
+          </label>
         </div>
         <!-- Search by other parameters -->
         <h2 class="font-semibold pb-2 pt-3 lg:pt-4">Race Distance</h2>
@@ -99,12 +104,12 @@
         >
           <span id="activate-geolocation">Show trip duration</span>
           <span
-            class="text-gray-800 cursor-pointer"
             v-tooltip="{
               content:
                 'Use your location to calculate trip duration to the races',
               trigger: 'hover',
             }"
+            class="text-gray-800 cursor-pointer"
             ><font-awesome-icon icon="question-circle"
           /></span>
         </Toggle>

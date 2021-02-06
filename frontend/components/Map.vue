@@ -4,19 +4,12 @@
     <div class="hidden">
       <div
         ref="centerButton"
-        class="bg-white"
-        style="
-          border-radius: 2px;
-          margin: 10px;
-          height: 40px;
-          width: 40px;
-          padding: 9px;
-        "
         v-tooltip="{
           content: 'Center map at your location',
           trigger: 'hover',
           placement: 'left',
         }"
+        class="map-button"
       >
         <button class="text-gray-600" @click="centerMap">
           <font-awesome-icon
@@ -27,19 +20,13 @@
       </div>
       <div
         ref="seeAllButton"
-        class="bg-white"
-        style="
-          border-radius: 2px;
-          margin: 10px;
-          height: 40px;
-          width: 40px;
-          padding: 9px 9px 9px 11px;
-        "
         v-tooltip="{
           content: 'Zoom out to see all events',
           trigger: 'hover',
           placement: 'left',
         }"
+        class="map-button"
+        style="padding: 9px 9px 9px 11px"
       >
         <button class="text-gray-600" @click="seeAll">
           <font-awesome-icon
@@ -146,6 +133,9 @@ export default {
   watch: {
     locations(newlocations, oldlocations) {
       this.updateMarker()
+      if (this.countVisibleMarkers() === 0 && newlocations.length > 0) {
+        this.seeAll()
+      }
     },
     /**
      * Update location marker based on currently detected position
@@ -269,6 +259,18 @@ export default {
     }
   },
   methods: {
+    countVisibleMarkers() {
+      const bounds = this.map.getBounds()
+      let count = 0
+
+      Object.keys(this.marker).forEach((k) => {
+        const marker = this.marker[k]
+        if (bounds.contains(marker.getPosition()) === true) {
+          count++
+        }
+      })
+      return count
+    },
     seeAll() {
       /* Expand map to see all markers */
       const bounds = new self.google.maps.LatLngBounds()
@@ -502,7 +504,7 @@ export default {
 }
 </script>
 
-<style>
+<style lang="scss">
 html,
 body {
   height: 100%;
@@ -515,6 +517,19 @@ body {
   height: 100%;
   top: 0;
   left: 0;
+}
+
+.map-button {
+  background-color: white;
+  border-radius: 2px;
+  margin: 10px;
+  height: 40px;
+  width: 40px;
+  padding: 9px;
+
+  button:focus {
+    outline: none;
+  }
 }
 
 .marker-active {

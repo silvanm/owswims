@@ -123,8 +123,8 @@
                 target="_blank"
               >
                 <div
-                  class="textprop-text"
                   v-if="pickedEvent.node.organizer.logo"
+                  class="textprop-text"
                 >
                   <img
                     :src="pickedEvent.node.organizer.logo"
@@ -137,8 +137,8 @@
               </a>
               <div v-else class="textprop-text">
                 <div
-                  class="textprop-text"
                   v-if="pickedEvent.node.organizer.logo"
+                  class="textprop-text"
                 >
                   <img
                     :src="pickedEvent.node.organizer.logo"

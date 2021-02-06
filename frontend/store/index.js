@@ -9,6 +9,7 @@ export const state = () => ({
   pickedLocationId: null,
   pickedLocationZoomedIn: null,
   keyword: '',
+  organizerId: null,
   organizerData: null,
   isEmbedded: false,
   distanceRange: [0, 30],
@@ -131,6 +132,9 @@ export const mutations = {
   keyword(s, keyword) {
     s.keyword = keyword
   },
+  organizerId(s, keyword) {
+    s.organizerId = keyword
+  },
   distanceRange(s, id) {
     s.distanceRange = id
   },
@@ -178,6 +182,9 @@ export const getters = {
   },
   keyword(s) {
     return s.keyword
+  },
+  organizerId(s) {
+    return s.organizerId
   },
   distanceRange(s) {
     return s.distanceRange

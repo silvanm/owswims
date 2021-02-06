@@ -9,11 +9,13 @@ from graphql_auth.schema import UserQuery, MeQuery
 
 from app.models import Organizer, Location, Race, Event
 
+
 def get_organization_logo_url(obj, resolve_obj):
     if obj.logo:
         return obj.logo.url
     else:
         return None
+
 
 class OrganizerNode(DjangoObjectType):
     class Meta:
@@ -165,6 +167,7 @@ class Query(UserQuery, MeQuery, graphene.ObjectType):
         keyword=graphene.String(),
         event_slug=graphene.String(),
         organizer_slug=graphene.String(),
+        organizer_id=graphene.ID(),
     )
 
     def resolve_locations_filtered(
@@ -176,6 +179,7 @@ class Query(UserQuery, MeQuery, graphene.ObjectType):
             date_to,
             keyword="",
             organizer_slug=None,
+            organizer_id=None,
     ):
         q = Q(
             events__races__distance__gte=race_distance_gte,
@@ -192,6 +196,12 @@ class Query(UserQuery, MeQuery, graphene.ObjectType):
 
         if organizer_slug:
             q = q & Q(events__organizer__slug=organizer_slug)
+
+        if organizer_id:
+            from base64 import b64decode
+            model_with_pk = b64decode(organizer_id).decode("utf-8")
+            model_name, pk = model_with_pk.split(":")
+            q = q & Q(events__organizer__id=pk)
 
         return Location.objects.filter(q).distinct().all()
 
