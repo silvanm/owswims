@@ -465,24 +465,23 @@ export default {
               lng: (coords[coordIx].lng + coords[coordIx + 1].lng) / 2,
             }
 
-            /*
             const slope =
               (coords[coordIx + 1].lat - coords[coordIx].lat) /
               (coords[coordIx + 1].lng - coords[coordIx].lng)
 
-            const labelOffset = {
-              x: slope * 10,
-              y: (1 / slope) * 10,
+            let positionClass = 'marker-east'
+            if (Math.abs(slope) < 1) {
+              positionClass = 'marker-south'
             }
-            */
 
             const labelOptions = {
+              positionClass,
               position: middleCoordinate,
               map: this.map,
               icon:
                 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=',
               label: {
-                className: 'marker-passive',
+                className: 'marker-passive ' + positionClass,
                 color: 'white',
                 text: this.humanizeDistance(race.node.distance),
                 fontSize: '12px',
@@ -528,11 +527,11 @@ export default {
         if (id === raceId) {
           po.strokeOpacity = 1
           po.icons.forEach((i) => (i.icon.fillOpacity = 1))
-          lo.label.className = 'marker-active'
+          lo.label.className = 'marker-active ' + lo.positionClass
         } else {
           po.strokeOpacity = 0.5
           po.icons.forEach((i) => (i.icon.fillOpacity = 0))
-          lo.label.className = 'marker-passive'
+          lo.label.className = 'marker-passive ' + lo.positionClass
         }
         this.raceTrackOverlays[raceId].polyline.setOptions(po)
         this.raceTrackOverlays[raceId].label.setOptions(lo)
@@ -572,14 +571,20 @@ body {
 
 .marker-active {
   position: relative;
-  top: 10px;
   opacity: 1;
 }
 
 .marker-passive {
   position: relative;
-  top: 10px;
   opacity: 0.5;
+}
+
+.marker-east {
+  left: 20px;
+}
+
+.marker-south {
+  top: 20px;
 }
 
 .gm-style .gm-style-iw {
