@@ -29,6 +29,9 @@ export default async function ({ route, app, store }) {
   if (route.query.embedded) {
     store.commit('isEmbedded', true)
   }
+  if (route.query.map_type) {
+    store.commit('mapType', route.query.map_type)
+  }
   if (route.query.event) {
     const slug = route.query.event
     const client = app.apolloProvider.defaultClient

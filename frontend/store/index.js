@@ -1,7 +1,3 @@
-import gql from 'graphql-tag'
-import { addMonths, formatISO } from 'date-fns'
-// import calculateDistance from '@assets/js/calculateDistance'
-
 export const state = () => ({
   lat: null,
   lng: null,
@@ -10,8 +6,9 @@ export const state = () => ({
   pickedLocationZoomedIn: null,
   keyword: '',
   organizerId: null,
-  organizerData: null,
+  organizerData: null, // set if we have a organizer-filter applied (for an embedded map)
   isEmbedded: false,
+  mapType: false,
   distanceRange: [0, 30],
   dateRange: [0, 12],
   pickedLocationData: null,
@@ -32,79 +29,8 @@ export const mutations = {
   },
   pickedLocationId(s, id) {
     s.pickedLocationId = id
-    const client = this.app.apolloProvider.defaultClient
-    client
-      .query({
-        query: gql`
-          query($dateFrom: Date!, $dateTo: Date!, $locationId: ID!) {
-            location(id: $locationId) {
-              id
-              country
-              city
-              headerPhoto
-              lat
-              lng
-              waterType
-              waterName
-            }
-            allEvents(
-              dateFrom: $dateFrom
-              dateTo: $dateTo
-              location: $locationId
-            ) {
-              edges {
-                node {
-                  id
-                  slug
-                  name
-                  dateStart
-                  dateEnd
-                  flyerImage
-                  website
-                  description
-                  needsMedicalCertificate
-                  needsLicense
-                  soldOut
-                  cancelled
-                  withRanking
-                  waterTemp
-                  organizer {
-                    name
-                    website
-                    logo
-                  }
-                  races {
-                    edges {
-                      node {
-                        id
-                        distance
-                        date
-                        raceTime
-                        name
-                        distance
-                        wetsuit
-                        priceValue
-                        coordinates
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        `,
-        variables: {
-          locationId: s.pickedLocationId,
-          keyword: s.keyword,
-          dateFrom: formatISO(addMonths(new Date(), s.dateRange[0]), {
-            representation: 'date',
-          }),
-          dateTo: formatISO(addMonths(new Date(), s.dateRange[1]), {
-            representation: 'date',
-          }),
-        },
-      })
-      .then((result) => this.commit('pickedLocationData', result.data))
+    const p = this.$queries.location(s.pickedLocationId, s.keyword, s.dateRange)
+    p.then((result) => this.commit('pickedLocationData', result.data))
   },
   pickedLocationData(s, data) {
     // if there is only one event, then use the slug of this event
@@ -149,6 +75,9 @@ export const mutations = {
   },
   isEmbedded(s, isEmbedded) {
     s.isEmbedded = isEmbedded
+  },
+  mapType(s, mapType) {
+    s.mapType = mapType
   },
   isLoading(s, isLoading) {
     s.isLoading = isLoading
@@ -209,6 +138,9 @@ export const getters = {
   },
   isEmbedded(s) {
     return s.isEmbedded
+  },
+  mapType(s) {
+    return s.mapType
   },
   isLoading(s) {
     return s.isLoading

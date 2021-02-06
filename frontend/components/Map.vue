@@ -228,7 +228,9 @@ export default {
       center,
       zoom: 5,
       disableDefaultUI: false,
-      mapTypeId: google.maps.MapTypeId.HYBRID,
+      mapTypeId: this.$store.getters.mapType
+        ? this.$store.getters.mapType
+        : google.maps.MapTypeId.HYBRID,
       gestureHandling: 'greedy',
       mapTypeControlOptions: {
         style: google.maps.MapTypeControlStyle.HORIZONTAL_BAR,
@@ -259,6 +261,8 @@ export default {
     // filter by organization --> pan so that all markers are seen
     if (this.organizerData) {
       this.seeAll()
+
+      this.drawRaceTrackOverlaysForEachVisibleLocation()
     }
   },
   methods: {
@@ -414,7 +418,7 @@ export default {
           ) {
             const coordinateObj = race.node.coordinates
 
-            const coordinateArray = coordinateObj.map((i) => {
+            const coords = coordinateObj.map((i) => {
               return {
                 lat: i[0],
                 lng: i[1],
@@ -429,7 +433,7 @@ export default {
             }
 
             const icons = []
-            const numArrows = 6
+            const numArrows = coords.length
             for (let i = 0; i < numArrows; i++) {
               icons.push({
                 icon: arrowSymbol,
@@ -438,7 +442,7 @@ export default {
             }
 
             const polylineOptions = {
-              path: coordinateArray,
+              path: coords,
               geodesic: true,
               strokeColor: '#FFFFFF',
               strokeOpacity: 0.5,
@@ -449,8 +453,28 @@ export default {
             const raceTrackOverlay = new google.maps.Polyline(polylineOptions)
 
             // take the middle coordinate and apply a label there
-            const middleCoordinate =
-              coordinateArray[Math.floor(coordinateArray.length / 2)]
+            const coordIx = Math.floor(coords.length / 2) - 1
+
+            // const middleCoordinate = coords[coordIx]
+
+            // console.log(middleCoordinate)
+            console.log(coords)
+
+            const middleCoordinate = {
+              lat: (coords[coordIx].lat + coords[coordIx + 1].lat) / 2,
+              lng: (coords[coordIx].lng + coords[coordIx + 1].lng) / 2,
+            }
+
+            /*
+            const slope =
+              (coords[coordIx + 1].lat - coords[coordIx].lat) /
+              (coords[coordIx + 1].lng - coords[coordIx].lng)
+
+            const labelOffset = {
+              x: slope * 10,
+              y: (1 / slope) * 10,
+            }
+            */
 
             const labelOptions = {
               position: middleCoordinate,
@@ -480,6 +504,17 @@ export default {
             }
           }
         })
+      })
+    },
+    drawRaceTrackOverlaysForEachVisibleLocation() {
+      // triggers the loading of each location detail.
+      this.locations.forEach((location) => {
+        const c = this.$queries.location(
+          location.id,
+          this.$store.getters.keyword,
+          this.$store.getters.dateRange
+        )
+        c.then((l) => this.drawRaceTrackOverlays(l.data))
       })
     },
     isLabelVisible() {
