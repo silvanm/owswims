@@ -136,6 +136,9 @@ export default {
       if (this.countVisibleMarkers() === 0 && newlocations.length > 0) {
         this.seeAll()
       }
+      if (newlocations.length === 0) {
+        this.$toast.error('No races found. Deactivate some of the filters.')
+      }
     },
     /**
      * Update location marker based on currently detected position
