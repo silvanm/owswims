@@ -73,6 +73,7 @@ import MarkerClusterer from '@googlemaps/markerclustererplus'
 import eventPresentation from '@/mixins/eventPresentation'
 import { mapGetters } from 'vuex'
 import calculateDistance from 'assets/js/calculateDistance'
+import _ from 'lodash'
 
 export default {
   mixins: [eventPresentation],
@@ -276,6 +277,8 @@ export default {
     if (this.organizerData) {
       this.drawRaceTrackOverlaysForEachVisibleLocation()
     }
+    // see https://forum.vuejs.org/t/lodash-debounce-not-working-when-placed-inside-a-method/86334/3
+    this.centerChanged = _.debounce(this.centerChanged, 2000)
   },
   methods: {
     countVisibleMarkers() {
@@ -409,18 +412,24 @@ export default {
       calculateDistance(google, location, this.$store, callback)
     },
     openLocation(id) {
-      this.map.panTo(this.locationIdToMarker[id].position)
-      this.map.setZoom(14)
+      // This makes sure that the map is not recentered or rezoomed on every
+      // click of a location
+      if (!this.$router.currentRoute.query.zoom) {
+        this.map.panTo(this.locationIdToMarker[id].position)
+        this.map.setZoom(12)
+      }
       google.maps.event.trigger(this.locationIdToMarker[id], 'click')
     },
     centerChanged() {
       const query = { ...this.$router.currentRoute.query }
-      query.lat = this.map.getCenter().lat()
-      query.lng = this.map.getCenter().lng()
-      this.$router.push({
-        path: '',
-        query,
-      })
+      if (this.map) {
+        query.lat = this.map.getCenter().lat()
+        query.lng = this.map.getCenter().lng()
+        this.$router.push({
+          path: '',
+          query,
+        })
+      }
     },
     zoomChanged() {
       // hide labels if zoomed out

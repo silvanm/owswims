@@ -15,5 +15,5 @@
   ],
   "theme_color":"#36abff",
   "description": "Map of open-water swim events in Europe",
-  "display": "fullscreen",
+  "display": "fullscreen"
 }

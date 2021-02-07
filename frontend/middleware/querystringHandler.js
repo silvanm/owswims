@@ -60,10 +60,10 @@ export default async function ({ route, app, store }) {
       },
     })
     store.commit('focusedEventId', result.data.allEvents.edges[0].node)
-    /* store.commit(
+    store.commit(
       'pickedLocationZoomedIn',
       result.data.allEvents.edges[0].node.location.id
-    ) */
+    )
     // this.openLocation(result.data.allEvents.edges[0].node.location.id);
   }
 }
