@@ -1,8 +1,11 @@
 import gql from 'graphql-tag'
 
 export default async function ({ route, app, store }) {
-  if (route.query.organizer) {
-    const slug = route.query.organizer
+  const re = /\/organizer\/([^/]+)$/
+  const m = route.path.match(re)
+  if (m && m[1]) {
+    store.commit('showOrganizerLogo', 1)
+    const slug = m[1]
     const client = app.apolloProvider.defaultClient
     const result = await client.query({
       query: gql`
@@ -33,7 +36,7 @@ export default async function ({ route, app, store }) {
     store.commit('mapType', route.query.map_type)
   }
   if (route.query.show_organizer_logo) {
-    store.commit('showOrganizerLogo', route.query.show_organizer_logo === '1')
+    store.commit('showOrganizerLogo', route.query.show_organizer_logo !== '0')
   }
 
   // add function to disable event-pane + define zoom level
