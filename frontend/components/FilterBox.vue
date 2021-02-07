@@ -206,7 +206,7 @@ export default {
   transition: top 0.5s;
   box-shadow: 0 0 7px rgba(0, 0, 0, 0.5);
 
-  @screen lg {
+  @screen md {
     /* on large screen the event pane is attached to the top */
     @apply relative;
     max-width: 500px;

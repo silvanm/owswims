@@ -386,7 +386,7 @@ export default {
   @apply absolute w-full;
   transition: top 0.5s;
 
-  @screen lg {
+  @screen md {
     /* on large screen the event pane is attached to the top */
     @apply relative;
     max-width: 500px;
