@@ -26,12 +26,6 @@ dotenv = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".env"))
 if dotenv and os.path.exists(dotenv):
     environ.Env.read_env(dotenv)
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
-
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = env.str("SECRET_KEY")
 
@@ -61,7 +55,6 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -156,9 +149,10 @@ STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
 # see https://johnfraney.ca/posts/2019/05/14/integrate-django-vuejs/
 # Vue assets directory (assetsDir)
-# STATICFILES_DIRS = [
-#    os.path.join(FRONTEND_DIR, "dist/static"),
-# ]
+STATICFILES_DIRS = [
+    os.path.join(FRONTEND_DIR, "dist"),
+    os.path.join(FRONTEND_DIR, "dist", "static"),
+]
 
 GOOGLE_MAPS_API_KEY = env.str("GOOGLE_MAPS_API_KEY")
 

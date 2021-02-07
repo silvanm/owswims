@@ -9,6 +9,7 @@ export const state = () => ({
   organizerData: null, // set if we have a organizer-filter applied (for an embedded map)
   isEmbedded: false,
   mapType: false,
+  showOrganizerLogo: false,
   distanceRange: [0, 30],
   dateRange: [0, 12],
   pickedLocationData: null,
@@ -79,6 +80,9 @@ export const mutations = {
   mapType(s, mapType) {
     s.mapType = mapType
   },
+  showOrganizerLogo(s, mapType) {
+    s.showOrganizerLogo = mapType
+  },
   isLoading(s, isLoading) {
     s.isLoading = isLoading
   },
@@ -141,6 +145,9 @@ export const getters = {
   },
   mapType(s) {
     return s.mapType
+  },
+  showOrganizerLogo(s) {
+    return s.showOrganizerLogo
   },
   isLoading(s) {
     return s.isLoading

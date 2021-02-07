@@ -9,6 +9,7 @@
       class="p-4"
     >
       <OrganizerLogo
+        v-if="showOrganizerLogo"
         :image="organizerData.logo"
         :url="organizerData.website"
       ></OrganizerLogo>
@@ -119,6 +120,7 @@ export default {
     ...mapGetters([
       'keyword',
       'organizerId',
+      'showOrganizerLogo',
       'distanceRange',
       'dateRange',
       'isLoading',

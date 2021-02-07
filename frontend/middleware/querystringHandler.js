@@ -32,6 +32,11 @@ export default async function ({ route, app, store }) {
   if (route.query.map_type) {
     store.commit('mapType', route.query.map_type)
   }
+  if (route.query.show_organizer_logo) {
+    store.commit('showOrganizerLogo', route.query.show_organizer_logo === '1')
+  }
+
+  // add function to disable event-pane + define zoom level
   if (route.query.event) {
     const slug = route.query.event
     const client = app.apolloProvider.defaultClient
