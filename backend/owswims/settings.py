@@ -150,8 +150,8 @@ STATIC_ROOT = os.path.join(BASE_DIR, "static")
 # see https://johnfraney.ca/posts/2019/05/14/integrate-django-vuejs/
 # Vue assets directory (assetsDir)
 STATICFILES_DIRS = [
-    os.path.join(FRONTEND_DIR, "dist"),
-    os.path.join(FRONTEND_DIR, "dist", "static"),
+#    os.path.join(FRONTEND_DIR, "dist"),
+#    os.path.join(FRONTEND_DIR, "dist", "static"),
 ]
 
 GOOGLE_MAPS_API_KEY = env.str("GOOGLE_MAPS_API_KEY")
