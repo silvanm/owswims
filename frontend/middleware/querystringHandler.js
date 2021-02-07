@@ -1,11 +1,8 @@
 import gql from 'graphql-tag'
 
 export default async function ({ route, app, store }) {
-  const re = /\/organizer\/([^/]+)$/
-  const m = route.path.match(re)
-  if (m && m[1]) {
-    store.commit('showOrganizerLogo', 1)
-    const slug = m[1]
+  if (route.query.organizer) {
+    const slug = route.query.organizer
     const client = app.apolloProvider.defaultClient
     const result = await client.query({
       query: gql`
@@ -36,7 +33,7 @@ export default async function ({ route, app, store }) {
     store.commit('mapType', route.query.map_type)
   }
   if (route.query.show_organizer_logo) {
-    store.commit('showOrganizerLogo', route.query.show_organizer_logo !== '0')
+    store.commit('showOrganizerLogo', route.query.show_organizer_logo === '1')
   }
 
   // add function to disable event-pane + define zoom level
@@ -63,10 +60,10 @@ export default async function ({ route, app, store }) {
       },
     })
     store.commit('focusedEventId', result.data.allEvents.edges[0].node)
-    store.commit(
+    /* store.commit(
       'pickedLocationZoomedIn',
       result.data.allEvents.edges[0].node.location.id
-    )
+    ) */
     // this.openLocation(result.data.allEvents.edges[0].node.location.id);
   }
 }

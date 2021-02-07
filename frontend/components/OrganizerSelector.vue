@@ -19,6 +19,7 @@
 
 <script>
 import gql from 'graphql-tag'
+import { mapGetters } from 'vuex'
 
 export default {
   name: 'OrganizerSelector',
@@ -45,11 +46,33 @@ export default {
       organizerId: null,
     }
   },
+  computed: {
+    ...mapGetters(['organizerData']),
+    selectedOrganizerData() {
+      if (this.allOrganizers && this.organizerId) {
+        return this.allOrganizers.edges.find(
+          (o) => o.node.id === this.organizerId
+        ).node
+      } else {
+        return null
+      }
+    },
+  },
   watch: {
-    organizerId(newValue, oldValue) {
-      this.$store.commit('organizerId', newValue)
+    selectedOrganizerData(newValue, oldValue) {
+      this.$store.commit('organizerData', this.selectedOrganizerData)
+      const query = { ...this.$router.currentRoute.query }
+      query.organizer = this.selectedOrganizerData.slug
+      this.$router.push({
+        query,
+      })
       this.$gtag('event', 'filterOrganizer')
     },
+  },
+  mounted() {
+    if (this.organizerData) {
+      this.organizerId = this.organizerData.id
+    }
   },
 }
 </script>

@@ -218,7 +218,15 @@ export default {
   },
   mounted() {
     let center
-    if (this.mylocation.latlng.lat && this.mylocation.latlng.lng) {
+    if (
+      this.$router.currentRoute.query.lat &&
+      this.$router.currentRoute.query.lng
+    ) {
+      center = this.mylocation.latlng = {
+        lat: parseFloat(this.$router.currentRoute.query.lat),
+        lng: parseFloat(this.$router.currentRoute.query.lng),
+      }
+    } else if (this.mylocation.latlng.lat && this.mylocation.latlng.lng) {
       center = this.mylocation.latlng
     } else {
       // fallback to switzerland
@@ -226,7 +234,9 @@ export default {
     }
     this.map = new google.maps.Map(document.getElementById('map'), {
       center,
-      zoom: 5,
+      zoom: this.$router.currentRoute.query.zoom
+        ? parseInt(this.$router.currentRoute.query.zoom)
+        : 5,
       disableDefaultUI: false,
       mapTypeId: this.$store.getters.mapType
         ? this.$store.getters.mapType
@@ -252,6 +262,10 @@ export default {
       this.zoomChanged()
     })
 
+    this.map.addListener('center_changed', () => {
+      this.centerChanged()
+    })
+
     // this is set by the query string "event"
     const zoomedInLocation = this.$store.getters.pickedLocationZoomedIn
     if (zoomedInLocation) {
@@ -260,8 +274,6 @@ export default {
 
     // filter by organization --> pan so that all markers are seen
     if (this.organizerData) {
-      this.seeAll()
-
       this.drawRaceTrackOverlaysForEachVisibleLocation()
     }
   },
@@ -401,11 +413,26 @@ export default {
       this.map.setZoom(14)
       google.maps.event.trigger(this.locationIdToMarker[id], 'click')
     },
+    centerChanged() {
+      const query = { ...this.$router.currentRoute.query }
+      query.lat = this.map.getCenter().lat()
+      query.lng = this.map.getCenter().lng()
+      this.$router.push({
+        path: '',
+        query,
+      })
+    },
     zoomChanged() {
       // hide labels if zoomed out
       for (const raceId of Object.keys(this.raceTrackOverlays)) {
         this.raceTrackOverlays[raceId].label.setVisible(this.isLabelVisible())
       }
+      const query = { ...this.$router.currentRoute.query }
+      query.zoom = this.map.getZoom()
+      this.$router.push({
+        path: '',
+        query,
+      })
     },
     drawRaceTrackOverlays(location) {
       // Draw Race Track Overlays
@@ -454,11 +481,6 @@ export default {
 
             // take the middle coordinate and apply a label there
             const coordIx = Math.floor(coords.length / 2) - 1
-
-            // const middleCoordinate = coords[coordIx]
-
-            // console.log(middleCoordinate)
-            console.log(coords)
 
             const middleCoordinate = {
               lat: (coords[coordIx].lat + coords[coordIx + 1].lat) / 2,

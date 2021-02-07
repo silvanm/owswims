@@ -99,7 +99,7 @@ export default {
             representation: 'date',
           }),
           organizerSlug: this.organizerData ? this.organizerData.slug : '',
-          organizerId: this.organizerId ?? '',
+          organizerId: this.organizerData ? this.organizerData.id : '',
         }
       },
       debounce: 200,
@@ -119,7 +119,6 @@ export default {
   computed: {
     ...mapGetters([
       'keyword',
-      'organizerId',
       'showOrganizerLogo',
       'distanceRange',
       'dateRange',
