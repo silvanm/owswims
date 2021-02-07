@@ -64,8 +64,8 @@
           }"
           class="overflow-hidden"
         >
-          <label class="block font-semibold pt-4" for="keyword"
-            ><div class="pb-2">Keyword search</div>
+          <label class="block font-semibold pt-4" for="keyword">
+            <div class="pb-2">Keyword search</div>
             <input
               id="keyword"
               v-model="keyword"
@@ -74,8 +74,8 @@
               class="form-input block border p-2 w-full"
             />
           </label>
-          <label class="block font-semibold pb-2 pt-4"
-            ><div class="pb-2">Organizer / Serie</div>
+          <label class="block font-semibold pb-2 pt-4">
+            <div class="pb-2">Organizer / Serie</div>
             <OrganizerSelector></OrganizerSelector>
           </label>
         </div>
@@ -89,7 +89,7 @@
               :tooltip-formatter="(val) => `${val}km`"
               dot-size="25"
               :min="0"
-              :max="distanceRange[1]"
+              :max="30"
             ></vue-slider>
           </client-only>
         </div>
@@ -191,10 +191,10 @@ export default {
     },
     rangeSliderMarks() {
       const marks = {}
-      for (let i = 0; i < this.distanceRange[1]; i += 5) {
-        marks[i.toString()] = i.toString()
+      for (let i = 0; i < 30; i += 5) {
+        marks[i] = i.toString()
       }
-      marks[this.distanceRange[1].toString()] = this.distanceRange[1] + '+'
+      marks[30] = '30+'
       return marks
     },
   },
