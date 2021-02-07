@@ -12,7 +12,7 @@ export default {
       {
         hid: 'description',
         name: 'description',
-        content: 'Map of open-water swim events in Europe.',
+        content: 'Map of open-water swim events in Europe',
       },
       {
         name: 'apple-mobile-web-app-capable',
@@ -45,6 +45,7 @@ export default {
     ],
     link: [
       { rel: 'icon', type: 'image/x-icon', href: '/static/favicon.ico' },
+      { rel: 'manifest', href: '/static/site.webmanifest' },
       {
         rel: 'shortcut icon',
         sizes: '192x192',
