@@ -1,7 +1,12 @@
 <template>
   <div>
     <WelcomeBox
-      v-if="welcomeboxShown && !$store.getters.pickedLocationId && !isEmbedded"
+      v-if="
+        welcomeboxShown &&
+        !$store.getters.pickedLocationId &&
+        !isEmbedded &&
+        !showOrganizerLogo
+      "
       @hide="hideWelcomeBox()"
     ></WelcomeBox>
     <div
