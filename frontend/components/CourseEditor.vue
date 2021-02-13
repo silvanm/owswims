@@ -60,6 +60,35 @@ export default {
     this.drawingManager.setMap(null)
   },
   methods: {
+    initMeasurementFunctions() {
+      google.maps.LatLng.prototype.kmTo = function (a) {
+        const e = Math
+        const ra = e.PI / 180
+        const b = this.lat() * ra
+        const c = a.lat() * ra
+        const d = b - c
+        const g = this.lng() * ra - a.lng() * ra
+        const f =
+          2 *
+          e.asin(
+            e.sqrt(
+              e.pow(e.sin(d / 2), 2) +
+                e.cos(b) * e.cos(c) * e.pow(e.sin(g / 2), 2)
+            )
+          )
+        return f * 6378.137
+      }
+
+      google.maps.Polyline.prototype.inKm = function (n) {
+        const a = this.getPath(n)
+        const len = a.getLength()
+        let dist = 0
+        for (let i = 0; i < len - 1; i++) {
+          dist += a.getAt(i).kmTo(a.getAt(i + 1))
+        }
+        return dist
+      }
+    },
     cancelEdit() {
       this.$store.commit('raceTrackUnderEditId', null)
     },
@@ -98,6 +127,7 @@ export default {
 <style lang="scss">
 #drawing-controls {
   margin: 5px;
+
   button {
     @apply bg-white font-bold cursor-pointer m-0 p-1;
     height: 24px;

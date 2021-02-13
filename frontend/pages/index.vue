@@ -5,11 +5,15 @@
       @hide="hideWelcomeBox()"
     ></WelcomeBox>
     <div
-      v-if="organizerData && !pickedLocationId && !this.$device.isMobile()"
+      v-if="
+        organizerData &&
+        !pickedLocationId &&
+        !this.$device.isMobile() &&
+        showOrganizerLogo
+      "
       class="p-4"
     >
       <OrganizerLogo
-        v-if="showOrganizerLogo"
         :image="organizerData.logo"
         :url="organizerData.website"
       ></OrganizerLogo>

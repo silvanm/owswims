@@ -84,7 +84,7 @@ class Event(CloneMixin, models.Model):
     source = models.CharField(max_length=30, null=True, blank=True)
     edited_by = models.ForeignKey(User, null=True, help_text='Author who has done the last edit',
                                   on_delete=models.SET_NULL)
-    edited_at = models.DateTimeField(null=True, help_text='Timestamp of the last edit')
+    edited_at = models.DateTimeField(null=True, auto_now=True, help_text='Timestamp of the last edit')
     verified_at = models.DateTimeField(
         null=True, blank=True, help_text="set if the event has been verified by the admin"
     )

@@ -55,7 +55,7 @@ class EventChecker():
         {'name': 'name', 'points': 5},
         {'name': 'wetsuit', 'points': 2},
         {'name': 'price', 'points': 2},
-        {'name': 'coordinates', 'points': 10},
+        {'name': 'coordinates', 'points': 20},
     ]
 
     location_share = 0.3

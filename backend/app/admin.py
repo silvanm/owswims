@@ -3,6 +3,7 @@ from urllib.parse import urlencode
 
 import requests
 from django import forms
+from django.conf import settings
 from django.contrib import admin
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
@@ -20,6 +21,13 @@ admin.site.site_header = ugettext_lazy('Open-Water-Swims Admin')
 @admin.register(models.Organizer)
 class OrganizerAdmin(admin.ModelAdmin):
     prepopulated_fields = {"slug": ("name",)}
+    readonly_fields = ['public_url']
+
+    def public_url(self, obj):
+        url = settings.FRONTEND_URL + '?' + urlencode({'organizer': obj.slug})
+        return format_html(f'<a target="_blank" href="{url}">{url}</a>')
+
+    public_url.allow_tags = True
 
 
 class LocationForm(forms.ModelForm):
@@ -152,7 +160,7 @@ class EventAdmin(CloneModelAdmin):
         rating = obj.get_quality_rating()
         if (rating < 25):
             color = 'rgba(244, 0, 0, 0.5)'
-        elif (rating < 32):
+        elif (rating < 30):
             color = 'rgba(244, 122, 0, 0.5)'
         else:
             color = 'rgba(0, 255, 122, 0.5)'
@@ -162,7 +170,7 @@ class EventAdmin(CloneModelAdmin):
                            f'{obj.get_quality_rating()}</span>')
 
     def public_url(self, obj):
-        url = '/?' + urlencode({'event': obj.slug})
+        url = settings.FRONTEND_URL + '?' + urlencode({'event': obj.slug})
         return format_html(f'<a target="_blank" href="{url}">{url}</a>')
 
     public_url.allow_tags = True

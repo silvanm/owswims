@@ -187,3 +187,5 @@ DEFAULT_FILE_STORAGE = "storages.backends.gcloud.GoogleCloudStorage"
 GS_BUCKET_NAME = env.str("GS_BUCKET_NAME", "owswims-local")
 
 GRAPHQL_AUTH = {"ALLOW_LOGIN_NOT_VERIFIED": True}
+
+FRONTEND_URL = env.str('FRONTEND_URL', '')
