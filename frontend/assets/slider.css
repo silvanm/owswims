@@ -49,6 +49,10 @@
   white-space: nowrap;
 }
 /* dot style */
+.vue-slider-dot {
+  z-index: 4;
+}
+
 .vue-slider-dot-handle {
   cursor: pointer;
   width: 100%;
