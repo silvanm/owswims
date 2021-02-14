@@ -1,5 +1,6 @@
 import django_filters
 import graphene
+from django.db import connection
 from django.db.models import Q
 from graphene import Node, relay
 from graphene_django import DjangoObjectType
@@ -146,16 +147,34 @@ class EventNodeFilter(django_filters.FilterSet):
         )
 
 
-class Query(UserQuery, MeQuery, graphene.ObjectType):
-    location = relay.Node.Field(LocationNode)
-    all_locations = DjangoFilterConnectionField(
-        LocationNode, filterset_class=LocationNodeFilter
-    )
-    event = relay.Node.Field(EventNode)
-    all_events = DjangoFilterConnectionField(EventNode, filterset_class=EventNodeFilter)
+class Statistics(graphene.ObjectType):
+    event_count = graphene.Int()
+    race_count = graphene.Int()
+    countries_count = graphene.Int()
 
-    race = relay.Node.Field(RaceNode)
 
+class StatisticsQuery(graphene.ObjectType):
+    statistics = graphene.Field(Statistics)
+
+    def resolve_statistics(root, info):
+        sql = """
+SELECT count(distinct app_event.id) as event_count,
+       count(distinct ar.id)        as race_count,
+       count(distinct al.country)   as country_count
+FROM app_event
+         LEFT JOIN app_race ar on app_event.id = ar.event_id
+         INNER JOIN app_location al on al.id = app_event.location_id
+WHERE ("app_event"."date_start" >= now()
+    AND app_event.invisible = 'f'
+          )"""
+
+        with connection.cursor() as c:
+            c.execute(sql)
+            (event_count, race_cont, countries_count) = c.fetchone()
+        return Statistics(event_count=event_count, race_count=race_cont, countries_count=countries_count)
+
+
+class LocationsFilteredQuery(graphene.ObjectType):
     # Not GraphQL style, but leads to fast query not returning dates without
     # events
     locations_filtered = graphene.List(
@@ -204,6 +223,17 @@ class Query(UserQuery, MeQuery, graphene.ObjectType):
             q = q & Q(events__organizer__id=pk)
 
         return Location.objects.filter(q).distinct().all()
+
+
+class Query(UserQuery, MeQuery, LocationsFilteredQuery, StatisticsQuery, graphene.ObjectType):
+    location = relay.Node.Field(LocationNode)
+    all_locations = DjangoFilterConnectionField(
+        LocationNode, filterset_class=LocationNodeFilter
+    )
+    event = relay.Node.Field(EventNode)
+    all_events = DjangoFilterConnectionField(EventNode, filterset_class=EventNodeFilter)
+
+    race = relay.Node.Field(RaceNode)
 
     organizer = relay.Node.Field(OrganizerNode)
     all_organizers = DjangoFilterConnectionField(OrganizerNode)

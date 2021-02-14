@@ -145,9 +145,11 @@ class EventAdmin(CloneModelAdmin):
         from django.shortcuts import redirect
         return redirect(url)
 
-    def eventstr(self, obj):
+    def eventstr(self, obj:Event):
         if (obj.invisible):
             style = 'color:#999'
+        elif (obj.cancelled):
+            style = 'color:#a00'
         else:
             style = ''
         return format_html(f'<span style="{style}">{obj.name}</span>')

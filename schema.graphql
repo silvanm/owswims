@@ -260,6 +260,7 @@ type Query {
     organizer(id: ID!): OrganizerNode
     "The ID of the object"
     race(id: ID!): RaceNode
+    statistics: Statistics
     "The ID of the object"
     user(id: ID!): UserNode
     users(after: String, before: String, email: String, first: Int, isActive: Boolean, last: Int, offset: Int, status_Archived: Boolean, status_SecondaryEmail: String, status_Verified: Boolean, username: String, username_Icontains: String, username_Istartswith: String): UserNodeConnection
@@ -327,6 +328,12 @@ type Register {
     refreshToken: String
     success: Boolean
     token: String
+}
+
+type Statistics {
+    countriesCount: Int
+    eventCount: Int
+    raceCount: Int
 }
 
 type UserNode implements Node {
@@ -1313,18 +1320,18 @@ input RaceMutationInput {
 
 
 """
-The `DateTime` scalar type represents a DateTime
-value as specified by
-[iso8601](https://en.wikipedia.org/wiki/ISO_8601).
-"""
-scalar DateTime
-
-"""
 The `Date` scalar type represents a Date
 value as specified by
 [iso8601](https://en.wikipedia.org/wiki/ISO_8601).
 """
 scalar Date
+
+"""
+The `DateTime` scalar type represents a DateTime
+value as specified by
+[iso8601](https://en.wikipedia.org/wiki/ISO_8601).
+"""
+scalar DateTime
 
 """
 The `Time` scalar type represents a Time value as

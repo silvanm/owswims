@@ -26,9 +26,11 @@
         open-water swimmers. We want to help you find your perfect swim events
         in Europe.
       </p>
-      <p>
+      <p v-if="statistics">
         If you plan your vacations around open-water swim events, then this app
-        is for you. Select the desired distance and time range, and we show all
+        is for you. Select the desired distance and time range, and out of
+        <strong>{{ statistics.raceCount }}</strong> races in
+        <strong>{{ statistics.countriesCount }}</strong> countries we show all
         matching events to you. Enable the "Show trip duration" switch to let
         the app calculate the time to get there by car.
       </p>
@@ -48,8 +50,8 @@
         />
         are a cluster of events. Click on it to expand them. Click on the
         <font-awesome-icon icon="search" />
-        icon to zoom to the event. Many of the races will have their race tracks
-        displayed.
+        icon to zoom to the event. Many of the races will have their race
+        courses displayed.
       </p>
 
       <p>
@@ -68,11 +70,26 @@
   </div>
 </template>
 <script>
+import gql from 'graphql-tag'
+
 export default {
   props: {
     extended: {
       type: Boolean,
       default: false,
+    },
+  },
+  apollo: {
+    statistics: {
+      query: gql`
+        query {
+          statistics {
+            eventCount
+            raceCount
+            countriesCount
+          }
+        }
+      `,
     },
   },
 }
