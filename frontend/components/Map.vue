@@ -412,12 +412,6 @@ export default {
       calculateDistance(google, location, this.$store, callback)
     },
     openLocation(id) {
-      // This makes sure that the map is not recentered or rezoomed on every
-      // click of a location
-      if (!this.$router.currentRoute.query.zoom) {
-        this.map.panTo(this.locationIdToMarker[id].position)
-        this.map.setZoom(12)
-      }
       google.maps.event.trigger(this.locationIdToMarker[id], 'click')
     },
     centerChanged() {

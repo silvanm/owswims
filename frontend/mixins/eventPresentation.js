@@ -90,7 +90,8 @@ export default {
       const k = `${location.lat},${location.lng}`
       if (
         k in this.$store.getters.travelTimes &&
-        this.$store.getters.travelTimes[k] !== null
+        this.$store.getters.travelTimes[k] !== null &&
+        this.$store.getters.travelTimes[k].duration
       ) {
         const formatDuration = (s) => formatDistance(0, s * 1000)
 
