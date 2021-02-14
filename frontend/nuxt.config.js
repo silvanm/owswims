@@ -42,6 +42,10 @@ export default {
         property: 'og:image',
         content: 'https://open-water-swims.com/static/og-image.jpg',
       },
+      {
+        property: 'fb:app_id',
+        content: '434576227989037',
+      },
     ],
     link: [
       { rel: 'icon', type: 'image/x-icon', href: '/static/favicon.ico' },
@@ -54,6 +58,11 @@ export default {
       {
         rel: 'apple-touch-icon',
         href: '/static/apple-touch-icon.png',
+      },
+    ],
+    script: [
+      {
+        src: '/static/fb-sdk.js',
       },
     ],
   },

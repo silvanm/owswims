@@ -22,9 +22,8 @@
           :src="require('@/assets/silvan-muehlemann.jpg')"
           style="width: 100px; padding-left: 4px"
         />
-        This is a not-for-profit personal project from open-water swimmers for
-        open-water swimmers. We want to help you find your perfect swim events
-        in Europe.
+        This is a not-for-profit project from open-water swimmers for open-water
+        swimmers. We want to help you find your perfect swim events in Europe.
       </p>
       <p v-if="statistics">
         If you plan your vacations around open-water swim events, then this app

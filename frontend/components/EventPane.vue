@@ -1,12 +1,12 @@
 <!--suppress ALL -->
 <template>
   <div
-    v-if="!isClosed"
+    v-if="!isClosed && pickedLocationData"
     id="event-pane-container"
     class="bg-white xl:mt-4 relative"
     :style="eventPaneStyle"
   >
-    <div v-if="pickedLocationData">
+    <div class="not-scrollable">
       <div
         id="event-pane-header"
         :style="{
@@ -53,7 +53,7 @@
         </div>
       </div>
       <!-- List of dates -->
-      <div class="p-3 lg:p-6">
+      <div class="p-3 lg:p-6 lg:pb-2">
         <ul v-if="pickedLocationData.allEvents.edges.length > 1" class="tabs">
           <li
             v-for="(event, ix) in pickedLocationData.allEvents.edges"
@@ -164,80 +164,84 @@
               <div class="textprop-text">{{ pickedEvent.node.waterTemp }}°</div>
             </div>
           </div>
-
-          <div v-if="pickedEvent.node.description" id="description">
-            <div class="font-bold">Description</div>
-            <div class="mb-2">
-              {{ pickedEvent.node.description }}
-            </div>
+        </div>
+      </div>
+    </div>
+    <div v-if="pickedEvent.node.description" class="scrollable px-2 lg:px-6">
+      <div>
+        <div id="description">
+          <div class="mb-2">
+            {{ pickedEvent.node.description }}
           </div>
-          <!-- Race table -->
-          <div id="race-table">
-            <table class="min-w-full">
-              <thead>
-                <th>Races</th>
-                <th></th>
-                <th></th>
-                <th>Wetsuit</th>
-              </thead>
-              <tbody>
-                <tr
-                  v-for="race in pickedEvent.node.races.edges"
-                  :key="race.node.id"
-                  @click="raceRowHover(race.node.id)"
-                  @mouseout="raceRowHover(null)"
-                  @mouseover="raceRowHover(race.node.id)"
-                >
-                  <td>
-                    {{ formatEventDate(race.node.date, true) }}
-                    <span v-if="race.node.raceTime">
-                      {{ formatRaceTime(race.node.raceTime) }}
-                    </span>
-                  </td>
-                  <td class="text-right">
-                    {{ humanizeDistance(race.node.distance) }}
-                  </td>
-                  <td>{{ race.node.name }}</td>
-                  <td>
-                    <span v-if="race.node.wetsuit" class="badge">
-                      {{ race.node.wetsuit }}
-                    </span>
-                  </td>
-                  <td class="text-right">
-                    <span v-if="race.node.priceValue !== 'None'">
-                      {{ race.node.priceValue }}{{ race.node.priceCurrency }}
-                    </span>
-                  </td>
-                  <td>
-                    <button
-                      v-if="$store.getters['auth/loggedIn']"
-                      :class="{
-                        'edit-button': true,
-                        active:
-                          race.node.id == $store.getters.raceTrackUnderEditId,
-                      }"
-                      @click="
-                        $store.commit('raceTrackUnderEditId', race.node.id)
-                      "
-                    >
-                      <font-awesome-icon icon="edit" />
-                    </button>
-                    <button
-                      v-if="race.node.coordinates"
-                      :class="{
-                        'edit-button': true,
-                        active:
-                          race.node.id == $store.getters.raceTrackUnderFocusId,
-                      }"
-                      @click="viewRaceDetail(race.node.id)"
-                    >
-                      <font-awesome-icon icon="search" />
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+        </div>
+      </div>
+    </div>
+    <div class="scrollable px-2 lg:px-6">
+      <div>
+        <!-- Race table -->
+        <div id="race-table">
+          <table class="min-w-full">
+            <thead>
+              <th>Races</th>
+              <th></th>
+              <th></th>
+              <th>Wetsuit</th>
+            </thead>
+            <tbody>
+              <tr
+                v-for="race in pickedEvent.node.races.edges"
+                :key="race.node.id"
+                @click="raceRowHover(race.node.id)"
+                @mouseout="raceRowHover(null)"
+                @mouseover="raceRowHover(race.node.id)"
+              >
+                <td>
+                  {{ formatEventDate(race.node.date, true) }}
+                  <span v-if="race.node.raceTime">
+                    {{ formatRaceTime(race.node.raceTime) }}
+                  </span>
+                </td>
+                <td class="text-right">
+                  {{ humanizeDistance(race.node.distance) }}
+                </td>
+                <td>{{ race.node.name }}</td>
+                <td>
+                  <span v-if="race.node.wetsuit" class="badge">
+                    {{ race.node.wetsuit }}
+                  </span>
+                </td>
+                <td class="text-right">
+                  <span v-if="race.node.priceValue !== 'None'">
+                    {{ race.node.priceValue }}{{ race.node.priceCurrency }}
+                  </span>
+                </td>
+                <td>
+                  <button
+                    v-if="$store.getters['auth/loggedIn']"
+                    :class="{
+                      'edit-button': true,
+                      active:
+                        race.node.id == $store.getters.raceTrackUnderEditId,
+                    }"
+                    @click="$store.commit('raceTrackUnderEditId', race.node.id)"
+                  >
+                    <font-awesome-icon icon="edit" />
+                  </button>
+                  <button
+                    v-if="race.node.coordinates"
+                    :class="{
+                      'edit-button': true,
+                      active:
+                        race.node.id == $store.getters.raceTrackUnderFocusId,
+                    }"
+                    @click="viewRaceDetail(race.node.id)"
+                  >
+                    <font-awesome-icon icon="search" />
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
@@ -336,7 +340,10 @@ export default {
           }
         }
       } else {
-        this.eventPaneStyle = {}
+        this.eventPaneStyle = {
+          maxHeight:
+            (window.innerHeight - this.$el.offsetTop).toString() + 'px',
+        }
       }
     },
     close() {
@@ -386,10 +393,17 @@ export default {
   @apply absolute w-full;
   transition: top 0.5s;
 
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+
+  max-height: 80vh;
+
   @screen md {
     /* on large screen the event pane is attached to the top */
     @apply relative;
     max-width: 500px;
+    max-height: none;
   }
 }
 
@@ -403,6 +417,10 @@ export default {
   @screen sm {
     height: 160px;
   }
+}
+
+.scrollable {
+  overflow: scroll;
 }
 
 #overlay {
@@ -427,16 +445,6 @@ ul.tabs {
 
   li.active {
     @apply border-b-2 border-blue-600;
-  }
-}
-
-#description {
-  max-height: 200px;
-  overflow: scroll;
-
-  @screen lg {
-    max-height: auto;
-    overflow: auto;
   }
 }
 
@@ -468,14 +476,6 @@ ul.tabs {
 }
 
 #race-table {
-  max-height: 200px;
-  overflow: scroll;
-
-  @screen lg {
-    max-height: auto;
-    overflow: auto;
-  }
-
   .edit-button {
     @apply rounded px-1 text-blue-600;
 

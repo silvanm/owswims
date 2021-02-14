@@ -42,12 +42,14 @@
         />
       </client-only>
       <Spinner :show="isLoading"></Spinner>
-      <FilterBox
-        v-if="!isEmbedded"
-        ref="filterbox"
-        @showLogin="doShowLogin"
-      ></FilterBox>
-      <EventPane v-if="$store.getters.pickedLocationId"></EventPane>
+      <div style="max-height: 100vh">
+        <FilterBox
+          v-if="!isEmbedded"
+          ref="filterbox"
+          @showLogin="doShowLogin"
+        ></FilterBox>
+        <EventPane v-if="$store.getters.pickedLocationId"></EventPane>
+      </div>
     </div>
   </div>
 </template>
@@ -200,6 +202,7 @@ body {
   -webkit-appearance: none;
   width: 7px;
 }
+
 ::-webkit-scrollbar-thumb {
   border-radius: 4px;
   background-color: rgba(0, 0, 0, 0.5);
