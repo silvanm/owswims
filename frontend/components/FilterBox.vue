@@ -3,8 +3,13 @@
     <!-- pb-3 is a hack because the div which can collapse always has a height of 2 -->
     <div class="bg-white p-3 pb-2 lg:p-6 lg:pb-5 relative overflow-hidden">
       <h1 class="text-xl md:text-2xl font-semibold text-primary">
-        ‍️<a href="/" style="color: black; text-decoration: none"
-          >European Open-Water Swims</a
+        ‍️<a href="/" style="color: black; text-decoration: none">
+          <img
+            class="inline"
+            :src="require('@/assets/site_logo.svg')"
+            style="width: 26px; vertical-align: bottom; margin-right: 5px"
+          />
+          European Open-Water Swims</a
         >
         <div class="inline float-right">
           <span class="text-base">
