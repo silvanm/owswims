@@ -9,7 +9,7 @@
             :src="require('@/assets/site_logo.svg')"
             style="width: 26px; vertical-align: bottom; margin-right: 5px"
           />
-          European Open-Water Swims</a
+          open-water-swims.com</a
         >
         <div class="inline float-right">
           <span class="text-base">

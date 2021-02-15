@@ -4,7 +4,7 @@ export default {
 
   // Global page headers (https://go.nuxtjs.dev/config-head)
   head: {
-    title: 'European Open-Water Swims',
+    title: 'open-water-swims.com',
     meta: [
       { charset: 'utf-8' },
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
@@ -32,7 +32,7 @@ export default {
       },
       {
         property: 'og:title',
-        content: 'European Open-Water Swims',
+        content: 'open-water-swims.com',
       },
       {
         property: 'og:description',
