@@ -34,6 +34,7 @@
           </span>
         </div>
       </h1>
+      <h2 class="mt-1">Map of open-water swimming events in Europe.</h2>
       <Ribbon v-if="!filterCollapsed">beta</Ribbon>
       <div
         style="transition: max-height 0.5s linear"
@@ -43,7 +44,7 @@
       >
         <div
           id="infos"
-          class="overflow-hidden mt-2"
+          class="overflow-hidden mt-0"
           style="transition: max-height 0.5s linear"
           :style="{
             maxHeight: !showInfos ? 0 : '500px',
