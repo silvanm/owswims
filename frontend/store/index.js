@@ -15,6 +15,7 @@ export const state = () => ({
   focusedEventId: null,
   travelTimes: [],
   isLoading: false,
+  justMounted: true, // used to hide elements which should disappear after some time
   raceTrackUnderEditId: null,
   raceTrackUnderFocusId: null,
   raceTrackUnderHoverId: null,
@@ -81,6 +82,9 @@ export const mutations = {
   isLoading(s, isLoading) {
     s.isLoading = isLoading
   },
+  justMounted(s, justmounted) {
+    s.justMounted = justmounted
+  },
   raceTrackUnderEditId(s, raceTrackUnderEditId) {
     s.raceTrackUnderEditId = raceTrackUnderEditId
   },
@@ -143,6 +147,9 @@ export const getters = {
   },
   isLoading(s) {
     return s.isLoading
+  },
+  justMounted(s) {
+    return s.justMounted
   },
   raceTrackUnderEditId(s) {
     return s.raceTrackUnderEditId

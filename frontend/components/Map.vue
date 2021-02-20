@@ -2,22 +2,26 @@
   <div>
     <!-- Containers which will be included in Google Maps. Hiding them by default -->
     <div class="hidden">
-      <div
-        ref="sponsor"
-        style="
-          background-color: white;
-          border-radius: 2px;
-          margin: 10px;
-          padding: 9px;
-        "
-      >
-        {{ $t('poweredBy') }}
-        <a href="https://muehlemann-popp.ch">
-          <img
-            :src="require('@/assets/Mühlemann&Popp.svg')"
-            style="width: 200px; margin-top: 5px"
-          />
-        </a>
+      <div ref="sponsor">
+        <transition name="fade">
+          <div
+            v-if="!$device.isMobile() || $store.getters.justMounted"
+            style="
+              background-color: white;
+              border-radius: 2px;
+              margin: 24px;
+              padding: 9px;
+            "
+          >
+            {{ $t('poweredBy') }}
+            <a href="https://muehlemann-popp.ch">
+              <img
+                :src="require('@/assets/Mühlemann&Popp.svg')"
+                style="width: 200px; margin-top: 5px"
+              />
+            </a>
+          </div>
+        </transition>
       </div>
       <div
         ref="centerButton"
@@ -682,5 +686,14 @@ body {
 .custom-clustericon-2,
 .custom-clustericon-3 {
   --cluster-color: #4299e1;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.5s;
+}
+
+.fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
+  opacity: 0;
 }
 </style>

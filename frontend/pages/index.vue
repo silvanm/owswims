@@ -162,6 +162,8 @@ export default {
         this.welcomeboxShown = true
       }
     }
+
+    window.setTimeout(() => this.$store.commit('justMounted', false), 5000)
   },
   methods: {
     locationPicked() {

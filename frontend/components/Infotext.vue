@@ -4,7 +4,9 @@
       <h1
         v-if="extended"
         class="text-xl md:text-2xl font-semibold text-primary"
-      ></h1>
+      >
+        {{ $t('welcomeBoxTitle') }}
+      </h1>
       <div class="absolute right-0 bottom-0">
         <button
           v-if="extended"

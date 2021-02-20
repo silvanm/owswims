@@ -2,7 +2,7 @@
   <div id="filter">
     <!-- pb-3 is a hack because the div which can collapse always has a height of 2 -->
     <div class="bg-white p-3 pb-2 lg:p-6 lg:pb-5 relative overflow-hidden">
-      <h1 class="text-2xl font-semibold text-primary">
+      <h1 class="text-xl md:text-2xl font-semibold text-primary">
         ‍️<a href="/" style="color: black; text-decoration: none">
           <img
             id="site-logo"
@@ -34,9 +34,16 @@
           </span>
         </div>
       </h1>
-      <transition name="fade">
-        <h2 v-if="!filterCollapsed" class="mt-1">{{ $t('tagline') }}</h2>
-      </transition>
+      <!-- Tagline -->
+      <h2
+        class="mt-1 overflow-hidden"
+        :style="{
+          maxHeight: (isDisplayTagline() ? 200 : 0) + 'px',
+          transition: 'max-height 0.5s',
+        }"
+      >
+        {{ $t('tagline') }}
+      </h2>
       <Ribbon v-if="!filterCollapsed">beta</Ribbon>
       <div
         style="transition: max-height 0.5s linear"
@@ -166,6 +173,15 @@ export default {
     },
   },
   methods: {
+    isDisplayTagline() {
+      if (this.filterCollapsed) {
+        return false
+      }
+      if (this.$device.isMobile()) {
+        return this.$store.getters.justMounted
+      }
+      return true
+    },
     clickCollapseFilter() {
       this.filterCollapsed = true
       this.showInfos = false
@@ -220,14 +236,5 @@ export default {
     @apply relative;
     max-width: 500px;
   }
-}
-
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.5s;
-}
-
-.fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
-  opacity: 0;
 }
 </style>
