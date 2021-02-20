@@ -294,6 +294,12 @@ export default {
     // this is set by the query string "event"
     const zoomedInLocation = this.$store.getters.pickedLocationZoomedIn
     if (zoomedInLocation) {
+      // This makes sure that the map is not recentered or rezoomed on every
+      // click of a location
+      if (!this.$router.currentRoute.query.zoom) {
+        this.map.panTo(this.locationIdToMarker[zoomedInLocation].position)
+        this.map.setZoom(12)
+      }
       this.openLocation(zoomedInLocation)
     }
 
@@ -409,6 +415,7 @@ export default {
             infowindow.open(this.map, this.markerObj)
           })
         })
+
         this.marker[location.id] = markerObj
       }
       this.markerCluster = new MarkerClusterer(this.map, this.marker, {
