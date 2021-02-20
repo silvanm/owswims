@@ -27,14 +27,17 @@
           <CloseButton @collapse="close"></CloseButton>
         </div>
         <div class="p-2 lg:p-6">
-          <h2 class="text-3xl font-bold text-white absolute bottom-0">
+          <h2
+            class="text-3xl font-bold text-white absolute"
+            style="bottom: 5px"
+          >
             <span v-if="pickedLocationData.location.waterName"
               >{{ pickedLocationData.location.waterName }},
             </span>
             {{ pickedLocationData.location.city }},
             {{ pickedLocationData.location.country }}
             <div v-if="$store.getters.mylocation.isAccurate" class="text-base">
-              Travel time:
+              {{ $t('travelTime') }}:
               {{
                 getFormattedTravelDistance(
                   pickedLocationData.location,
@@ -46,7 +49,7 @@
                 :href="getDirectionsUrl(pickedLocationData.location)"
                 target="_blank"
               >
-                Directions
+                {{ $t('directions') }}
               </a>
             </div>
           </h2>
@@ -116,7 +119,12 @@
           </span>
           <div id="pickedEvent-textprops" class="flex my-2">
             <div v-if="pickedEvent.node.organizer" class="textprop flex-1">
-              <div class="textprop-label">Organizer</div>
+              <div
+                v-if="!pickedEvent.node.organizer.logo"
+                class="textprop-label"
+              >
+                {{ $t('organizer') }}
+              </div>
               <a
                 v-if="pickedEvent.node.organizer.website"
                 :href="pickedEvent.node.organizer.website"
@@ -151,7 +159,7 @@
               </div>
             </div>
             <div v-if="pickedEvent.node.waterType" class="textprop flex-1">
-              <div class="textprop-label">Water type</div>
+              <div class="textprop-label">{{ $('waterType') }}</div>
               <div class="textprop-text">
                 {{
                   pickedLocationData.node.waterType[0] +
@@ -160,7 +168,7 @@
               </div>
             </div>
             <div v-if="pickedEvent.node.waterTemp" class="textprop flex-1">
-              <div class="textprop-label">Water temperature</div>
+              <div class="textprop-label">{{ $t('waterTemperature') }}</div>
               <div class="textprop-text">{{ pickedEvent.node.waterTemp }}°</div>
             </div>
           </div>
@@ -182,10 +190,10 @@
         <div id="race-table">
           <table class="min-w-full">
             <thead>
-              <th>Races</th>
+              <th>{{ $t('races') }}</th>
               <th></th>
               <th></th>
-              <th>Wetsuit</th>
+              <th>{{ $t('wetsuit') }}</th>
             </thead>
             <tbody>
               <tr

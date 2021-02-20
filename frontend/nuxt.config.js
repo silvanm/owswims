@@ -4,7 +4,7 @@ export default {
 
   // Global page headers (https://go.nuxtjs.dev/config-head)
   head: {
-    title: 'open-water-swims.com',
+    title: 'open-water-swims.com - Map of European Open-Water swim events',
     meta: [
       { charset: 'utf-8' },
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
@@ -117,7 +117,12 @@ export default {
   ],
 
   // Modules (https://go.nuxtjs.dev/config-modules)
-  modules: ['@nuxtjs/apollo', '@nuxtjs/google-gtag', '@nuxtjs/toast'],
+  modules: [
+    '@nuxtjs/apollo',
+    '@nuxtjs/google-gtag',
+    '@nuxtjs/toast',
+    'nuxt-i18n',
+  ],
 
   apollo: {
     clientConfigs: {
@@ -176,5 +181,24 @@ export default {
       })
     },
     middleware: 'querystringHandler',
+  },
+
+  i18n: {
+    locales: [
+      { code: 'en', iso: 'en-US', file: 'en.json' },
+      { code: 'de', iso: 'de-DE', file: 'de.json' },
+      { code: 'fr', iso: 'fr-FR', file: 'fr.json' },
+      { code: 'it', iso: 'it-IT', file: 'it.json' },
+    ],
+
+    defaultLocale: 'en',
+    lazy: true,
+    langDir: 'locales/',
+    strategy: 'no_prefix',
+    detectBrowserLanguage: {
+      useCookie: false,
+      cookieKey: 'i18n_redirected',
+      onlyOnRoot: true, // recommended
+    },
   },
 }

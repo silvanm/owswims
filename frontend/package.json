@@ -24,6 +24,7 @@
     "graphql-tag": "^2.11.0",
     "lodash": "^4.17.20",
     "nuxt": "^2.14.6",
+    "nuxt-i18n": "^6.20.1",
     "sass": "^1.30.0",
     "sass-loader": "^10.1.0",
     "v-tooltip": "^2.0.3",
@@ -36,6 +37,7 @@
   "devDependencies": {
     "@fortawesome/free-brands-svg-icons": "^5.15.1",
     "@fortawesome/free-solid-svg-icons": "^5.15.1",
+    "@intlify/vue-i18n-loader": "^2.0.0-rc.1",
     "@nuxtjs/eslint-config": "^3.1.0",
     "@nuxtjs/eslint-module": "^2.0.0",
     "@nuxtjs/fontawesome": "^1.1.2",

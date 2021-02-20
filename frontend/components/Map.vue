@@ -3,9 +3,26 @@
     <!-- Containers which will be included in Google Maps. Hiding them by default -->
     <div class="hidden">
       <div
+        ref="sponsor"
+        style="
+          background-color: white;
+          border-radius: 2px;
+          margin: 10px;
+          padding: 9px;
+        "
+      >
+        {{ $t('poweredBy') }}
+        <a href="https://muehlemann-popp.ch">
+          <img
+            :src="require('@/assets/Mühlemann&Popp.svg')"
+            style="width: 200px; margin-top: 5px"
+          />
+        </a>
+      </div>
+      <div
         ref="centerButton"
         v-tooltip="{
-          content: 'Center map at your location',
+          content: $t('tooltipCenterButton'),
           trigger: 'hover',
           placement: 'left',
         }"
@@ -21,7 +38,7 @@
       <div
         ref="seeAllButton"
         v-tooltip="{
-          content: 'Zoom out to see all events',
+          content: $t('tooltipSeeAll'),
           trigger: 'hover',
           placement: 'left',
         }"
@@ -42,7 +59,7 @@
             {{ pickedLocation.city }}, {{ pickedLocation.country }}
           </h1>
           <span v-if="mylocation.isAccurate">
-            Travel time:
+            {{ $t('travelTime') }}:
             {{ formattedTravelDistance }}
           </span>
           <div
@@ -253,6 +270,9 @@ export default {
     )
     this.map.controls[google.maps.ControlPosition.RIGHT].push(
       this.$refs.seeAllButton
+    )
+    this.map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(
+      this.$refs.sponsor
     )
     this.updateMarker()
     if (this.$route.query.location) {

@@ -2,12 +2,12 @@
   <div id="filter">
     <!-- pb-3 is a hack because the div which can collapse always has a height of 2 -->
     <div class="bg-white p-3 pb-2 lg:p-6 lg:pb-5 relative overflow-hidden">
-      <h1 class="text-xl md:text-2xl font-semibold text-primary">
+      <h1 class="text-2xl font-semibold text-primary">
         ‍️<a href="/" style="color: black; text-decoration: none">
           <img
+            id="site-logo"
             class="inline"
             :src="require('@/assets/site_logo.svg')"
-            style="width: 26px; vertical-align: bottom; margin-right: 5px"
           />
           open-water-swims.com</a
         >
@@ -34,7 +34,9 @@
           </span>
         </div>
       </h1>
-      <h2 class="mt-1">Map of open-water swimming events in Europe.</h2>
+      <transition name="fade">
+        <h2 v-if="!filterCollapsed" class="mt-1">{{ $t('tagline') }}</h2>
+      </transition>
       <Ribbon v-if="!filterCollapsed">beta</Ribbon>
       <div
         style="transition: max-height 0.5s linear"
@@ -56,10 +58,10 @@
               v-if="$store.getters['auth/loggedIn']"
               class="mr-2"
               @click="$store.dispatch('auth/logout')"
-              >Logout</a
+              >{{ $t('logout') }}</a
             >
             <span v-else>
-              <a @click="$emit('showLogin')">Login</a>
+              <a @click="$emit('showLogin')">{{ $t('login') }}</a>
             </span>
           </div>
         </div>
@@ -73,22 +75,24 @@
           class="overflow-hidden"
         >
           <label class="block font-semibold pt-4" for="keyword">
-            <div class="pb-2">Keyword search</div>
+            <div class="pb-2">{{ $t('keywordSearch') }}</div>
             <input
               id="keyword"
               v-model="keyword"
               type="text"
-              placeholder="e.g. Oceanman"
+              :placeholder="$t('keywordPlaceholder')"
               class="form-input block border p-2 w-full"
             />
           </label>
           <label class="block font-semibold pb-2 pt-4">
-            <div class="pb-2">Organizer / Serie</div>
+            <div class="pb-2">{{ $t('organizerSerie') }}</div>
             <OrganizerSelector></OrganizerSelector>
           </label>
         </div>
         <!-- Search by other parameters -->
-        <h2 class="font-semibold pb-2 pt-3 lg:pt-4">Race Distance</h2>
+        <h2 class="font-semibold pb-2 pt-3 lg:pt-4">
+          {{ $t('raceDistance') }}
+        </h2>
         <div id="race-distance-slider" class="pl-4 pr-4 pb-5">
           <client-only>
             <vue-slider
@@ -101,7 +105,7 @@
             ></vue-slider>
           </client-only>
         </div>
-        <h2 class="font-semibold pb-2">Date</h2>
+        <h2 class="font-semibold pb-2">{{ $t('date') }}</h2>
         <div id="date-range-slider" class="pl-4 pr-4 pb-8">
           <DaterangeSlider @change="updateDateRange"></DaterangeSlider>
         </div>
@@ -110,25 +114,16 @@
           :is-checked="geoLocationEnabled"
           @change="(e) => (e ? $store.dispatch('locateMe') : null)"
         >
-          <span id="activate-geolocation">Show trip duration</span>
+          <span id="activate-geolocation">{{ $t('showTripDuration') }}</span>
           <span
             v-tooltip="{
-              content:
-                'Use your location to calculate trip duration to the races',
+              content: $t('showTripDurationTooltip'),
               trigger: 'hover',
             }"
             class="text-gray-800 cursor-pointer"
             ><font-awesome-icon icon="question-circle"
           /></span>
         </Toggle>
-        <div v-if="!$device.isMobile()" class="mt-2">
-          <div class="text-gray-600">
-            Powered by
-            <a href="https://muehlemann-popp.ch" target="_blank"
-              >Mühlemann&Popp</a
-            >
-          </div>
-        </div>
       </div>
     </div>
   </div>
@@ -209,6 +204,12 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
+#site-logo {
+  width: 26px;
+  vertical-align: bottom;
+  margin-right: 5px;
+}
+
 #filter {
   @apply absolute w-full;
   transition: top 0.5s;
@@ -219,5 +220,14 @@ export default {
     @apply relative;
     max-width: 500px;
   }
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.5s;
+}
+
+.fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
+  opacity: 0;
 }
 </style>

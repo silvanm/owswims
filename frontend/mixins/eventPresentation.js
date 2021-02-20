@@ -1,4 +1,12 @@
 import { format, formatDistance } from 'date-fns'
+import { de, fr, it, enUS } from 'date-fns/locale'
+
+const localeMap = {
+  en: enUS,
+  de,
+  fr,
+  it,
+}
 
 export default {
   methods: {
@@ -12,32 +20,30 @@ export default {
       const propNames = [
         {
           field: 'soldOut',
-          labelTrue: 'Sold out',
+          labelTrue: this.$t('soldOut'),
           importanceTrue: 'high',
         },
         {
           field: 'cancelled',
-          labelTrue: 'Cancelled',
+          labelTrue: this.$t('cancelled'),
           importanceTrue: 'high',
         },
         {
           field: 'needsMedicalCertificate',
-          labelTrue: 'needs Medical',
-          labelFalse: 'no Medical',
+          labelTrue: this.$t('needsMedical'),
+          labelFalse: this.$t('noMedical'),
           importanceTrue: 'medium',
           importanceFalse: 'low',
-          infoTrue: 'Medical certificate required',
-          infoFalse: 'Medical certificate not required',
+          infoTrue: this.$t('needsMedicalInfo'),
         },
         {
           field: 'needsLicense',
-          labelTrue: 'needs License',
+          labelTrue: this.$t('needsLicense'),
           importanceTrue: 'medium',
-          infoTrue: 'License required',
         },
         {
           field: 'withRanking',
-          labelFalse: 'no ranking',
+          labelFalse: this.$t('noRanking'),
           importanceFalse: 'low',
         },
       ]
@@ -62,6 +68,11 @@ export default {
         .filter((o) => o.label)
     },
     formatEventDate(dt, short, custom = null) {
+      const capitalize = (s) => {
+        if (typeof s !== 'string') return ''
+        return s.charAt(0).toUpperCase() + s.slice(1)
+      }
+
       let fmt
       if (custom) {
         fmt = custom
@@ -70,7 +81,10 @@ export default {
       } else {
         fmt = 'EEEE, d. MMMM yyyy'
       }
-      return format(new Date(dt), fmt)
+
+      return capitalize(
+        format(new Date(dt), fmt, { locale: localeMap[this.$i18n.locale] })
+      )
     },
     formatRaceTime(tm) {
       if (tm) {
@@ -95,9 +109,9 @@ export default {
       ) {
         const formatDuration = (s) => formatDistance(0, s * 1000)
 
-        return `${formatDuration(
-          this.$store.getters.travelTimes[k].duration
-        )} (${(this.$store.getters.travelTimes[k].distance / 1000).toFixed(
+        return `${formatDuration(this.$store.getters.travelTimes[k].duration, {
+          locale: localeMap[this.$i18n.locale],
+        })} (${(this.$store.getters.travelTimes[k].distance / 1000).toFixed(
           0
         )}km)`
       } else {
