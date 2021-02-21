@@ -127,6 +127,7 @@ export default {
   data() {
     return {
       marker: {},
+      markerFocused: null,
       locationIdToMarker: {},
       pickedLocationId: 'TG9jYXRpb25Ob2RlOjE4NTg=',
       pickedLocation: null,
@@ -306,6 +307,9 @@ export default {
     // filter by organization --> pan so that all markers are seen
     if (this.organizerData) {
       this.drawRaceTrackOverlaysForEachVisibleLocation()
+      if (!this.$router.currentRoute.query.zoom) {
+        this.seeAll()
+      }
     }
     // see https://forum.vuejs.org/t/lodash-debounce-not-working-when-placed-inside-a-method/86334/3
     this.centerChanged = _.debounce(this.centerChanged, 2000)
