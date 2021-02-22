@@ -22,10 +22,11 @@ class OrganizerNode(DjangoObjectType):
     class Meta:
         model = Organizer
         filter_fields = ["name", "slug"]
-        fields = ["name", "website", "logo", "slug"]
+        fields = ["name", "website", "logo", "slug", "number_of_events"]
         interfaces = (Node,)
 
     logo = graphene.String(resolver=get_organization_logo_url)
+    number_of_events = graphene.Int(source='number_of_events')
 
 
 def get_header_photo_url(obj, resolve_obj):

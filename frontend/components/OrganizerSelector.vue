@@ -1,13 +1,13 @@
 <template>
   <div>
     <select
-      v-if="allOrganizers"
+      v-if="organizerWithEvents"
       v-model="organizerId"
       class="form-select w-full"
     >
       <option value="">All</option>
       <option
-        v-for="node in allOrganizers.edges"
+        v-for="node in organizerWithEvents"
         :key="node.node.id"
         :value="node.node.id"
       >
@@ -34,6 +34,7 @@ export default {
                 id
                 logo
                 slug
+                numberOfEvents
               }
             }
           }
@@ -55,6 +56,13 @@ export default {
         ).node
       } else {
         return null
+      }
+    },
+    organizerWithEvents() {
+      if (!this.allOrganizers) {
+        return []
+      } else {
+        return this.allOrganizers.edges.filter((o) => o.node.numberOfEvents > 1)
       }
     },
   },

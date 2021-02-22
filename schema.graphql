@@ -214,6 +214,7 @@ type OrganizerNode implements Node {
     id: ID!
     logo: String
     name: String!
+    numberOfEvents: Int
     slug: String
     website: String!
 }

@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from crum import get_current_user
 from django.contrib.auth.models import User
 from django.contrib.postgres.fields import ArrayField
@@ -42,6 +44,9 @@ class Organizer(models.Model):
 
     class Meta:
         ordering = ["name"]
+
+    def number_of_events(self):
+        return len(self.events.filter(date_start__gte=datetime.now()))
 
     def __str__(self):
         return f"{self.name}"

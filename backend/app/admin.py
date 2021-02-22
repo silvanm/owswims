@@ -21,12 +21,23 @@ admin.site.site_header = ugettext_lazy('Open-Water-Swims Admin')
 @admin.register(models.Organizer)
 class OrganizerAdmin(admin.ModelAdmin):
     prepopulated_fields = {"slug": ("name",)}
-    readonly_fields = ['public_url']
+    list_display = ['name', 'website_link', 'public_url', 'number_of_events']
+    readonly_fields = ['public_url', 'website_link', 'number_of_events']
 
     def public_url(self, obj):
-        url = settings.FRONTEND_URL + '?' + urlencode({'organizer': obj.slug})
-        return format_html(f'<a target="_blank" href="{url}">{url}</a>')
+        if obj.slug:
+            url = settings.FRONTEND_URL + '?' + urlencode({'organizer': obj.slug})
+            return format_html(f'<a target="_blank" href="{url}">{obj.slug}</a>')
+        else:
+            return ''
 
+    def website_link(self, obj):
+        if obj.website:
+            return format_html(f'<a target="_blank" href="{obj.website}">{obj.website}</a>')
+        else:
+            return ''
+
+    website_link.allow_tags = True
     public_url.allow_tags = True
 
 
@@ -145,7 +156,7 @@ class EventAdmin(CloneModelAdmin):
         from django.shortcuts import redirect
         return redirect(url)
 
-    def eventstr(self, obj:Event):
+    def eventstr(self, obj: Event):
         if (obj.invisible):
             style = 'color:#999'
         elif (obj.cancelled):
