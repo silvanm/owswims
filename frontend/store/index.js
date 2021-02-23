@@ -34,18 +34,13 @@ export const mutations = {
     p.then((result) => this.commit('pickedLocationData', result.data))
   },
   pickedLocationData(s, data) {
+    // Code Smell!
     // if there is only one event, then use the slug of this event
-    const query = { ...this.$router.currentRoute.query }
-
     if (data.allEvents.edges.length === 1) {
-      query.event = data.allEvents.edges[0].node.slug
+      this.$urlHistory.push({}, `/event/${data.allEvents.edges[0].node.slug}`)
     } else {
-      query.location = data.allEvents.edges[0].node.slug
+      this.$urlHistory.push({ location: data.allEvents.edges[0].node.slug }, '')
     }
-    this.$router.push({
-      path: '',
-      query,
-    })
 
     s.pickedLocationData = data
   },

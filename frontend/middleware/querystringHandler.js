@@ -1,8 +1,18 @@
 import gql from 'graphql-tag'
 
 export default async function ({ route, app, store }) {
-  if (route.query.organizer) {
-    const slug = route.query.organizer
+  function getOrganizerFromRequest() {
+    const re = /\/organizer\/([^/]+)$/
+    const m = route.path.match(re)
+    if (m && m[1]) {
+      return m[1]
+    } else if (route.query.organizer) {
+      return route.query.organizer
+    }
+  }
+
+  const organizerSlug = getOrganizerFromRequest()
+  if (organizerSlug) {
     const client = app.apolloProvider.defaultClient
     const result = await client.query({
       query: gql`
@@ -21,7 +31,7 @@ export default async function ({ route, app, store }) {
         }
       `,
       variables: {
-        slug,
+        slug: organizerSlug,
       },
     })
     store.commit('organizerData', result.data.allOrganizers.edges[0].node)
@@ -36,9 +46,19 @@ export default async function ({ route, app, store }) {
     store.commit('showOrganizerLogo', route.query.show_organizer_logo === '1')
   }
 
+  function getEventFromRequest() {
+    const re = /\/event\/([^/]+)$/
+    const m = route.path.match(re)
+    if (m && m[1]) {
+      return m[1]
+    } else if (route.query.event) {
+      return route.query.event
+    }
+  }
+
   // add function to disable event-pane + define zoom level
-  if (route.query.event) {
-    const slug = route.query.event
+  const eventSlug = getEventFromRequest()
+  if (eventSlug) {
     const client = app.apolloProvider.defaultClient
     const result = await client.query({
       query: gql`
@@ -56,7 +76,7 @@ export default async function ({ route, app, store }) {
         }
       `,
       variables: {
-        slug,
+        slug: eventSlug,
       },
     })
     store.commit('focusedEventId', result.data.allEvents.edges[0].node)

@@ -69,11 +69,8 @@ export default {
   watch: {
     selectedOrganizerData(newValue, oldValue) {
       this.$store.commit('organizerData', this.selectedOrganizerData)
-      const query = { ...this.$router.currentRoute.query }
-      query.organizer = this.selectedOrganizerData.slug
-      this.$router.push({
-        query,
-      })
+      const query = { organizer: this.selectedOrganizerData.slug }
+      this.$urlHistory.push(query, null)
       this.$gtag('event', 'filterOrganizer')
     },
   },

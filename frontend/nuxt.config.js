@@ -101,6 +101,10 @@ export default {
       src: '~plugins/queries.js',
       ssr: false,
     },
+    {
+      src: '~plugins/urlHistory.js',
+      ssr: false,
+    },
   ],
 
   // Auto import components (https://go.nuxtjs.dev/config-components)
@@ -194,7 +198,7 @@ export default {
     defaultLocale: 'en',
     lazy: true,
     langDir: 'locales/',
-    strategy: 'no_prefix',
+    strategy: 'prefix',
     detectBrowserLanguage: {
       useCookie: false,
       cookieKey: 'i18n_redirected',

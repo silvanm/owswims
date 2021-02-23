@@ -450,14 +450,11 @@ export default {
       google.maps.event.trigger(this.locationIdToMarker[id], 'click')
     },
     centerChanged() {
-      const query = { ...this.$router.currentRoute.query }
       if (this.map) {
+        const query = {}
         query.lat = this.map.getCenter().lat()
         query.lng = this.map.getCenter().lng()
-        this.$router.push({
-          path: '',
-          query,
-        })
+        this.$urlHistory.push(query, null)
       }
     },
     zoomChanged() {
@@ -465,12 +462,8 @@ export default {
       for (const raceId of Object.keys(this.raceTrackOverlays)) {
         this.raceTrackOverlays[raceId].label.setVisible(this.isLabelVisible())
       }
-      const query = { ...this.$router.currentRoute.query }
-      query.zoom = this.map.getZoom()
-      this.$router.push({
-        path: '',
-        query,
-      })
+      const query = { zoom: this.map.getZoom() }
+      this.$urlHistory.push(query, null)
     },
     drawRaceTrackOverlays(location) {
       // Draw Race Track Overlays
