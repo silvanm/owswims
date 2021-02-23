@@ -4,7 +4,7 @@
 	"directions": "Directions",
 	"dismiss": "Dismiss",
 	"infoboxPara1": "This is a not-for-profit project from open-water swimmers for open-water mers. We want to help you find your perfect swim events in Europe.",
-	"infoboxPara2": "If you plan your vacations around open-water swim events, then this app is for you. Select the desired distance and time range, and out of {raceCount} races in {countriesCount} countries we show all matching events to you. Enable the \"Show trip duration\" switch to let the app calculate the time to get there by car. ",
+	"infoboxPara2": "If you plan your vacations around open-water swim events, then this app is for you. Select the desired distance and date range, and out of {raceCount} races in {countriesCount} countries we show all matching events to you. Enable the \"Show trip duration\" switch to let the app calculate the time to get there by car. ",
 	"infoboxPara3": "Each {0} represents an event location. {1} are a cluster of events. Click on it to expand them. Click on the {3} icon to zoom to the event. Many of the races will have their race courses displayed.",
 	"infoboxPara4": "Additions or corrections can be reported to {0} at {1}.",
 	"infoboxThanks": "Thanks to Andrey Sheyko for his collaboration.",
