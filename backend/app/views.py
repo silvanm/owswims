@@ -26,7 +26,7 @@ def sitemap(request):
     sitemap.add(
         '/',
         changefreq='monthly',
-        priority=0.5,
+        priority=1,
         alternates={
             code: urljoin('/', code)
             for code in other_languages
