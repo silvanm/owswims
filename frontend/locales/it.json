@@ -4,7 +4,7 @@
 	"directions": "Come arrivare",
 	"dismiss": "Chiudere",
 	"infoboxPara1": "Questo è un progetto senza scopo di lucro promosso da nuotatori d'acque libere per i nuotatori d'acque libere. Vogliamo aiutarvi a trovare gli eventi di nuoto piu' adatti alle vostre esigenze, in tutta Europa.",
-	"infoboxPara2": "Se pianifichi le tue vacanze in base agli eventi di nuoto in acque libere, allora questa app fa per te. Seleziona la distanza e la data desiderata; nelle caselle "gare" {raceCount} e "paesi" {countriesCount} appariranno tutti gli eventi corrispondenti. Attiva l'opzione \"Mostra la durata del viaggio\" per permettere all'app di calcolare il tempo di percorrenza in auto. ",
+	"infoboxPara2": "Se pianifichi le tue vacanze in base agli eventi di nuoto in acque libere, allora questa app fa per te. Seleziona la distanza e la data desiderata; nelle caselle {raceCount} gare e {countriesCount} paesi appariranno tutti gli eventi corrispondenti. Attiva l'opzione \"Mostra la durata del viaggio\" per permettere all'app di calcolare il tempo di percorrenza in auto. ",
 	"infoboxPara3": "Ogni {0} rappresenta un evento. {1} sono un gruppo di eventi. Clicca su di esso per espanderli. Clicca sull'icona {3} per ingrandire l'evento. Per la maggior parte degli eventi generati dalla ricerca si potra'visualizzare il percorso gara.",
 	"infoboxPara4": "Aggiunte o correzioni possono essere segnalate a {0} e a {1}.",
 	"infoboxThanks": "Un particolare ringraziamento ad Andrey Sheyko per la sua collaborazione.",
