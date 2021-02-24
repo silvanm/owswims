@@ -89,12 +89,16 @@
             ></font-awesome-icon>
           </a>
           <span v-else>{{ pickedEvent.node.name }}</span>
+
           <a
             v-if="pickedEvent.node.flyerImage"
             class="cursor-pointer float-right"
             @click="showFlyer"
           >
-            <font-awesome-icon icon="image" class></font-awesome-icon>
+            <font-awesome-icon icon="image"></font-awesome-icon>
+          </a>
+          <a class="cursor-pointer float-right" @click="zoomToEvent">
+            <font-awesome-icon icon="search" />
           </a>
         </h3>
         <vue-easy-lightbox
@@ -382,6 +386,9 @@ export default {
     showFlyer() {
       this.showLightbox = true
       this.$gtag('event', 'showEventPaneLightbox')
+    },
+    zoomToEvent() {
+      this.$store.commit('pickedLocationZoomedIn', this.pickedLocationId)
     },
     viewRaceDetail(id) {
       this.$store.commit('raceTrackUnderFocusId', id)

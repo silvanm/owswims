@@ -197,6 +197,8 @@ export default {
     },
     pickedLocationZoomedIn(newData, oldData) {
       this.openLocation(newData)
+      this.map.panTo(this.locationIdToMarker[newData].position)
+      this.map.setZoom(12)
     },
     raceTrackUnderEditId(newData, oldData) {
       for (const raceId of Object.keys(this.raceTrackOverlays)) {
