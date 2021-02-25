@@ -92,12 +92,12 @@
 
           <a
             v-if="pickedEvent.node.flyerImage"
-            class="cursor-pointer float-right"
+            class="event-icon"
             @click="showFlyer"
           >
             <font-awesome-icon icon="image"></font-awesome-icon>
           </a>
-          <a class="cursor-pointer float-right" @click="zoomToEvent">
+          <a class="event-icon" @click="zoomToEvent">
             <font-awesome-icon icon="search" />
           </a>
         </h3>
@@ -477,6 +477,10 @@ ul.tabs {
 
 .low {
   @apply bg-green-300;
+}
+
+.event-icon {
+  @apply cursor-pointer float-right ml-2;
 }
 
 .textprop {
