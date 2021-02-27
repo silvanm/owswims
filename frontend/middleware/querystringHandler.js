@@ -2,7 +2,7 @@ import gql from 'graphql-tag'
 
 export default async function ({ route, app, store }) {
   function getOrganizerFromRequest() {
-    const re = /\/organizer\/([^/]+)$/
+    const re = /\/organizer\/([^/]+)\/?$/
     const m = route.path.match(re)
     if (m && m[1]) {
       return m[1]
@@ -47,7 +47,7 @@ export default async function ({ route, app, store }) {
   }
 
   function getEventFromRequest() {
-    const re = /\/event\/([^/]+)$/
+    const re = /.*\/event\/([^/]+)\/?$/
     const m = route.path.match(re)
     if (m && m[1]) {
       return m[1]
@@ -58,6 +58,7 @@ export default async function ({ route, app, store }) {
 
   // add function to disable event-pane + define zoom level
   const eventSlug = getEventFromRequest()
+  console.log(`Slug: ${eventSlug}`)
   if (eventSlug) {
     const client = app.apolloProvider.defaultClient
     const result = await client.query({
