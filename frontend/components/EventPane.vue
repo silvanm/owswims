@@ -125,6 +125,7 @@
             <div v-if="pickedEvent.node.organizer" class="textprop flex-1">
               <div
                 v-if="!pickedEvent.node.organizer.logo"
+                @load="updateEventPaneStyle"
                 class="textprop-label"
               >
                 {{ $t('organizer') }}
@@ -331,7 +332,10 @@ export default {
     },
   },
   mounted() {
-    this.updateEventPaneStyle()
+    // @todo find out why this does not work if do it synchronously
+    window.setTimeout(() => {
+      this.updateEventPaneStyle()
+    }, 500)
   },
   methods: {
     updateEventPaneStyle() {
@@ -354,7 +358,7 @@ export default {
       } else {
         this.eventPaneStyle = {
           maxHeight:
-            (window.innerHeight - this.$el.offsetTop).toString() + 'px',
+            (window.innerHeight - this.$el.offsetTop - 20).toString() + 'px',
         }
       }
     },
