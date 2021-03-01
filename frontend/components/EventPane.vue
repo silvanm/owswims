@@ -125,8 +125,8 @@
             <div v-if="pickedEvent.node.organizer" class="textprop flex-1">
               <div
                 v-if="!pickedEvent.node.organizer.logo"
-                @load="updateEventPaneStyle"
                 class="textprop-label"
+                @load="updateEventPaneStyle"
               >
                 {{ $t('organizer') }}
               </div>
@@ -164,7 +164,7 @@
               </div>
             </div>
             <div v-if="pickedEvent.node.waterType" class="textprop flex-1">
-              <div class="textprop-label">{{ $('waterType') }}</div>
+              <div class="textprop-label">{{ $t('waterType') }}</div>
               <div class="textprop-text">
                 {{
                   pickedLocationData.node.waterType[0] +
@@ -180,11 +180,15 @@
         </div>
       </div>
     </div>
-    <div v-if="pickedEvent.node.description" class="scrollable px-2 lg:px-6">
+    <div
+      v-if="pickedEvent.node.description"
+      class="scrollable px-2 lg:px-6"
+      style=""
+    >
       <div>
         <div id="description">
-          <div class="mb-2">
-            {{ pickedEvent.node.description }}
+          <!-- prettier-ignore -->
+          <div class="mb-2 whitespace-pre-line">{{ pickedEvent.node.description }}
           </div>
         </div>
       </div>
@@ -335,7 +339,7 @@ export default {
     // @todo find out why this does not work if do it synchronously
     window.setTimeout(() => {
       this.updateEventPaneStyle()
-    }, 500)
+    }, 1000)
   },
   methods: {
     updateEventPaneStyle() {

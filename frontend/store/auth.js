@@ -7,7 +7,9 @@ const initialState = user
 
 export default {
   namespaced: true,
-  state: initialState,
+  state: () => {
+    return initialState
+  },
   actions: {
     login({ dispatch, commit }, { username, password }) {
       commit('loginRequest', { username })

@@ -58,7 +58,6 @@ export default async function ({ route, app, store }) {
 
   // add function to disable event-pane + define zoom level
   const eventSlug = getEventFromRequest()
-  console.log(`Slug: ${eventSlug}`)
   if (eventSlug) {
     const client = app.apolloProvider.defaultClient
     const result = await client.query({
