@@ -148,6 +148,9 @@ class EventAdmin(CloneModelAdmin):
     date_hierarchy = 'date_start'
     prepopulated_fields = {"slug": ("name", "date_start")}
 
+    class Media:
+        js = ('js/admin/EventAdmin.js',)
+
     def changelist_view(self, request, extra_context=None):
         if request.GET:
             return super().changelist_view(request, extra_context=extra_context)
