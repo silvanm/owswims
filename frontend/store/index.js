@@ -37,6 +37,7 @@ export const mutations = {
   pickedLocationData(s, data) {
     // Code Smell!
     // if there is only one event, then use the slug of this event
+    const locationStr = `${data.location.city}, ${data.location.country}`
     if (data.allEvents.edges.length === 1) {
       this.$urlHistory.push({}, `/event/${data.allEvents.edges[0].node.slug}`)
       s.pageTitle = `open-water-swims.com - ${data.allEvents.edges[0].node.name}, ${locationStr}`
