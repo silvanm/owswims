@@ -24,7 +24,7 @@ def sitemap(request):
 
     # Homepage
     sitemap.add(
-        '/',
+        '/en/',
         changefreq='monthly',
         priority=1,
         alternates={
@@ -36,7 +36,7 @@ def sitemap(request):
     # Eventpages
     events = models.Event.objects.filter(date_start__gte=datetime.now())
     for event in events:
-        url = f'/events/{event.slug}'
+        url = f'/en/events/{event.slug}'
         sitemap.add(
             url,
             changefreq='monthly',
