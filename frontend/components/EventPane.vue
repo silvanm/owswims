@@ -336,6 +336,8 @@ export default {
     },
   },
   mounted() {
+    this.updateEventPaneStyle()
+
     // @todo find out why this does not work if do it synchronously
     window.setTimeout(() => {
       this.updateEventPaneStyle()
