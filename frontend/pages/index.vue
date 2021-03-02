@@ -186,6 +186,7 @@ export default {
   },
   head() {
     return {
+      title: this.$store.getters.pageTitle ?? this.$t('pageTitle'),
       script: [
         {
           src: `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=drawing&v=beta`,

@@ -20,6 +20,7 @@ export const state = () => ({
   raceTrackUnderFocusId: null,
   raceTrackUnderHoverId: null,
   raceTrackDeletedId: null,
+  pageTitle: null,
 })
 
 export const mutations = {
@@ -38,8 +39,10 @@ export const mutations = {
     // if there is only one event, then use the slug of this event
     if (data.allEvents.edges.length === 1) {
       this.$urlHistory.push({}, `/event/${data.allEvents.edges[0].node.slug}`)
+      s.pageTitle = `open-water-swims.com - ${data.allEvents.edges[0].node.name}, ${locationStr}`
     } else {
-      this.$urlHistory.push({ location: data.allEvents.edges[0].node.slug }, '')
+      this.$urlHistory.push({ location: data.location.id }, '')
+      s.pageTitle = `open-water-swims.com - ${locationStr}`
     }
 
     s.pickedLocationData = data
@@ -157,6 +160,9 @@ export const getters = {
   },
   raceTrackDeletedId(s) {
     return s.raceTrackDeletedId
+  },
+  pageTitle(s) {
+    return s.pageTitle
   },
 }
 
