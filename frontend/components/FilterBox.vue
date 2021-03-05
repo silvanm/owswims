@@ -142,6 +142,8 @@ import Ribbon from '@/components/Ribbon'
 import DaterangeSlider from '@/components/DaterangeSlider'
 import Toggle from '@/components/Toggle'
 
+const distanceRangeMax = 30
+
 export default {
   components: { Ribbon, CloseButton, DaterangeSlider, Toggle },
   data() {
@@ -149,7 +151,7 @@ export default {
       showOptionalSearchParams: false,
       showInfos: false,
       keyword: '',
-      distanceRange: [0, 30],
+      distanceRange: [0, distanceRangeMax],
       // @todo: this must be applied to the slider
       dateRange: [0, 12],
       lat: null,
@@ -161,7 +163,7 @@ export default {
   watch: {
     distanceRange(newRange, oldRange) {
       // if the slider is at the upper edge, then don't have a limit
-      if (newRange[1] === this.distanceRange) {
+      if (newRange[1] === distanceRangeMax) {
         newRange[1] = 1000
       }
       this.$store.commit('distanceRange', newRange)
@@ -210,10 +212,10 @@ export default {
     },
     rangeSliderMarks() {
       const marks = {}
-      for (let i = 0; i < 30; i += 5) {
+      for (let i = 0; i < distanceRangeMax; i += 5) {
         marks[i] = i.toString()
       }
-      marks[30] = '30+'
+      marks[distanceRangeMax] = `${distanceRangeMax}+`
       return marks
     },
   },
