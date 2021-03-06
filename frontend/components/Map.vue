@@ -443,6 +443,7 @@ export default {
           },
         ],
         clusterClass: 'custom-clustericon',
+        gridSize: 30,
       })
     },
     calculateDistance(location, callback) {
