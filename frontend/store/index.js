@@ -9,7 +9,7 @@ export const state = () => ({
   isEmbedded: false,
   mapType: false,
   showOrganizerLogo: false,
-  distanceRange: [0, 30],
+  distanceRange: [0, 1000],
   dateRange: [0, 12],
   pickedLocationData: null,
   focusedEventId: null,
