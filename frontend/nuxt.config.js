@@ -163,6 +163,7 @@ export default {
         'faExternalLinkSquareAlt',
         'faExpandArrowsAlt',
       ],
+      brands: ['faFacebook'],
     },
   },
 
