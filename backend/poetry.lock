@@ -187,6 +187,14 @@ argon2 = ["argon2-cffi (>=16.1.0)"]
 bcrypt = ["bcrypt"]
 
 [[package]]
+name = "django-admin-list-filter-dropdown"
+version = "1.0.3"
+description = "Use dropdowns in Django admin list filter"
+category = "main"
+optional = false
+python-versions = "*"
+
+[[package]]
 name = "django-clone"
 version = "1.1.10"
 description = "Create a clone of a django model instance."
@@ -1201,7 +1209,7 @@ testing = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "fd8cf7b3e57b7cd35ff2585e0cae41881d97325cf8801f9512585f41cc0d2743"
+content-hash = "fc715974282445f4d6b17da2be6a3a102f7c2598ef323e75adb9f39d191a5138"
 
 [metadata.files]
 aniso8601 = [
@@ -1319,6 +1327,10 @@ dateparser = [
 django = [
     {file = "Django-3.1.6-py3-none-any.whl", hash = "sha256:169e2e7b4839a7910b393eec127fd7cbae62e80fa55f89c6510426abf673fe5f"},
     {file = "Django-3.1.6.tar.gz", hash = "sha256:c6c0462b8b361f8691171af1fb87eceb4442da28477e12200c40420176206ba7"},
+]
+django-admin-list-filter-dropdown = [
+    {file = "django-admin-list-filter-dropdown-1.0.3.tar.gz", hash = "sha256:07cd37b6a9be1b08f11d4a92957c69b67bc70b1f87a2a7d4ae886c93ea51eb53"},
+    {file = "django_admin_list_filter_dropdown-1.0.3-py3-none-any.whl", hash = "sha256:bf1b48bab9772dad79db71efef17e78782d4f2421444d5e49bb10e0da71cd6bb"},
 ]
 django-clone = [
     {file = "django-clone-1.1.10.tar.gz", hash = "sha256:bb7468c88e75facd653acbdb5287a0b3df7005124019985f1e6e5349f6a4ee35"},

@@ -31,6 +31,7 @@ PyJWT = "1.7.1"
 gpxpy = "^1.4.2"
 pykml = "^0.2.0"
 django-sitemaps = "^1.1.1"
+django-admin-list-filter-dropdown = "^1.0.3"
 
 [tool.poetry.dev-dependencies]
 pytest-django = "^4.0.0"

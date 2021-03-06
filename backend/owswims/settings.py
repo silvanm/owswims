@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     "djmoney",
     "model_clone",
     "django_google_maps",
+    "django_admin_listfilter_dropdown",
     "app",
 ]
 MIDDLEWARE = [

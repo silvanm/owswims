@@ -8,6 +8,7 @@ from django.contrib import admin
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy
+from django_admin_listfilter_dropdown.filters import RelatedDropdownFilter
 from model_clone import CloneModelAdmin
 
 from django_google_maps import widgets as map_widgets
@@ -138,7 +139,8 @@ class EventAdmin(CloneModelAdmin):
     list_display = ("date_start", "eventstr", "locationstr",
                     "entry_quality_rating", "verified_at")
     list_display_links = ("eventstr",)
-    list_filter = (IsUpcomingFilter, "entry_quality", IsVerifiedFilter, "organizer")
+    list_filter = (
+        IsUpcomingFilter, "entry_quality", IsVerifiedFilter, ("organizer", RelatedDropdownFilter), "location__country")
     search_fields = ['name', 'location__city', 'location__country', 'organizer__name']
     exclude = ["edited_by", "edited_at"]
     readonly_fields = ['public_url']
