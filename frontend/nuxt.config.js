@@ -195,6 +195,7 @@ export default {
       { code: 'fr', iso: 'fr-FR', file: 'fr.json' },
       { code: 'it', iso: 'it-IT', file: 'it.json' },
       { code: 'ru', iso: 'ru-RU', file: 'ru.json' },
+      { code: 'es', iso: 'es-ES', file: 'es.json' },
     ],
 
     defaultLocale: 'en',
