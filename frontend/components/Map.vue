@@ -369,11 +369,15 @@ export default {
         return self.indexOf(value) === index
       }
 
-      return races.edges
+      const raceDistances = races.edges.map((e) => {
+        return e.node.distance
+      })
+
+      return raceDistances
         .sort((a, b) => {
-          return a.node.distance > b.node.distance ? 1 : -1
+          return a > b ? 1 : -1
         })
-        .map((e) => this.humanizeDistance(e.node.distance))
+        .map((e) => this.humanizeDistance(e))
         .filter(onlyUnique)
         .join(', ')
     },

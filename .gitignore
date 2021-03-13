@@ -5,3 +5,4 @@ db.sqlite3
 geocode_test.py
 /owswims/node_modules/esm/node_modules/.cache/esm/
 backend/static
+/tmp/
