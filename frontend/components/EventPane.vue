@@ -224,7 +224,7 @@
                 <td>{{ race.node.name }}</td>
                 <td>
                   <span v-if="race.node.wetsuit" class="badge">
-                    {{ race.node.wetsuit }}
+                    {{ $t('wetsuit' + race.node.wetsuit.toLowerCase()) }}
                   </span>
                 </td>
                 <td class="text-right">

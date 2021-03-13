@@ -15,6 +15,7 @@
 
 <script>
 import { addMonths, format } from 'date-fns'
+import { localeMap } from '../constants'
 
 export default {
   name: 'DaterangeSlider',
@@ -26,7 +27,7 @@ export default {
   methods: {
     tooltipFormatter(val) {
       const d = addMonths(new Date(), val)
-      return format(d, 'LLL yy')
+      return format(d, 'LLL yy', { locale: localeMap[this.$i18n.locale] })
     },
     marksFormatter(val) {
       if (val % 3 === 0) {

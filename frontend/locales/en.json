@@ -21,7 +21,7 @@
 	"noRanking": "no ranking",
 	"organizer": "Organizer",
 	"organizerSerie": "Organizer / Serie",
-  "pageTitle": "open-water-swims.com - Map of open-water swimming events in Europe",
+	"pageTitle": "open-water-swims.com - Map of open-water swimming events in Europe",
 	"pool": "Pool",
 	"poweredBy": "Developed by",
 	"raceDistance": "Race Distance",
@@ -38,5 +38,8 @@
 	"waterTemperature": "Water temperature",
 	"waterType": "Water type",
 	"welcomeBoxTitle": "Welcome to open-water-swims",
-	"wetsuit": "Wetsuit"
+	"wetsuit": "Wetsuit",
+	"wetsuitcompulsory": "compulsory",
+	"wetsuitoptional": "optional",
+	"wetsuitprohibited": "prohibited"
 }

@@ -21,7 +21,7 @@
 	"noRanking": "sans classement",
 	"organizer": "Organisateur",
 	"organizerSerie": "Organisateur / Série",
-  "pageTitle": "open-water-swims.com - Carte des épreuves de natation en eau libre en Europe",
+	"pageTitle": "open-water-swims.com - Carte des épreuves de natation en eau libre en Europe",
 	"pool": "Piscine",
 	"poweredBy": "Développé par",
 	"raceDistance": "Distance de la course",
@@ -38,5 +38,8 @@
 	"waterTemperature": "Température de l'eau",
 	"waterType": "Type du plan d'eau",
 	"welcomeBoxTitle": "Bienvenue à open-water-swims",
-	"wetsuit": "Combinaison"
+	"wetsuit": "Combinaison",
+	"wetsuitcompulsory": "obligatoire",
+	"wetsuitoptional": "facultatif",
+	"wetsuitprohibited": "interdit"
 }

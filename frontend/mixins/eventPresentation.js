@@ -1,12 +1,5 @@
 import { format, formatDistance } from 'date-fns'
-import { de, fr, it, enUS } from 'date-fns/locale'
-
-const localeMap = {
-  en: enUS,
-  de,
-  fr,
-  it,
-}
+import { localeMap } from '../constants'
 
 export default {
   methods: {
