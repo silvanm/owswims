@@ -1,4 +1,6 @@
 {
+	"abbreviationKilometer": "km",
+	"abbreviationMeter": "m",
 	"cancelled": "Evento Cancellato",
 	"date": "Data",
 	"directions": "Come arrivare",

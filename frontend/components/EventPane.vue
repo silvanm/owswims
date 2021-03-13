@@ -141,7 +141,7 @@
                 >
                   <img
                     :src="pickedEvent.node.organizer.logo"
-                    style="width: 200px"
+                    style="max-width: 200px; max-height: 100px"
                   />
                 </div>
                 <div v-else class="textprop-text">

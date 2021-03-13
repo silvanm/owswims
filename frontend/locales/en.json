@@ -1,4 +1,6 @@
 {
+	"abbreviationKilometer": "km",
+	"abbreviationMeter": "m",
 	"cancelled": "Cancelled",
 	"date": "Date",
 	"directions": "Directions",

@@ -370,6 +370,9 @@ export default {
       }
 
       return races.edges
+        .sort((a, b) => {
+          return a.node.distance > b.node.distance ? 1 : -1
+        })
         .map((e) => this.humanizeDistance(e.node.distance))
         .filter(onlyUnique)
         .join(', ')

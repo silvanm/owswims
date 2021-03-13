@@ -88,9 +88,9 @@ export default {
     },
     humanizeDistance(d) {
       if (d <= 1.5) {
-        return (d * 1000).toFixed(0) + 'm'
+        return (d * 1000).toFixed(0) + this.$t('abbreviationMeter')
       } else {
-        return d.toFixed(1) + 'km'
+        return d.toFixed(1) + this.$t('abbreviationKilometer')
       }
     },
     getFormattedTravelDistance(location, travelMode) {
