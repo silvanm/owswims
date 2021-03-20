@@ -14,7 +14,6 @@
         <div class="inline float-right">
           <span class="text-base">
             <span
-              v-if="!filterCollapsed"
               class="pr-2 cursor-pointer"
               @click="clickOptionalSearchParamsButton"
             >
@@ -51,7 +50,7 @@
       <div
         style="transition: max-height 0.5s linear"
         :style="{
-          maxHeight: filterCollapsed && !showInfos ? 0 : '500px',
+          maxHeight: filterCollapsed && !expandedPane ? 0 : '500px',
         }"
       >
         <div
