@@ -1,6 +1,7 @@
 from datetime import datetime
 from urllib.parse import urljoin
 
+from django.http import JsonResponse
 from django.shortcuts import render
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django_sitemaps import Sitemap

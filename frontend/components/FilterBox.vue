@@ -26,6 +26,9 @@
                 size="lg"
               ></font-awesome-icon>
             </span>
+            <span class="pr-2 cursor-pointer" @click="clickEnvelope">
+              <font-awesome-icon icon="envelope" size="lg"></font-awesome-icon>
+            </span>
             <CloseButton
               ref="closebutton"
               @collapse="clickCollapseFilter"
@@ -56,7 +59,7 @@
           class="overflow-hidden mt-0"
           style="transition: max-height 0.5s linear"
           :style="{
-            maxHeight: !showInfos ? 0 : '500px',
+            maxHeight: expandedPane === 'info' ? '500px' : 0,
           }"
         >
           <Infotext></Infotext>
@@ -77,7 +80,7 @@
           id="optional-search-params"
           style="transition: max-height 0.5s linear"
           :style="{
-            maxHeight: !showOptionalSearchParams ? 0 : '500px',
+            maxHeight: expandedPane === 'search' ? '500px' : 0,
           }"
           class="overflow-hidden"
         >
@@ -95,6 +98,17 @@
             <div class="pb-2">{{ $t('organizerSerie') }}</div>
             <OrganizerSelector></OrganizerSelector>
           </label>
+        </div>
+        <!-- Contact -->
+        <div
+          id="contact"
+          style="transition: max-height 0.5s linear"
+          :style="{
+            maxHeight: expandedPane === 'contact' ? '500px' : 0,
+          }"
+          class="overflow-hidden"
+        >
+          <ContactForm @mailsent="expandedPane = null"></ContactForm>
         </div>
         <!-- Search by other parameters -->
         <h2 class="font-semibold pb-2 pt-3 lg:pt-4">
@@ -148,8 +162,7 @@ export default {
   components: { Ribbon, CloseButton, DaterangeSlider, Toggle },
   data() {
     return {
-      showOptionalSearchParams: false,
-      showInfos: false,
+      expandedPane: null,
       keyword: '',
       distanceRange: [0, distanceRangeMax],
       // @todo: this must be applied to the slider
@@ -186,17 +199,21 @@ export default {
     },
     clickCollapseFilter() {
       this.filterCollapsed = true
-      this.showInfos = false
+      this.expandedPane = null
     },
     clickOptionalSearchParamsButton() {
+      this.expandedPane = 'search'
       this.$gtag('event', 'clickOptionalSearchParamsButton')
       if (this.showOptionalSearchParams) {
         this.keyword = ''
       }
-      this.showOptionalSearchParams = !this.showOptionalSearchParams
+    },
+    clickEnvelope() {
+      this.expandedPane = 'contact'
+      this.$gtag('event', 'clickEnvelope')
     },
     clickInfoCircle() {
-      this.showInfos = !this.showInfos
+      this.expandedPane = 'info'
       this.$gtag('event', 'clickInfoCircle')
     },
     updateDateRange(range) {

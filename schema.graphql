@@ -11,6 +11,11 @@ interface Node {
     id: ID!
 }
 
+type ContactMail {
+    id: String
+    ok: Boolean
+}
+
 "Debugging information for the current query."
 type DjangoDebug {
     "Executed SQL queries for this API query."
@@ -157,6 +162,7 @@ type Mutation {
     If allowed to not verified users login, return token.
     """
     register(email: String!, password1: String!, password2: String!, username: String!): Register
+    sendContactmail(message: String!, sender: String!): ContactMail
     """
 
     Obtain JSON web token for given user.

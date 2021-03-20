@@ -1087,6 +1087,17 @@ optional = false
 python-versions = ">=3.5"
 
 [[package]]
+name = "sparkpost"
+version = "1.3.6"
+description = "SparkPost Python API client"
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+requests = ">=2.5.1"
+
+[[package]]
 name = "sqlparse"
 version = "0.4.1"
 description = "A non-validating SQL parser."
@@ -1209,7 +1220,7 @@ testing = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "fc715974282445f4d6b17da2be6a3a102f7c2598ef323e75adb9f39d191a5138"
+content-hash = "340cbc6b68d8de257408dcf2fe18de259dfc80b0e48e65c67bb5388f0d6c767e"
 
 [metadata.files]
 aniso8601 = [
@@ -1815,6 +1826,10 @@ six = [
 soupsieve = [
     {file = "soupsieve-2.1-py3-none-any.whl", hash = "sha256:4bb21a6ee4707bf43b61230e80740e71bfe56e55d1f1f50924b087bb2975c851"},
     {file = "soupsieve-2.1.tar.gz", hash = "sha256:6dc52924dc0bc710a5d16794e6b3480b2c7c08b07729505feab2b2c16661ff6e"},
+]
+sparkpost = [
+    {file = "sparkpost-1.3.6-py2.py3-none-any.whl", hash = "sha256:abaf5045d04d821f9c29c965d97173f52f6acc2051debca6f122ea7456cc1733"},
+    {file = "sparkpost-1.3.6.tar.gz", hash = "sha256:75d1a408c7a581377ac9cc2cfef1de1249e49cb631921033cc3ff115b08c2c81"},
 ]
 sqlparse = [
     {file = "sqlparse-0.4.1-py3-none-any.whl", hash = "sha256:017cde379adbd6a1f15a61873f43e8274179378e95ef3fede90b5aa64d304ed0"},

@@ -162,6 +162,7 @@ export default {
         'faEdit',
         'faExternalLinkSquareAlt',
         'faExpandArrowsAlt',
+        'faEnvelope',
       ],
       brands: ['faFacebook'],
     },

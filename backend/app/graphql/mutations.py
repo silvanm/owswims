@@ -49,11 +49,11 @@ class RaceMutation(relay.ClientIDMutation):
     @classmethod
     @login_required
     def mutate_and_get_payload(
-        cls, root, info, coordinates, id, client_mutation_id=None
+            cls, root, info, coordinates, id, client_mutation_id=None
     ):
         race = Race.objects.get(pk=from_global_id(id)[1])
         race.coordinates = [
-            coordinates[i : i + 2] for i in range(0, len(coordinates), 2)
+            coordinates[i: i + 2] for i in range(0, len(coordinates), 2)
         ]
         race.save()
         return RaceMutation(race=race)
@@ -65,7 +65,31 @@ class AuthMutation(graphene.ObjectType):
     token_auth = mutations.ObtainJSONWebToken.Field()
 
 
+class ContactMail(graphene.Mutation):
+    class Arguments:
+        sender = graphene.String(required=True)
+        message = graphene.String(required=True)
+
+    ok = graphene.Boolean()
+    id = graphene.String()
+
+    def mutate(root, info, sender, message):
+        from sparkpost import SparkPost
+        sp = SparkPost()
+
+        response = sp.transmissions.send(
+            recipients=['silvan@open-water-swims.com'],
+            html=message,
+            from_email='silvan.muehlemann@muehlemann-popp.ch',
+            subject=f'Mail from {sender}'
+        )
+        ok = response['total_accepted_recipients']
+        id = response['id']
+        return ContactMail(id=id, ok=ok)
+
+
 class Mutation(AuthMutation, graphene.ObjectType):
     update_event = EventMutation.Field()
     update_location = LocationMutation.Field()
     update_race = RaceMutation.Field()
+    send_contactmail = ContactMail.Field()

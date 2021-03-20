@@ -20,7 +20,6 @@ from django.contrib import admin
 from django.urls import path
 from django.views.decorators.csrf import csrf_exempt
 from django_sitemaps import robots_txt
-
 from app.views import index, sitemap
 from graphene_django.views import GraphQLView
 
