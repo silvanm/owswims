@@ -1,8 +1,8 @@
 <template>
   <div id="filter">
     <!-- pb-3 is a hack because the div which can collapse always has a height of 2 -->
-    <div class="bg-white p-3 pb-2 lg:p-6 lg:pb-5 relative overflow-hidden">
-      <h1 class="text-xl md:text-2xl font-semibold text-primary">
+    <div class="bg-white p-4 pb-2 lg:p-6 lg:pb-5 relative overflow-hidden">
+      <h1 class="text-l md:text-2xl font-semibold text-primary">
         ‍️<a href="/" style="color: black; text-decoration: none">
           <img
             id="site-logo"
@@ -11,7 +11,7 @@
           />
           open-water-swims.com</a
         >
-        <div class="inline float-right">
+        <div class="inline float-right text-gray-600">
           <span class="text-base">
             <span
               class="pr-2 cursor-pointer"
@@ -46,7 +46,7 @@
       >
         {{ $t('tagline') }}
       </h2>
-      <Ribbon v-if="!filterCollapsed">beta</Ribbon>
+      <!--<Ribbon v-if="!filterCollapsed">beta</Ribbon>-->
       <div
         style="transition: max-height 0.5s linear"
         :style="{
@@ -151,14 +151,14 @@
 <script>
 import 'assets/slider.css'
 import CloseButton from '@/components/CloseButton'
-import Ribbon from '@/components/Ribbon'
+// import Ribbon from '@/components/Ribbon'
 import DaterangeSlider from '@/components/DaterangeSlider'
 import Toggle from '@/components/Toggle'
 
 const distanceRangeMax = 30
 
 export default {
-  components: { Ribbon, CloseButton, DaterangeSlider, Toggle },
+  components: { CloseButton, DaterangeSlider, Toggle },
   data() {
     return {
       expandedPane: null,
@@ -240,7 +240,7 @@ export default {
 <style lang="scss" scoped>
 #site-logo {
   width: 26px;
-  vertical-align: bottom;
+  vertical-align: middle;
   margin-right: 5px;
 }
 
