@@ -61,18 +61,7 @@
             maxHeight: expandedPane === 'info' ? '500px' : 0,
           }"
         >
-          <Infotext></Infotext>
-          <div class="inline-block cursor-pointer">
-            <a
-              v-if="$store.getters['auth/loggedIn']"
-              class="mr-2"
-              @click="$store.dispatch('auth/logout')"
-              >{{ $t('logout') }}</a
-            >
-            <span v-else>
-              <a @click="$emit('showLogin')">{{ $t('login') }}</a>
-            </span>
-          </div>
+          <InfoTab></InfoTab>
         </div>
         <!-- Keyword search -->
         <div

@@ -58,8 +58,6 @@
       <p v-if="extended">
         <a href="https://muehlemann.com" target="_blank">Silvan Mühlemann</a>
       </p>
-
-      <p>{{ $t('infoboxThanks') }}</p>
     </div>
   </div>
 </template>

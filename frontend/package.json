@@ -8,7 +8,8 @@
     "start": "nuxt start",
     "generate": "nuxt generate",
     "lint:js": "eslint --ext .js,.vue --ignore-path .gitignore .",
-    "lint": "yarn lint:js"
+    "lint": "yarn lint:js",
+    "cypress": "cypress"
   },
   "dependencies": {
     "@googlemaps/markerclustererplus": "^1.0.3",
@@ -46,6 +47,7 @@
     "@nuxtjs/tailwindcss": "^3.1.0",
     "@tailwindcss/custom-forms": "^0.2.1",
     "babel-eslint": "^10.1.0",
+    "cypress": "^6.8.0",
     "eslint": "^7.10.0",
     "eslint-config-prettier": "^6.12.0",
     "eslint-plugin-nuxt": "^1.0.0",

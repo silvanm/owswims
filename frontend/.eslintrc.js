@@ -20,4 +20,5 @@ module.exports = {
   globals: {
     google: true,
   },
+  ignorePatterns: ['cypress/'],
 }
