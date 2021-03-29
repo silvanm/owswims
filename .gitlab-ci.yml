@@ -25,6 +25,7 @@ build:
         --build-arg GRAPHQL_ENDPOINT
         --build-arg DEFAULT_HEADER_IMAGE
         --build-arg SECRET_KEY
+        --build-arg SENTRY_DSN
         -t $IMAGE .
     - docker push $IMAGE
 
