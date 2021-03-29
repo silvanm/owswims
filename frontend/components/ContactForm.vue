@@ -11,9 +11,9 @@
     </label>
     <button
       type="button"
-      :class="{ 'mr-2': true, disabled: this.sendButtonDisabled }"
+      :class="{ 'mr-2': true, disabled: sendButtonDisabled }"
+      :disabled="sendButtonDisabled"
       @click="send"
-      :disabled="this.sendButtonDisabled"
     >
       {{ sendButtonMessage }}
     </button>
@@ -52,7 +52,6 @@ export default {
           },
         })
         .then((result) => {
-          console.log(result.data)
           if (result.data.sendContactmail.ok) {
             this.sendButtonMessage = this.$t('sendButtonSuccessful')
             window.setTimeout(() => {

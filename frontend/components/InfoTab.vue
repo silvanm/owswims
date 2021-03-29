@@ -17,7 +17,7 @@
         {{ $t('titleImprint') }}
       </li>
     </ul>
-    <div id="help" v-if="activeTab === 'help'">
+    <div v-if="activeTab === 'help'" id="help">
       <Infotext></Infotext>
       <div class="inline-block cursor-pointer">
         <a
@@ -31,10 +31,10 @@
         </span>
       </div>
     </div>
-    <div id="contributors" v-if="activeTab === 'contributors'">
+    <div v-if="activeTab === 'contributors'" id="contributors">
       <p>{{ $t('infoboxThanks') }}</p>
     </div>
-    <div id="imprint" v-if="activeTab === 'imprint'">
+    <div v-if="activeTab === 'imprint'" id="imprint">
       <p>
         Silvan Mühlemann<br />
         c/o Mühlemann&Popp Online Media AG<br />
