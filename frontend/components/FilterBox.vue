@@ -143,6 +143,7 @@ import CloseButton from '@/components/CloseButton'
 // import Ribbon from '@/components/Ribbon'
 import DaterangeSlider from '@/components/DaterangeSlider'
 import Toggle from '@/components/Toggle'
+import { addMonths } from 'date-fns'
 
 const distanceRangeMax = 30
 
@@ -154,7 +155,7 @@ export default {
       keyword: '',
       distanceRange: [0, distanceRangeMax],
       // @todo: this must be applied to the slider
-      dateRange: [0, 12],
+      dateRange: null,
       lat: null,
       lng: null,
       geoLocationEnabled: false,
@@ -206,7 +207,10 @@ export default {
     },
     updateDateRange(range) {
       this.dateRange = range
-      this.$store.commit('dateRange', range)
+      this.$store.commit('dateRange', [
+        addMonths(new Date(), range[0]),
+        addMonths(new Date(), range[1]),
+      ])
       this.$gtag('event', 'dateRange')
     },
     collapse() {

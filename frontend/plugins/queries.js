@@ -1,5 +1,5 @@
 import gql from 'graphql-tag'
-import { addMonths, formatISO } from 'date-fns'
+import { formatISO } from 'date-fns'
 
 export default ({ app }, inject) => {
   inject('queries', {
@@ -67,10 +67,10 @@ export default ({ app }, inject) => {
         variables: {
           locationId,
           keyword,
-          dateFrom: formatISO(addMonths(new Date(), dateRange[0]), {
+          dateFrom: formatISO(dateRange[0], {
             representation: 'date',
           }),
-          dateTo: formatISO(addMonths(new Date(), dateRange[1]), {
+          dateTo: formatISO(dateRange[1], {
             representation: 'date',
           }),
         },

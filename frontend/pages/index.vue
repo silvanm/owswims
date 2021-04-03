@@ -56,7 +56,6 @@
 
 <script>
 import gql from 'graphql-tag'
-import { addMonths, formatISO } from 'date-fns'
 import 'assets/slider.css'
 import 'assets/v-tooltip.css'
 import Spinner from '@/components/Spinner'
@@ -64,6 +63,7 @@ import EventPane from '@/components/EventPane'
 import FilterBox from '@/components/FilterBox'
 import { mapGetters } from 'vuex'
 import axios from 'axios'
+import { formatISO } from 'date-fns'
 
 const apiKey = process.env.googleMapsKey
 
@@ -103,10 +103,10 @@ export default {
           keyword: this.keyword,
           distanceFrom: this.distanceRange[0],
           distanceTo: this.distanceRange[1],
-          dateFrom: formatISO(addMonths(new Date(), this.dateRange[0]), {
+          dateFrom: formatISO(this.dateRange[0], {
             representation: 'date',
           }),
-          dateTo: formatISO(addMonths(new Date(), this.dateRange[1]), {
+          dateTo: formatISO(this.dateRange[1], {
             representation: 'date',
           }),
           organizerSlug: this.organizerData ? this.organizerData.slug : '',

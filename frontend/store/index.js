@@ -1,3 +1,5 @@
+import { addMonths } from 'date-fns'
+
 export const state = () => ({
   lat: null,
   lng: null,
@@ -10,7 +12,7 @@ export const state = () => ({
   mapType: false,
   showOrganizerLogo: false,
   distanceRange: [0, 1000],
-  dateRange: [0, 12],
+  dateRange: [new Date(), addMonths(new Date(), 12)],
   pickedLocationData: null,
   focusedEventId: null,
   travelTimes: [],

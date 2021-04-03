@@ -2,7 +2,7 @@
   <client-only placeholder="Loading...">
     <vue-slider
       ref="slider"
-      v-model="dateRange"
+      v-model="dateRangeRelative"
       dot-size="25"
       :marks="marksFormatter"
       :min="0"
@@ -21,7 +21,7 @@ export default {
   name: 'DaterangeSlider',
   data() {
     return {
-      dateRange: [0, 12],
+      dateRangeRelative: [0, 12],
     }
   },
   methods: {
