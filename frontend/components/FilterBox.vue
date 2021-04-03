@@ -63,7 +63,7 @@
             maxHeight: expandedPane === 'info' ? '500px' : 0,
           }"
         >
-          <InfoTab></InfoTab>
+          <InfoTab @showLogin="$emit('showLogin')"></InfoTab>
         </div>
         <!-- Keyword search -->
         <div

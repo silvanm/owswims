@@ -21,6 +21,7 @@
           :clearable="false"
           :open="true"
           :inline="true"
+          :lang="lang()"
           range
           @input="datepickerInput"
         ></date-picker>
@@ -34,6 +35,12 @@ import { addMonths, format } from 'date-fns'
 import DatePicker from 'vue2-datepicker'
 import { localeMap } from '../constants'
 import 'vue2-datepicker/index.css'
+import 'vue2-datepicker/locale/fr'
+import 'vue2-datepicker/locale/en'
+import 'vue2-datepicker/locale/de'
+import 'vue2-datepicker/locale/es'
+import 'vue2-datepicker/locale/ru'
+import 'vue2-datepicker/locale/it'
 
 export default {
   name: 'DaterangeSlider',
@@ -89,6 +96,9 @@ export default {
     },
     emitDate() {
       this.$emit('change', [this.dateRange[0], this.dateRange[1]])
+    },
+    lang() {
+      return localeMap[this.$i18n.locale].code
     },
   },
 }
