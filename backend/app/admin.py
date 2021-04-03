@@ -141,9 +141,9 @@ class EventAdmin(CloneModelAdmin):
     list_display_links = ("eventstr",)
     list_filter = (
         IsUpcomingFilter, "entry_quality", IsVerifiedFilter, ("organizer", RelatedDropdownFilter), "location__country")
-    search_fields = ['name', 'location__city', 'location__country', 'organizer__name']
+    search_fields = ['name', 'location__city', 'created_', 'location__country', 'organizer__name']
     exclude = ["edited_by", "edited_at"]
-    readonly_fields = ['public_url']
+    readonly_fields = ['public_url', 'created_by']
     inlines = [
         RaceInline,
     ]

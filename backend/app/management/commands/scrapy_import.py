@@ -1,6 +1,6 @@
 import json
 from collections import OrderedDict
-from typing import List, Dict
+from typing import List, Dict, Tuple
 
 from django.conf import settings
 import googlemaps
@@ -87,9 +87,11 @@ class Command(BaseCommand):
                 1.5,
                 3.0
               ],
+              # or  'races': [{'km': 4.5, 'price': None}]
               "website": "http://keswickmountainfestival.co.uk",
               "description": "5k Open Water Swim; Derwent Island 1500m Swim; Derwentwater 3km Open Water Swim; keswickmountainfestival.co.uk",
               "location": "Crow Park,Keswick,Cumbria UK",
+              # or "lat", "lng" - as seen in the spain import
               "source": "championnat de france"
             },
 
@@ -98,54 +100,87 @@ class Command(BaseCommand):
         :return:
         """
 
+        stats = {"events_imported": 0, "events_skipped": 0, "locations_imported": 0, "locations_skipped": 0}
+
         self.gmaps = googlemaps.Client(key=settings.GOOGLE_MAPS_API_KEY)
         with open(options["path"], "r") as fp:
             source_events = json.load(fp)
             for source_event in source_events:
                 self.stdout.write(source_event["name"])
 
-                location = self.process_location(source_event)
+                location, added = self.process_location(source_event)
+
+                if added:
+                    stats['locations_imported'] += 1
+                else:
+                    stats['locations_skipped'] += 1
 
                 date = dateparser.parse(source_event["date_start"])
+                num_events_by_location = Event.objects.filter(
+                    date_start=date, location=location
+                ).count()
+
                 num_events = Event.objects.filter(
                     date_start=date, name=source_event["name"]
                 ).count()
-                if num_events == 0:
+
+                if num_events == 0 and num_events_by_location == 0:
                     e = Event()
                     e.source = options["source"]
                     e.date_start = date
                     e.date_end = date
                     e.name = source_event["name"]
-                    if "website" in source_event:
+                    if "website" in source_event and source_event['website'] != None:
                         e.website = source_event["website"]
-                    e.description = (
-                        source_event["description"]
-                        if "description" in source_event
-                        else ""
-                    )
+
+                    if "description" in source_event and source_event["description"] != None:
+                        print(source_event)
+                        e.description = source_event["description"]
+                    else:
+                        e.description = ''
+
                     e.location = location
+
+                    stats['events_imported'] += 1
                     e.save()
 
                     if "races" in source_event:
                         for dist in source_event["races"]:
-                            r = Race(
-                                date=e.date_start,
-                                distance=dist,
-                                wetsuit=WETSUIT_MAP[source_event["wetsuit"]]
-                                if "wetsuit" in source_event
-                                else None,
-                                event=e,
-                            )
+                            if isinstance(dist, dict):
+                                r = Race(
+                                    date=e.date_start,
+                                    distance=dist['km'],
+                                    price=dist['price'],
+                                    wetsuit=WETSUIT_MAP[source_event["wetsuit"]]
+                                    if "wetsuit" in source_event
+                                    else None,
+                                    event=e)
+                            else:
+                                r = Race(
+                                    date=e.date_start,
+                                    distance=dist,
+                                    wetsuit=WETSUIT_MAP[source_event["wetsuit"]]
+                                    if "wetsuit" in source_event
+                                    else None,
+                                    event=e,
+                                )
                             r.save()
 
                     self.stdout.write(self.style.SUCCESS(f"Event {source_event['name']} saved."))
                 else:
+                    stats['events_skipped'] += 1
                     self.stdout.write(self.style.SUCCESS(
                         f"Event {source_event['name']} exists already. Not saving."
                     ))
+        self.stdout.write(self.style.SUCCESS(stats))
 
-    def process_location(self, source_event) -> Location:
-        geocode_result = self.gmaps.geocode(source_event["location"])
+    def process_location(self, source_event) -> Tuple[Location, bool]:
+
+        if 'lat' in source_event and source_event['lat'] is not None:
+            geocode_result = self.gmaps.reverse_geocode((source_event["lat"], source_event["lng"]))
+        else:
+            geocode_result = self.gmaps.geocode(source_event["location"])
+
         location = Location()
         if geocode_result:
             geocoded_address = {
@@ -193,7 +228,7 @@ class Command(BaseCommand):
                         f"exists already. Not saving"
                     )
                 )
-                return existing_locations[0]['loc']
+                return existing_locations[0]['loc'], False
             else:
                 location.save()
                 self.stderr.write(
@@ -201,7 +236,7 @@ class Command(BaseCommand):
                         f"Geocoding {source_event['location']} successful."
                     )
                 )
-                return location
+                return location, True
         else:
             self.stdout.write(
                 self.style.WARNING(f"Geocoding {source_event['location']} failed.")

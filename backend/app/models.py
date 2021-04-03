@@ -89,8 +89,11 @@ class Event(CloneMixin, models.Model):
         blank=True,
     )
     source = models.CharField(max_length=30, null=True, blank=True)
+    created_by = models.ForeignKey(User, null=True, help_text='Author who has created the event',
+                                   on_delete=models.SET_NULL, related_name='created_event')
+    created_at = models.DateTimeField(null=True)
     edited_by = models.ForeignKey(User, null=True, help_text='Author who has done the last edit',
-                                  on_delete=models.SET_NULL)
+                                  on_delete=models.SET_NULL, related_name='edited_event')
     edited_at = models.DateTimeField(null=True, auto_now=True, help_text='Timestamp of the last edit')
     verified_at = models.DateTimeField(
         null=True, blank=True, help_text="set if the event has been verified by the admin"
@@ -115,6 +118,10 @@ class Event(CloneMixin, models.Model):
             user = None
         self.edited_by = user
         self.edited_at = timezone.now()
+        if not self.id:
+            self.created_by = user
+            self.created_at = timezone.now()
+
         super(Event, self).save(*args, **kwargs)
 
     def __str__(self):
