@@ -9,7 +9,7 @@
           "user-agent": "JS GraphQL"
         },
         "introspect": true
-      }
+      },
     }
   }
 }

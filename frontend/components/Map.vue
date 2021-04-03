@@ -72,9 +72,14 @@
           >
             <div style="margin-top: 10px">
               {{ formatEventDate(event.node.dateStart) }}<br />
-              <a :href="event.node.website" class="font-semibold">{{
-                event.node.name
-              }}</a
+              <a
+                :href="event.node.website"
+                target="_blank"
+                class="font-semibold"
+                >{{ event.node.name }}
+                <font-awesome-icon
+                  icon="external-link-square-alt"
+                ></font-awesome-icon></a
               ><br />
               {{ formatRaceDistances(event.node.races) }}
             </div>

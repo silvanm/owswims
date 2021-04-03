@@ -32,7 +32,11 @@
       </div>
     </div>
     <div v-if="activeTab === 'contributors'" id="contributors">
-      <p>{{ $t('infoboxThanks') }}</p>
+      <i18n tag="p" path="infoboxThanks"
+        ><a href="https://calendarioaguasabiertas.com/" target="_blank"
+          >calendarioaguasabiertas.com</a
+        ></i18n
+      >
     </div>
     <div v-if="activeTab === 'imprint'" id="imprint">
       <p>
