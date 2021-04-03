@@ -169,6 +169,7 @@ export default {
         'faExpandArrowsAlt',
         'faEnvelope',
       ],
+      regular: ['faCalendar'],
       brands: ['faFacebook'],
     },
   },

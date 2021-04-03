@@ -28,11 +28,13 @@
             <span class="pr-2 cursor-pointer" @click="clickEnvelope">
               <font-awesome-icon icon="envelope" size="lg"></font-awesome-icon>
             </span>
-            <CloseButton
-              ref="closebutton"
-              @collapse="clickCollapseFilter"
-              @expand="filterCollapsed = false"
-            ></CloseButton>
+            <span class="text-black">
+              <CloseButton
+                ref="closebutton"
+                @collapse="clickCollapseFilter"
+                @expand="filterCollapsed = false"
+              ></CloseButton>
+            </span>
           </span>
         </div>
       </h1>
@@ -50,7 +52,7 @@
       <div
         style="transition: max-height 0.5s linear"
         :style="{
-          maxHeight: filterCollapsed && !expandedPane ? 0 : '500px',
+          maxHeight: filterCollapsed && !expandedPane ? 0 : '800px',
         }"
       >
         <div
@@ -114,9 +116,25 @@
             ></vue-slider>
           </client-only>
         </div>
-        <h2 class="font-semibold pb-2">{{ $t('date') }}</h2>
-        <div id="date-range-slider" class="pl-4 pr-4 pb-8">
-          <DaterangeSlider @change="updateDateRange"></DaterangeSlider>
+        <h2 class="font-semibold pb-2">
+          {{ $t('date') }}
+          <span
+            :class="{
+              'ml-1': true,
+              'cursor-pointer': true,
+              'text-blue-600': showCalendar,
+              'text-blue-300': !showCalendar,
+            }"
+            @click="showCalendar = !showCalendar"
+          >
+            <font-awesome-icon :icon="['far', 'calendar']"></font-awesome-icon>
+          </span>
+        </h2>
+        <div id="date-range-slider">
+          <DaterangeSlider
+            :show-calendar="showCalendar"
+            @change="updateDateRange"
+          ></DaterangeSlider>
         </div>
         <Toggle
           name="locateMe"
@@ -143,7 +161,6 @@ import CloseButton from '@/components/CloseButton'
 // import Ribbon from '@/components/Ribbon'
 import DaterangeSlider from '@/components/DaterangeSlider'
 import Toggle from '@/components/Toggle'
-import { addMonths } from 'date-fns'
 
 const distanceRangeMax = 30
 
@@ -160,6 +177,7 @@ export default {
       lng: null,
       geoLocationEnabled: false,
       filterCollapsed: false,
+      showCalendar: false,
     }
   },
   watch: {
@@ -208,8 +226,10 @@ export default {
     updateDateRange(range) {
       this.dateRange = range
       this.$store.commit('dateRange', [
-        addMonths(new Date(), range[0]),
-        addMonths(new Date(), range[1]),
+        // addMonths(new Date(), range[0]),
+        // addMonths(new Date(), range[1]),
+        range[0],
+        range[1],
       ])
       this.$gtag('event', 'dateRange')
     },
