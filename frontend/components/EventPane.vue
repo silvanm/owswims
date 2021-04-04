@@ -399,9 +399,11 @@ export default {
     },
     zoomToEvent() {
       this.$store.commit('pickedLocationZoomedIn', this.pickedLocationId)
+      this.$gtag('event', 'zoomToEvent')
     },
     viewRaceDetail(id) {
       this.$store.commit('raceTrackUnderFocusId', id)
+      this.$gtag('event', 'viewRaceDetail', id)
     },
     raceRowHover(id) {
       this.$store.commit('raceTrackUnderHoverId', id)

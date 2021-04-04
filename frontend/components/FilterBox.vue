@@ -125,7 +125,7 @@
               'text-blue-600': showCalendar,
               'text-blue-300': !showCalendar,
             }"
-            @click="showCalendar = !showCalendar"
+            @click="toggleCalendar()"
           >
             <font-awesome-icon :icon="['far', 'calendar']"></font-awesome-icon>
           </span>
@@ -195,6 +195,10 @@ export default {
     },
   },
   methods: {
+    toggleCalendar() {
+      this.showCalendar = !this.showCalendar
+      this.$gtag('event', 'toggleCalendar')
+    },
     isDisplayTagline() {
       if (this.filterCollapsed) {
         return false
@@ -205,6 +209,7 @@ export default {
       return true
     },
     clickCollapseFilter() {
+      this.$gtag('event', 'clickCollapseFilter')
       this.filterCollapsed = true
       this.expandedPane = null
     },
@@ -225,12 +230,7 @@ export default {
     },
     updateDateRange(range) {
       this.dateRange = range
-      this.$store.commit('dateRange', [
-        // addMonths(new Date(), range[0]),
-        // addMonths(new Date(), range[1]),
-        range[0],
-        range[1],
-      ])
+      this.$store.commit('dateRange', [range[0], range[1]])
       this.$gtag('event', 'dateRange')
     },
     collapse() {
