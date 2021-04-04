@@ -172,6 +172,7 @@ export default {
       }
     },
     doShowLogin() {
+      console.log('doShowLogin')
       this.loginboxShown = true
     },
     doHideLogin() {

@@ -7,6 +7,7 @@ import googlemaps
 import dateparser
 import math
 from django.db import transaction
+from django.template.defaultfilters import slugify
 
 from app.models import Location, Event, Race
 
@@ -72,6 +73,7 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument("path", help="Path to the json file")
         parser.add_argument("source", help="Source string to use")
+        parser.add_argument("--limit", type=int, help="Limit the number of events to process")
 
     @transaction.atomic
     def handle(self, *args, **options):
@@ -89,7 +91,7 @@ class Command(BaseCommand):
               ],
               # or  'races': [{'km': 4.5, 'price': None}]
               "website": "http://keswickmountainfestival.co.uk",
-              "description": "5k Open Water Swim; Derwent Island 1500m Swim; Derwentwater 3km Open Water Swim; keswickmountainfestival.co.uk",
+              "description": "5k Open Water Swim; Derwent Island 1500m Swim; ...",
               "location": "Crow Park,Keswick,Cumbria UK",
               # or "lat", "lng" - as seen in the spain import
               "source": "championnat de france"
@@ -102,10 +104,15 @@ class Command(BaseCommand):
 
         stats = {"events_imported": 0, "events_skipped": 0, "locations_imported": 0, "locations_skipped": 0}
 
+        i = 0
         self.gmaps = googlemaps.Client(key=settings.GOOGLE_MAPS_API_KEY)
         with open(options["path"], "r") as fp:
             source_events = json.load(fp)
             for source_event in source_events:
+                i += 1
+                if options['limit'] and options['limit'] < i:
+                    break
+
                 self.stdout.write(source_event["name"])
 
                 location, added = self.process_location(source_event)
@@ -142,6 +149,7 @@ class Command(BaseCommand):
                     e.location = location
 
                     stats['events_imported'] += 1
+                    e.slug = slugify(e.name + " " + e.date_start.strftime("%d-%m-%Y"))
                     e.save()
 
                     if "races" in source_event:
@@ -230,6 +238,7 @@ class Command(BaseCommand):
                 )
                 return existing_locations[0]['loc'], False
             else:
+
                 location.save()
                 self.stderr.write(
                     self.style.SUCCESS(
