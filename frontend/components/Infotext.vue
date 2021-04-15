@@ -27,7 +27,7 @@
       <p v-if="statistics">
         {{
           $t('infoboxPara2', {
-            raceCount: statistics.raceCount,
+            raceCount: statistics.eventCount,
             countriesCount: statistics.countriesCount,
           })
         }}
