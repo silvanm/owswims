@@ -1,5 +1,5 @@
 {
-  "name": "OWSwims GraphQL Schema",
+  "name": "Untitled GraphQL Schema",
   "schemaPath": "schema.graphql",
   "extensions": {
     "endpoints": {
@@ -8,8 +8,8 @@
         "headers": {
           "user-agent": "JS GraphQL"
         },
-        "introspect": true
-      },
+        "introspect": false
+      }
     }
   }
 }

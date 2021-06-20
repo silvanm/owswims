@@ -5,7 +5,11 @@
   >
     <div class="p-4 bg-white shadow-xl">
       <div class="float-right">
-        <CloseButton ref="closebutton" @collapse="$emit('hide')"></CloseButton>
+        <CloseButton
+          ref="closebutton"
+          :is-static="true"
+          @collapse="$emit('hide')"
+        ></CloseButton>
       </div>
       <h1 class="font-bold text-xl">Login</h1>
       <form>

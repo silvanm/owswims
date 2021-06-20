@@ -8,7 +8,7 @@ from graphene_django.debug import DjangoDebug
 from graphene_django.filter import DjangoFilterConnectionField
 from graphql_auth.schema import UserQuery, MeQuery
 
-from app.models import Organizer, Location, Race, Event
+from app.models import Organizer, Location, Race, Event, Review
 
 
 def get_organization_logo_url(obj, resolve_obj):
@@ -224,6 +224,14 @@ class LocationsFilteredQuery(graphene.ObjectType):
             q = q & Q(events__organizer__id=pk)
 
         return Location.objects.filter(q).distinct().all()
+
+
+class ReviewNode(DjangoObjectType):
+    class Meta:
+        model = Review
+        filter_fields = ["event"]
+        fields = ["created_at", "rating", "comment"]
+        interfaces = (Node,)
 
 
 class Query(UserQuery, MeQuery, LocationsFilteredQuery, StatisticsQuery, graphene.ObjectType):

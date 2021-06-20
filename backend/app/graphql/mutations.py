@@ -1,10 +1,12 @@
+import logging
+
 import graphene
 from graphene import relay
 from graphql_auth import mutations
 from graphql_jwt.decorators import login_required
 from graphql_relay import from_global_id
 
-from app.models import Event, Location, Race
+from app.models import Event, Location, Race, Review
 from .queries import LocationNode, RaceNode, EventNode
 
 
@@ -88,8 +90,26 @@ class ContactMail(graphene.Mutation):
         return ContactMail(id=id, ok=ok)
 
 
+class RateEvent(graphene.Mutation):
+    class Arguments:
+        event_id = graphene.ID(required=True)
+        rating = graphene.Int(required=True)
+        comment = graphene.String(required=False)
+
+    success = graphene.Boolean()
+    id = graphene.Int()
+
+    def mutate(root, info, event_id, rating, comment=None):
+        logging.info((event_id, rating, comment))
+        event = Event.objects.get(pk=from_global_id(event_id)[1])
+        rating = Review.objects.create(event=event, user=None, rating=rating, comment=comment)
+        success = True
+        return RateEvent(success=success, id=rating.id)
+
+
 class Mutation(AuthMutation, graphene.ObjectType):
     update_event = EventMutation.Field()
     update_location = LocationMutation.Field()
     update_race = RaceMutation.Field()
     send_contactmail = ContactMail.Field()
+    rate_event = RateEvent.Field()

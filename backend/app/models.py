@@ -3,6 +3,7 @@ from datetime import datetime
 from crum import get_current_user
 from django.contrib.auth.models import User
 from django.contrib.postgres.fields import ArrayField
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils import timezone
 from django_countries.fields import CountryField
@@ -166,3 +167,21 @@ class Race(CloneMixin, models.Model):
 
     def __str__(self):
         return repr(f"{self.event.name}, {self.distance}")
+
+
+class Review(models.Model):
+    """
+    Represents a single review or rating
+    """
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    event = models.ForeignKey("Event", related_name="reviews", on_delete=models.CASCADE)
+    user = models.ForeignKey(User, related_name="reviews", on_delete=models.CASCADE, null=True)
+    rating = models.IntegerField(null=True, validators=[MaxValueValidator(5), MinValueValidator(1)])
+    comment = models.TextField(max_length=1024, null=True, blank=True)
+
+    class Meta:
+        ordering = ["created_at"]
+
+    def __str__(self):
+        return repr(f"{self.rating}, {self.comment}")

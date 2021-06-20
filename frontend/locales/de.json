@@ -1,6 +1,7 @@
 {
 	"abbreviationKilometer": "km",
 	"abbreviationMeter": "m",
+	"back": "zurück",
 	"cancelled": "Abgesagt",
 	"contactEmail": "Deine Emailadresse",
 	"contactIntro": "Sende uns Verbesserungsvorschläge, Korrekturen und weitere Rennen.",
@@ -31,6 +32,9 @@
 	"poweredBy": "Entwickelt von",
 	"raceDistance": "Distanz",
 	"races": "Rennen",
+	"reviewBoxCommentLabel": "Kommentar (optional)",
+	"reviewBoxTitle": "Bewerten diese Veranstaltung",
+	"reviewToastThanks": "Danke für deine Bewertung",
 	"river": "Fluss",
 	"sea": "Meer",
 	"sendButtonLabel": "Senden",

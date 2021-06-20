@@ -6,6 +6,7 @@ export default ({ app }, inject) => {
     location(locationId, keyword, dateRange) {
       const client = app.apolloProvider.defaultClient
       return client.query({
+        fetchPolicy: 'no-cache', // allow to refetch when reviews are updated
         query: gql`
           query($dateFrom: Date!, $dateTo: Date!, $locationId: ID!) {
             location(id: $locationId) {
@@ -43,6 +44,16 @@ export default ({ app }, inject) => {
                     name
                     website
                     logo
+                  }
+                  reviews {
+                    edges {
+                      node {
+                        id
+                        createdAt
+                        rating
+                        comment
+                      }
+                    }
                   }
                   races {
                     edges {

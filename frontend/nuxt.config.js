@@ -168,6 +168,7 @@ export default {
         'faExternalLinkSquareAlt',
         'faExpandArrowsAlt',
         'faEnvelope',
+        'faArrowLeft',
       ],
       regular: ['faCalendar'],
       brands: ['faFacebook'],

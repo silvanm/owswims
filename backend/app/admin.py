@@ -5,6 +5,8 @@ import requests
 from django import forms
 from django.conf import settings
 from django.contrib import admin
+from django.db.models import TextField
+from django.forms import Textarea
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy
@@ -14,7 +16,7 @@ from model_clone import CloneModelAdmin
 from django_google_maps import widgets as map_widgets
 from django_google_maps import fields as map_fields
 from . import models
-from .models import Race, Event, Location
+from .models import Race, Event, Location, Review
 
 admin.site.site_header = ugettext_lazy('Open-Water-Swims Admin')
 
@@ -100,6 +102,17 @@ class RaceInline(admin.TabularInline):
         return obj.coordinates is not None
 
 
+class ReviewInline(admin.TabularInline):
+    model = Review
+    fields = ['created_at', 'user', 'rating', 'comment']
+    readonly_fields = ['user', 'created_at']
+    extra = 1
+
+    formfield_overrides = {
+        TextField: {'widget': Textarea(attrs={'rows': 1, 'cols': 80})},
+    }
+
+
 class IsUpcomingFilter(admin.SimpleListFilter):
     title = 'is upcoming'
 
@@ -145,7 +158,7 @@ class EventAdmin(CloneModelAdmin):
     exclude = ["edited_by", "edited_at"]
     readonly_fields = ['public_url', 'created_by']
     inlines = [
-        RaceInline,
+        RaceInline, ReviewInline
     ]
     date_hierarchy = 'date_start'
     prepopulated_fields = {"slug": ("name", "date_start")}

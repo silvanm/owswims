@@ -61,6 +61,7 @@ type EventMutationPayload {
 
 type EventNode implements Node {
     cancelled: Boolean
+    createdAt: DateTime
     dateEnd: Date!
     dateStart: Date!
     "Comment shown to the public"
@@ -81,6 +82,7 @@ type EventNode implements Node {
     needsMedicalCertificate: Boolean
     organizer: OrganizerNode
     races(after: String, before: String, distance_Gte: Float, distance_Lte: Float, first: Int, last: Int, offset: Int): RaceNodeConnection!
+    reviews(after: String, before: String, event: ID, first: Int, last: Int, offset: Int): ReviewNodeConnection!
     slug: String
     soldOut: Boolean
     source: String
@@ -140,6 +142,7 @@ type LocationNodeEdge {
 }
 
 type Mutation {
+    rateEvent(comment: String, eventId: String!, rating: Int!): RateEvent
     """
 
     Register user with fields defined in the settings.
@@ -309,6 +312,11 @@ type RaceNodeEdge {
     node: RaceNode
 }
 
+type RateEvent {
+    id: Int
+    success: Boolean
+}
+
 """
 
 Register user with fields defined in the settings.
@@ -337,6 +345,29 @@ type Register {
     token: String
 }
 
+type ReviewNode implements Node {
+    comment: String
+    createdAt: DateTime!
+    "The ID of the object."
+    id: ID!
+    rating: Int
+}
+
+type ReviewNodeConnection {
+    "Contains the nodes in this connection."
+    edges: [ReviewNodeEdge]!
+    "Pagination data for this connection."
+    pageInfo: PageInfo!
+}
+
+"A Relay edge containing a `ReviewNode` and its cursor."
+type ReviewNodeEdge {
+    "A cursor for use in pagination"
+    cursor: String!
+    "The item at the end of the edge"
+    node: ReviewNode
+}
+
 type Statistics {
     countriesCount: Int
     eventCount: Int
@@ -345,10 +376,12 @@ type Statistics {
 
 type UserNode implements Node {
     archived: Boolean
+    "Author who has created the event"
+    createdEvent(after: String, before: String, dateEnd_Gte: Date, dateEnd_Lte: Date, dateStart_Gte: Date, dateStart_Lte: Date, first: Int, last: Int, location: ID, location_City: String, location_City_Icontains: String, location_Country: String, name: String, offset: Int, website: String): EventNodeConnection!
     dateJoined: DateTime!
-    email: String!
     "Author who has done the last edit"
-    eventSet(after: String, before: String, dateEnd_Gte: Date, dateEnd_Lte: Date, dateStart_Gte: Date, dateStart_Lte: Date, first: Int, last: Int, location: ID, location_City: String, location_City_Icontains: String, location_Country: String, name: String, offset: Int, website: String): EventNodeConnection!
+    editedEvent(after: String, before: String, dateEnd_Gte: Date, dateEnd_Lte: Date, dateStart_Gte: Date, dateStart_Lte: Date, first: Int, last: Int, location: ID, location_City: String, location_City_Icontains: String, location_Country: String, name: String, offset: Int, website: String): EventNodeConnection!
+    email: String!
     firstName: String!
     "The ID of the object."
     id: ID!
@@ -359,6 +392,7 @@ type UserNode implements Node {
     lastLogin: DateTime
     lastName: String!
     pk: Int
+    reviews(after: String, before: String, event: ID, first: Int, last: Int, offset: Int): ReviewNodeConnection!
     secondaryEmail: String
     "Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only."
     username: String!

@@ -9,6 +9,10 @@
       "
       @hide="hideWelcomeBox()"
     ></WelcomeBox>
+    <ReviewBox
+      v-if="$store.getters['reviewBoxShown']"
+      @hide="$store.commit('reviewBoxShown', false)"
+    ></ReviewBox>
     <div
       v-if="
         organizerData &&
@@ -172,7 +176,6 @@ export default {
       }
     },
     doShowLogin() {
-      console.log('doShowLogin')
       this.loginboxShown = true
     },
     doHideLogin() {

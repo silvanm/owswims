@@ -24,7 +24,7 @@
           </span>
         </div>
         <div class="p-2 lg:p-6 absolute right-0 text-white">
-          <CloseButton @collapse="close"></CloseButton>
+          <CloseButton @collapse="close" :is-static="true"></CloseButton>
         </div>
         <div class="p-2 lg:p-6">
           <h2
@@ -82,14 +82,18 @@
             v-if="pickedEvent.node.website"
             :href="pickedEvent.node.website"
             target="_blank"
+            style="vertical-align: middle"
           >
+            <!-- Necessary to align stars with the title -->
             {{ pickedEvent.node.name }}
             <font-awesome-icon
               icon="external-link-square-alt"
             ></font-awesome-icon>
           </a>
           <span v-else>{{ pickedEvent.node.name }}</span>
-
+          <div class="cursor-pointer inline-block" @click="showReviews()">
+            <reviews :event="pickedEvent.node" flavor="summary"></reviews>
+          </div>
           <a
             v-if="pickedEvent.node.flyerImage"
             class="event-icon"
@@ -107,7 +111,9 @@
           :imgs="pickedEvent.node.flyerImage"
           @hide="showLightbox = false"
         ></vue-easy-lightbox>
-        <div>
+
+        <!-- Switch between Ratings and Event details -->
+        <div v-if="!showsReviews">
           <span
             v-for="prop in getBooleanProps(pickedEvent.node)"
             :key="prop.id"
@@ -124,7 +130,7 @@
           <div id="pickedEvent-textprops" class="flex my-2">
             <div v-if="pickedEvent.node.organizer" class="textprop flex-1">
               <div
-                v-if="!pickedEvent.node.organizer.logo"
+                v-if="!pickedEvent.node.organizer.logo || $device.isMobile()"
                 class="textprop-label"
                 @load="updateEventPaneStyle"
               >
@@ -136,7 +142,7 @@
                 target="_blank"
               >
                 <div
-                  v-if="pickedEvent.node.organizer.logo"
+                  v-if="pickedEvent.node.organizer.logo && !$device.isMobile()"
                   class="textprop-text"
                 >
                   <img
@@ -181,8 +187,8 @@
       </div>
     </div>
     <div
-      v-if="pickedEvent.node.description"
-      class="scrollable px-2 lg:px-6"
+      v-if="pickedEvent.node.description && !showsReviews"
+      class="scrollable px-3 lg:px-6"
       style=""
     >
       <div>
@@ -193,7 +199,7 @@
         </div>
       </div>
     </div>
-    <div class="scrollable px-2 lg:px-6">
+    <div v-if="!showsReviews" class="scrollable px-3 lg:px-6">
       <div>
         <!-- Race table -->
         <div id="race-table">
@@ -262,6 +268,13 @@
         </div>
       </div>
     </div>
+    <div v-if="showsReviews" class="scrollable px-3 lg:px-6">
+      <Reviews
+        flavor="expanded"
+        :event="pickedEvent.node"
+        @back="showsReviews = false"
+      ></Reviews>
+    </div>
   </div>
 </template>
 <script>
@@ -301,6 +314,7 @@ export default {
       showLightbox: false,
       activeEventIndex: 0,
       eventPaneStyle: {},
+      showsReviews: false,
     }
   },
   computed: {
@@ -323,10 +337,12 @@ export default {
     pickedLocationId(newVal, oldVal) {
       this.isClosed = false
       this.activeEventIndex = 0
+      this.showsReviews = false
       // this is ugly and needs to be fixed
       window.setTimeout(() => this.updateEventPaneStyle(), 100)
     },
     activeEventIndex(newVal, oldVal) {
+      this.$store.commit('focusedEventId', this.pickedEvent.id)
       window.setTimeout(() => this.updateEventPaneStyle(), 100)
     },
     raceTrackUnderFocusId(newData, oldData) {
@@ -407,6 +423,9 @@ export default {
     },
     raceRowHover(id) {
       this.$store.commit('raceTrackUnderHoverId', id)
+    },
+    showReviews() {
+      this.showsReviews = true
     },
   },
 }

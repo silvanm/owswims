@@ -23,6 +23,7 @@ export const state = () => ({
   raceTrackUnderHoverId: null,
   raceTrackDeletedId: null,
   pageTitle: null,
+  reviewBoxShown: false,
 })
 
 export const mutations = {
@@ -98,6 +99,9 @@ export const mutations = {
   raceTrackDeletedId(s, raceTrackDeletedId) {
     s.raceTrackDeletedId = raceTrackDeletedId
   },
+  reviewBoxShown(s, reviewBoxShown) {
+    s.reviewBoxShown = reviewBoxShown
+  },
 }
 
 export const getters = {
@@ -167,6 +171,9 @@ export const getters = {
   pageTitle(s) {
     return s.pageTitle
   },
+  reviewBoxShown(s) {
+    return s.reviewBoxShown
+  },
 }
 
 export const actions = {
@@ -189,5 +196,14 @@ export const actions = {
       },
     })
     context.commit('isLoading', false)
+  },
+
+  refreshLocationData({ commit, state }) {
+    const p = this.$queries.location(
+      state.pickedLocationId,
+      state.keyword,
+      state.dateRange
+    )
+    p.then((result) => commit('pickedLocationData', result.data))
   },
 }

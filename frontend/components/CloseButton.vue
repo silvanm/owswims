@@ -3,7 +3,7 @@
     class="cursor-pointer"
     icon="plus"
     size="lg"
-    :transform="{ rotate: collapsed ? 0 : 45 }"
+    :transform="{ rotate: collapsed && !isStatic ? 0 : 45 }"
     @click="click"
   ></font-awesome-icon>
 </template>
@@ -15,6 +15,12 @@ export default {
     return {
       collapsed: false,
     }
+  },
+  props: {
+    isStatic: {
+      type: Boolean,
+      default: false,
+    },
   },
   methods: {
     collapse() {

@@ -1,6 +1,7 @@
 {
 	"abbreviationKilometer": "км",
 	"abbreviationMeter": "м",
+	"back": "назад",
 	"cancelled": "Заплыв отменён",
 	"contactEmail": "Ваш адрес электронной почты",
 	"contactIntro": "Присылайте нам предложения по улучшению, исправлениям и другим гонкам.",
@@ -31,6 +32,9 @@
 	"poweredBy": "Разработано",
 	"raceDistance": "Дистанция соревнования",
 	"races": "Заплывы",
+	"reviewBoxCommentLabel": "Комментарий (необязательно)",
+	"reviewBoxTitle": "Оцените это мероприятие",
+	"reviewToastThanks": "Спасибо за ваш обзор",
 	"river": "Река",
 	"sea": "Море",
 	"sendButtonLabel": "послать",
