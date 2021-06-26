@@ -49,6 +49,7 @@ class LocationNode(DjangoObjectType):
             "lng",
             "events",
             "header_photo",
+            "average_rating"
         )
         interfaces = (Node,)
 

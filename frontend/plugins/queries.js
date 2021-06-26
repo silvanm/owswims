@@ -18,6 +18,7 @@ export default ({ app }, inject) => {
               lng
               waterType
               waterName
+              averageRating
             }
             allEvents(
               dateFrom: $dateFrom

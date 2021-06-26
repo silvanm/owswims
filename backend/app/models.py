@@ -26,6 +26,8 @@ class Location(models.Model):
     lng = models.FloatField(null=True, blank=True)
     address = map_fields.AddressField(max_length=200, default=None, null=True, blank=True)
     header_photo = models.ImageField(upload_to='photos', null=True, blank=True)
+    average_rating = models.FloatField(null=True, blank=True,
+                                       help_text='Stores the average rating of all events happened here')
 
     class Meta:
         ordering = ["city"]
@@ -33,6 +35,12 @@ class Location(models.Model):
     def __str__(self):
         s = f"{self.water_name}, " if self.water_name else ""
         return s + f"{self.city}, {self.country}"
+
+    def update_average_rating(self):
+        from django.db.models import Avg
+        result = Review.objects.filter(event__location__pk=2089).aggregate(average_rating=Avg('rating'))
+        self.average_rating = result['average_rating']
+        self.save()
 
 
 class Organizer(models.Model):

@@ -114,6 +114,8 @@ type LocationMutationPayload {
 }
 
 type LocationNode implements Node {
+    "Stores the average rating of all events happened here"
+    averageRating: Float
     city: String!
     country: LocationCountry!
     events(after: String, before: String, dateEnd_Gte: Date, dateEnd_Lte: Date, dateStart_Gte: Date, dateStart_Lte: Date, first: Int, last: Int, location: ID, location_City: String, location_City_Icontains: String, location_Country: String, name: String, offset: Int, website: String): EventNodeConnection!

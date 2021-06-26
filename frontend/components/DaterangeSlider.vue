@@ -7,8 +7,8 @@
           v-model="dateRangeRelative"
           dot-size="25"
           :marks="marksFormatter"
-          :min="0"
-          :max="12"
+          :min="-1"
+          :max="11"
           :tooltip-formatter="tooltipFormatter"
           @change="changeSlider"
         ></vue-slider>
@@ -53,7 +53,7 @@ export default {
   },
   data() {
     return {
-      dateRangeRelative: [0, 12],
+      dateRangeRelative: [-1, 11],
       dateRange: [null, null],
     }
   },

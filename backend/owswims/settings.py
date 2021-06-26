@@ -51,7 +51,7 @@ INSTALLED_APPS = [
     "model_clone",
     "django_google_maps",
     "django_admin_listfilter_dropdown",
-    "app",
+    "app.apps.AppConfig",
 ]
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
