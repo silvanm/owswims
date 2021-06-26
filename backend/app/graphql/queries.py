@@ -230,7 +230,7 @@ class ReviewNode(DjangoObjectType):
     class Meta:
         model = Review
         filter_fields = ["event"]
-        fields = ["created_at", "rating", "comment"]
+        fields = ["created_at", "rating", "comment", "country", "name"]
         interfaces = (Node,)
 
 

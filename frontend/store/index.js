@@ -4,6 +4,7 @@ export const state = () => ({
   lat: null,
   lng: null,
   isAccurate: false,
+  countryCode: null,
   pickedLocationId: null,
   pickedLocationZoomedIn: null,
   keyword: '',
@@ -31,6 +32,9 @@ export const mutations = {
     s.lat = data.latlng.lat
     s.lng = data.latlng.lng
     s.isAccurate = data.isAccurate
+  },
+  countryCode(s, data) {
+    s.countryCode = data
   },
   pickedLocationId(s, id) {
     s.pickedLocationId = id
@@ -113,6 +117,9 @@ export const getters = {
         lng: s.lng,
       },
     }
+  },
+  countryCode(s) {
+    return s.countryCode
   },
   pickedLocationId(s) {
     return s.pickedLocationId

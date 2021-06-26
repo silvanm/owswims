@@ -24,7 +24,7 @@
           </span>
         </div>
         <div class="p-2 lg:p-6 absolute right-0 text-white">
-          <CloseButton @collapse="close" :is-static="true"></CloseButton>
+          <CloseButton :is-static="true" @collapse="close"></CloseButton>
         </div>
         <div class="p-2 lg:p-6">
           <h2
@@ -77,23 +77,18 @@
         </ul>
 
         <!-- Single event -->
-        <h3 class="text-xl font-bold py-2">
+        <h3 class="text-xl font-bold pt-2">
           <a
             v-if="pickedEvent.node.website"
             :href="pickedEvent.node.website"
             target="_blank"
-            style="vertical-align: middle"
           >
-            <!-- Necessary to align stars with the title -->
             {{ pickedEvent.node.name }}
             <font-awesome-icon
               icon="external-link-square-alt"
             ></font-awesome-icon>
           </a>
           <span v-else>{{ pickedEvent.node.name }}</span>
-          <div class="cursor-pointer inline-block" @click="showReviews()">
-            <reviews :event="pickedEvent.node" flavor="summary"></reviews>
-          </div>
           <a
             v-if="pickedEvent.node.flyerImage"
             class="event-icon"
@@ -105,6 +100,9 @@
             <font-awesome-icon icon="search" />
           </a>
         </h3>
+        <div class="cursor-pointer inline-block pb-1" @click="showReviews()">
+          <reviews :event="pickedEvent.node" flavor="summary"></reviews>
+        </div>
         <vue-easy-lightbox
           v-if="pickedEvent.node.flyerImage"
           :visible="showLightbox"
@@ -194,7 +192,8 @@
       <div>
         <div id="description">
           <!-- prettier-ignore -->
-          <div class="mb-2 whitespace-pre-line">{{ pickedEvent.node.description }}
+          <div class="mb-2 whitespace-pre-line">
+            <translatable>{{ pickedEvent.node.description }}</translatable>
           </div>
         </div>
       </div>
@@ -282,9 +281,10 @@ import { mapGetters } from 'vuex'
 import gql from 'graphql-tag'
 import eventPresentation from '@/mixins/eventPresentation'
 import CloseButton from '@/components/CloseButton'
+import Translatable from '@/components/Translatable'
 
 export default {
-  components: { CloseButton },
+  components: { CloseButton, Translatable },
   mixins: [eventPresentation],
   apollo: {
     location: {

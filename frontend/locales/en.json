@@ -1,4 +1,5 @@
 {
+	"Translate": "Translate",
 	"abbreviationKilometer": "km",
 	"abbreviationMeter": "m",
 	"back": "back",
@@ -33,8 +34,11 @@
 	"raceDistance": "Race Distance",
 	"races": "Races",
 	"reviewBoxCommentLabel": "Comment (optional)",
+	"reviewBoxNameLabel": "Your name (optional)",
 	"reviewBoxTitle": "Rate this event",
 	"reviewToastThanks": "Thanks for your review",
+	"reviewsCount": "review | reviews",
+	"reviewsRequest": "rate this event",
 	"river": "River",
 	"sea": "Sea",
 	"sendButtonLabel": "send",

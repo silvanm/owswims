@@ -179,6 +179,8 @@ class Review(models.Model):
     user = models.ForeignKey(User, related_name="reviews", on_delete=models.CASCADE, null=True)
     rating = models.IntegerField(null=True, validators=[MaxValueValidator(5), MinValueValidator(1)])
     comment = models.TextField(max_length=1024, null=True, blank=True)
+    name = models.TextField(max_length=100, null=True, blank=True)
+    country = CountryField(help_text='Country of origin of author', null=True, blank=True)
 
     class Meta:
         ordering = ["created_at"]

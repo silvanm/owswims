@@ -156,6 +156,21 @@ export default {
         isAccurate: false,
         latlng: response.data.location,
       })
+
+      // try to get the country
+      const lat = response.data.location.lat
+      const lng = response.data.location.lng
+      const response2 = await axios.post(
+        `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat}` +
+          `,${lng}&result_type=country` +
+          `&key=` +
+          process.env.googleMapsKey
+      )
+
+      this.$store.commit(
+        'countryCode',
+        response2.data.results[0].address_components[0].short_name
+      )
     }
 
     if (typeof localStorage !== 'undefined') {

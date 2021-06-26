@@ -1,4 +1,5 @@
 {
+	"Translate": "Переведите",
 	"abbreviationKilometer": "км",
 	"abbreviationMeter": "м",
 	"back": "назад",
@@ -33,8 +34,11 @@
 	"raceDistance": "Дистанция соревнования",
 	"races": "Заплывы",
 	"reviewBoxCommentLabel": "Комментарий (необязательно)",
+	"reviewBoxNameLabel": "Ваше имя (необязательно)",
 	"reviewBoxTitle": "Оцените это мероприятие",
 	"reviewToastThanks": "Спасибо за ваш обзор",
+	"reviewsCount": "обзор | отзывы",
+	"reviewsRequest": "Оцените это мероприятие",
 	"river": "Река",
 	"sea": "Море",
 	"sendButtonLabel": "послать",

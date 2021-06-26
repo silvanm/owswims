@@ -95,14 +95,17 @@ class RateEvent(graphene.Mutation):
         event_id = graphene.ID(required=True)
         rating = graphene.Int(required=True)
         comment = graphene.String(required=False)
+        name = graphene.String(required=False)
+        country = graphene.String(required=False)
 
     success = graphene.Boolean()
     id = graphene.Int()
 
-    def mutate(root, info, event_id, rating, comment=None):
+    def mutate(root, info, event_id, rating, comment=None, name=None, country=None):
         logging.info((event_id, rating, comment))
         event = Event.objects.get(pk=from_global_id(event_id)[1])
-        rating = Review.objects.create(event=event, user=None, rating=rating, comment=comment)
+        rating = Review.objects.create(event=event, user=None, rating=rating, comment=comment, name=name,
+                                       country=country)
         success = True
         return RateEvent(success=success, id=rating.id)
 

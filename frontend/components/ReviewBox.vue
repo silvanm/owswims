@@ -3,7 +3,7 @@
     class="absolute flex items-center justify-center h-screen w-screen"
     style="z-index: 5"
   >
-    <div class="p-4 bg-white shadow-xl">
+    <div class="p-4 bg-white shadow-xl lg:w-1/2">
       <div class="float-right">
         <CloseButton
           ref="closebutton"
@@ -17,13 +17,19 @@
           <StarRating v-model="rating" :show-rating="false"></StarRating>
         </div>
         <div class="my-2">
+          <label for="name" class="block">{{ $t('reviewBoxNameLabel') }}</label>
+          <input id="name" v-model="name" class="block w-full" />
+        </div>
+        <div class="my-2">
           <label class="block">{{ $t('reviewBoxCommentLabel') }}</label>
           <textarea
             id="comment"
             v-model="comment"
-            class="block w-full border focus:outline-none p-2"
+            class="block w-full border p-2"
             rows="4"
+            maxlength="1000"
           ></textarea>
+          <div class="text-gray-600">{{ charactersLeft }}</div>
         </div>
         <button type="button" @click="postRating">
           {{ $t('sendButtonLabel') }}
@@ -44,14 +50,34 @@ export default {
     return {
       comment: '',
       rating: 0,
+      name: '',
     }
+  },
+  computed: {
+    charactersLeft() {
+      const char = this.comment.length
+      const limit = 1000
+      return limit - char + ' / ' + limit
+    },
   },
   methods: {
     async postRating() {
       await this.$apollo.mutate({
         mutation: gql`
-          mutation($eventId: ID!, $rating: Int!, $comment: String) {
-            rateEvent(eventId: $eventId, rating: $rating, comment: $comment) {
+          mutation(
+            $eventId: ID!
+            $rating: Int!
+            $comment: String
+            $name: String
+            $country: String
+          ) {
+            rateEvent(
+              eventId: $eventId
+              rating: $rating
+              comment: $comment
+              name: $name
+              country: $country
+            ) {
               success
             }
           }
@@ -60,8 +86,11 @@ export default {
           eventId: this.$store.getters.focusedEventId,
           rating: this.rating,
           comment: this.comment,
+          name: this.name,
+          country: this.$store.getters.countryCode,
         },
       })
+
       this.$toast.success(this.$t('reviewToastThanks'))
       this.$store.commit('reviewBoxShown', false)
       this.$store.dispatch('refreshLocationData')
@@ -73,7 +102,6 @@ export default {
 div {
   input {
     @apply border p-2;
-    width: 300px;
   }
 
   button {

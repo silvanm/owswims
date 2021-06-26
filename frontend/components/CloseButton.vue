@@ -11,16 +11,16 @@
 <script>
 export default {
   name: 'CloseButton',
-  data() {
-    return {
-      collapsed: false,
-    }
-  },
   props: {
     isStatic: {
       type: Boolean,
       default: false,
     },
+  },
+  data() {
+    return {
+      collapsed: false,
+    }
   },
   methods: {
     collapse() {

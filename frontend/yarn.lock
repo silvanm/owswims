@@ -12223,6 +12223,11 @@ vue-client-only@^2.0.0:
   resolved "https://registry.yarnpkg.com/vue-client-only/-/vue-client-only-2.0.0.tgz#ddad8d675ee02c761a14229f0e440e219de1da1c"
   integrity sha512-arhk1wtWAfLsJyxGMoEYhoBowM87/i6HLSG2LH/03Yog6i2d9JEN1peMP0Ceis+/n9DxdenGYZZTxbPPJyHciA==
 
+vue-country-flag@^2.1.1:
+  version "2.1.1"
+  resolved "https://registry.yarnpkg.com/vue-country-flag/-/vue-country-flag-2.1.1.tgz#f5b23cdb072be951214955a207ea0695da580869"
+  integrity sha512-rRPpmGh0tP4DOMyzBQbRUpI9jXFFHJSynGTvf+ON5JK2gY2dnU/Kb+laDDPSHHfG8pRfgMGrVhf4x7uniV8YDQ==
+
 vue-easy-lightbox@0.x:
   version "0.14.1"
   resolved "https://registry.yarnpkg.com/vue-easy-lightbox/-/vue-easy-lightbox-0.14.1.tgz#733d43913d14e4662409f7519c27c51d58d92003"

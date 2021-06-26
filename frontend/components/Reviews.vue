@@ -1,18 +1,25 @@
 <template>
   <div v-if="event" class="inline-block">
-    <div
-      v-if="flavor === 'summary'"
-      style="padding-bottom: 7px"
-      @click="clickOnStars"
-    >
+    <div v-if="flavor === 'summary'" @click="clickOnStars">
       <StarRating
         :rating="average"
         :read-only="true"
         :fixed-points="1"
         :round-start-rating="false"
         :show-rating="false"
-        :star-size="18"
+        :star-size="15"
+        :inline="true"
       ></StarRating>
+      <div
+        class="inline-block text-normal text-gray mx-1 hover:underline text-blue-600"
+        style="position: relative; top: 3px"
+      >
+        <a v-if="event.reviews.edges.length > 0">
+          {{ event.reviews.edges.length }}
+          {{ $tc('reviewsCount', event.reviews.edges.length) }}
+        </a>
+        <a v-else>{{ $t('reviewsRequest') }}</a>
+      </div>
     </div>
     <div v-if="flavor === 'expanded'">
       <div class="font-bold text-left">
@@ -22,13 +29,13 @@
           class="cursor-pointer float-left vertical-middle text-xl"
         ></font-awesome-icon>-->
         <button
-          class="cursor-pointer bg-blue-600 rounded p-1 text-white font-bold"
+          class="cursor-pointer bg-blue-600 rounded p-1 px-2 text-white font-bold"
           @click="rateEvent"
         >
           {{ $t('reviewBoxTitle') }}
         </button>
         <button
-          class="cursor-pointer rounded p-1 font-bold"
+          class="cursor-pointer rounded p-1 text-blue-600 hover:underline"
           @click="$emit('back')"
         >
           {{ $t('back') }}
@@ -37,8 +44,8 @@
 
       <ul>
         <li v-for="review in sortedReviews" :key="review.id">
-          <div>
-            <div class="inline-block" style="vertical-align: middle">
+          <div class="mt-2 flex">
+            <div>
               <StarRating
                 :rating="review.rating"
                 :show-rating="false"
@@ -46,14 +53,20 @@
                 :read-only="true"
               ></StarRating>
             </div>
-            <div
-              class="inline-block text-gray-600"
-              style="vertical-align: middle"
-            >
-              {{ formattedCreationDate(review.createdAt) }}
+            <div class="px-1" style="padding-top: 2px">
+              <country-flag
+                :country="review.country.toLowerCase()"
+                size="small"
+              />
+              {{ review.name }}
+
+              <span v-if="review.name || review.country"> </span>
+              <span class="text-gray-600">{{
+                formattedCreationDate(review.createdAt)
+              }}</span>
             </div>
           </div>
-          {{ review.comment }}
+          <translatable>{{ review.comment }}</translatable>
         </li>
       </ul>
     </div>
@@ -64,11 +77,15 @@
 import StarRating from 'vue-star-rating'
 import { formatDistance } from 'date-fns'
 import { localeMap } from '@/constants'
+import CountryFlag from 'vue-country-flag'
+import Translatable from '@/components/Translatable'
 
 export default {
   name: 'Reviews',
   components: {
     StarRating,
+    CountryFlag,
+    Translatable,
   },
   props: {
     event: {
@@ -96,6 +113,8 @@ export default {
           rating: n.rating,
           comment: n.comment,
           createdAt: n.createdAt,
+          country: n.country,
+          name: n.name,
         })
       }
       return result
@@ -112,7 +131,6 @@ export default {
   },
   methods: {
     formattedCreationDate(dt) {
-      console.log(new Date(dt))
       return formatDistance(new Date(dt), new Date(), {
         locale: localeMap[this.$i18n.locale],
         addSuffix: true,

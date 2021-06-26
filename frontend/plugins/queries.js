@@ -52,6 +52,8 @@ export default ({ app }, inject) => {
                         createdAt
                         rating
                         comment
+                        country
+                        name
                       }
                     }
                   }

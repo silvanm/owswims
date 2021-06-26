@@ -17,6 +17,39 @@
         <name/>
         <children>
             <concept_node>
+                <name>Translate</name>
+                <definition_loaded>false</definition_loaded>
+                <description/>
+                <comment/>
+                <default_text/>
+                <translations>
+                    <translation>
+                        <language>de-DE</language>
+                        <approved>false</approved>
+                    </translation>
+                    <translation>
+                        <language>en-US</language>
+                        <approved>false</approved>
+                    </translation>
+                    <translation>
+                        <language>es-ES</language>
+                        <approved>false</approved>
+                    </translation>
+                    <translation>
+                        <language>fr-FR</language>
+                        <approved>false</approved>
+                    </translation>
+                    <translation>
+                        <language>it-IT</language>
+                        <approved>false</approved>
+                    </translation>
+                    <translation>
+                        <language>ru-RU</language>
+                        <approved>false</approved>
+                    </translation>
+                </translations>
+            </concept_node>
+            <concept_node>
                 <name>abbreviationKilometer</name>
                 <definition_loaded>false</definition_loaded>
                 <description/>
@@ -1139,6 +1172,39 @@
                 </translations>
             </concept_node>
             <concept_node>
+                <name>reviewBoxNameLabel</name>
+                <definition_loaded>false</definition_loaded>
+                <description/>
+                <comment/>
+                <default_text/>
+                <translations>
+                    <translation>
+                        <language>de-DE</language>
+                        <approved>false</approved>
+                    </translation>
+                    <translation>
+                        <language>en-US</language>
+                        <approved>false</approved>
+                    </translation>
+                    <translation>
+                        <language>es-ES</language>
+                        <approved>false</approved>
+                    </translation>
+                    <translation>
+                        <language>fr-FR</language>
+                        <approved>false</approved>
+                    </translation>
+                    <translation>
+                        <language>it-IT</language>
+                        <approved>false</approved>
+                    </translation>
+                    <translation>
+                        <language>ru-RU</language>
+                        <approved>false</approved>
+                    </translation>
+                </translations>
+            </concept_node>
+            <concept_node>
                 <name>reviewBoxTitle</name>
                 <definition_loaded>false</definition_loaded>
                 <description/>
@@ -1173,6 +1239,72 @@
             </concept_node>
             <concept_node>
                 <name>reviewToastThanks</name>
+                <definition_loaded>false</definition_loaded>
+                <description/>
+                <comment/>
+                <default_text/>
+                <translations>
+                    <translation>
+                        <language>de-DE</language>
+                        <approved>false</approved>
+                    </translation>
+                    <translation>
+                        <language>en-US</language>
+                        <approved>false</approved>
+                    </translation>
+                    <translation>
+                        <language>es-ES</language>
+                        <approved>false</approved>
+                    </translation>
+                    <translation>
+                        <language>fr-FR</language>
+                        <approved>false</approved>
+                    </translation>
+                    <translation>
+                        <language>it-IT</language>
+                        <approved>false</approved>
+                    </translation>
+                    <translation>
+                        <language>ru-RU</language>
+                        <approved>false</approved>
+                    </translation>
+                </translations>
+            </concept_node>
+            <concept_node>
+                <name>reviewsCount</name>
+                <definition_loaded>false</definition_loaded>
+                <description/>
+                <comment/>
+                <default_text/>
+                <translations>
+                    <translation>
+                        <language>de-DE</language>
+                        <approved>false</approved>
+                    </translation>
+                    <translation>
+                        <language>en-US</language>
+                        <approved>false</approved>
+                    </translation>
+                    <translation>
+                        <language>es-ES</language>
+                        <approved>false</approved>
+                    </translation>
+                    <translation>
+                        <language>fr-FR</language>
+                        <approved>false</approved>
+                    </translation>
+                    <translation>
+                        <language>it-IT</language>
+                        <approved>false</approved>
+                    </translation>
+                    <translation>
+                        <language>ru-RU</language>
+                        <approved>false</approved>
+                    </translation>
+                </translations>
+            </concept_node>
+            <concept_node>
+                <name>reviewsRequest</name>
                 <definition_loaded>false</definition_loaded>
                 <description/>
                 <comment/>
