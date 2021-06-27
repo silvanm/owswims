@@ -192,3 +192,15 @@ USE_X_FORWARDED_PORT = env.bool('USE_X_FORWARDED_PORT', False)
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 SPARKPOST_API_KEY = env.str('SPARKPOST_API_KEY', '')
+
+SENTRY_DSN = env.str('SENTRY_DSN', '')
+if SENTRY_DSN:
+    import sentry_sdk
+    from sentry_sdk.integrations.django import DjangoIntegration
+
+    sentry_sdk.init(
+        dsn=SENTRY_DSN,
+        integrations=[DjangoIntegration()],
+        traces_sample_rate=1.0,
+        send_default_pii=True,
+    )
