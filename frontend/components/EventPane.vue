@@ -425,6 +425,7 @@ export default {
       this.$store.commit('raceTrackUnderHoverId', id)
     },
     showReviews() {
+      this.$gtag('event', 'reviewsShow')
       this.showsReviews = true
     },
   },

@@ -137,6 +137,7 @@ export default {
       })
     },
     rateEvent() {
+      this.$gtag('event', 'reviewModalOpen')
       this.$store.commit('focusedEventId', this.event.id)
       this.$store.commit('reviewBoxShown', true)
     },

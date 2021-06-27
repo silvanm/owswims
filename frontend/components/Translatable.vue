@@ -17,6 +17,7 @@ export default {
   },
   methods: {
     async translate() {
+      this.$gtag('event', 'translate')
       this.$store.commit('isLoading', true)
       const options = {
         method: 'POST',

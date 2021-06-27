@@ -91,6 +91,7 @@ export default {
         },
       })
 
+      this.$gtag('event', 'reviewSubmit')
       this.$toast.success(this.$t('reviewToastThanks'))
       this.$store.commit('reviewBoxShown', false)
       this.$store.dispatch('refreshLocationData')
