@@ -1,7 +1,7 @@
 <template>
   <span>
     <span class="text-to-translate"><slot></slot></span>
-    <a class="cursor-pointer" v-if="!translationDone" @click="translate">{{
+    <a v-if="!translationDone" class="cursor-pointer" @click="translate">{{
       $t('Translate')
     }}</a>
   </span>
@@ -29,8 +29,7 @@ export default {
         },
         headers: {
           'content-type': 'application/json',
-          'x-rapidapi-key':
-            '72fd2955fdmshddd25e1282ee77fp199085jsn9326c1622a38',
+          'x-rapidapi-key': process.env.rapidapiKey,
           'x-rapidapi-host': 'microsoft-translator-text.p.rapidapi.com',
         },
         data: [
