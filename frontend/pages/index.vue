@@ -99,6 +99,7 @@ export default {
             city
             lat
             lng
+            averageRating
           }
         }
       `,

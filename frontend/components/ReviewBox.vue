@@ -3,7 +3,7 @@
     class="absolute flex items-center justify-center h-screen w-screen"
     style="z-index: 5"
   >
-    <div class="p-4 bg-white shadow-xl lg:w-1/2">
+    <div class="p-4 bg-white shadow-xl w-4/5" style="max-width: 600px">
       <div class="float-right">
         <CloseButton
           ref="closebutton"

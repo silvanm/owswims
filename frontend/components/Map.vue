@@ -79,7 +79,7 @@
                 >{{ event.node.name }}
                 <font-awesome-icon
                   icon="external-link-square-alt"
-                ></font-awesome-icon></a
+                ></font-awesome-icon> </a
               ><br />
               {{ formatRaceDistances(event.node.races) }}
             </div>
@@ -358,15 +358,11 @@ export default {
         this.map.panTo(myLatLng)
       }
     },
-    markerPin() {
+    markerPin(rating = 0) {
       return {
-        path:
-          'M66.9,41.8c0-11.3-9.1-20.4-20.4-20.4c-11.3,0-20.4,9.1-20.4,20.4c0,11.3,20.4,32.4,20.4,32.4S66.9,53.1,66.9,41.8z    M37,41.4c0-5.2,4.3-9.5,9.5-9.5c5.2,0,9.5,4.2,9.5,9.5c0,5.2-4.2,9.5-9.5,9.5C41.3,50.9,37,46.6,37,41.4z',
-        fillColor: '#fff',
-        fillOpacity: 1,
-        anchor: new google.maps.Point(50, 70),
-        strokeWeight: 0,
-        scale: 0.7,
+        url: require(`@/assets/markers/Marker${rating}.png`),
+        scaledSize: new google.maps.Size(168 / 2, 92 / 2),
+        anchor: new google.maps.Point(28 / 2, 70 / 2),
       }
     },
     formatRaceDistances(races) {
@@ -390,6 +386,7 @@ export default {
       const infowindow = new google.maps.InfoWindow({
         content: this.$refs.eventDescription,
         fontFamily: "'Source Sans Pro', sans-serif",
+        pixelOffset: new google.maps.Size(-54 / 2, 0),
       })
 
       if (this.markerCluster) {
@@ -407,8 +404,12 @@ export default {
           continue
         }
 
+        const ratingForMarker = location.averageRating
+          ? Math.round(location.averageRating)
+          : 0
+
         const markerObj = new google.maps.Marker({
-          icon: this.markerPin(),
+          icon: this.markerPin(ratingForMarker),
           position: location,
           map: this.map,
           title: location.name,

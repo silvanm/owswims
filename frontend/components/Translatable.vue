@@ -1,7 +1,7 @@
 <template>
   <span>
     <span class="text-to-translate"><slot></slot></span>
-    <a @click="translate" v-if="!translationDone" class="cursor-pointer">{{
+    <a class="cursor-pointer" v-if="!translationDone" @click="translate">{{
       $t('Translate')
     }}</a>
   </span>
