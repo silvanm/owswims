@@ -45,6 +45,7 @@
         />
         <font-awesome-icon icon="search" />
       </i18n>
+      <i18n tag="p" path="infoboxPara3a"> </i18n>
       <i18n tag="p" path="infoboxPara4">
         <a href="https://muehlemann.com" target="_blank">{{ $t('me') }}</a>
         <a href="mailto:silvan@open-water-swims.com"
