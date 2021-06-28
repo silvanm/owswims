@@ -21,6 +21,7 @@ build:
     - >
         docker build
         --pull
+        --build-arg RELEASE_ID=$CI_COMMIT_SHORT_SHA
         --build-arg GOOGLE_MAPS_API_KEY
         --build-arg RAPIDAPI_KEY
         --build-arg GRAPHQL_ENDPOINT

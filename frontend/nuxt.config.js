@@ -75,10 +75,15 @@ export default {
     defaultHeaderPhotoUrl: process.env.DEFAULT_HEADER_PHOTO_URL,
     sentryDSN: process.env.SENTRY_DSN,
     rapidapiKey: process.env.RAPIDAPI_KEY,
+    ciCommitSHA: process.env.CI_COMMIT_SHA,
   },
 
   // Plugins to run before rendering page (https://go.nuxtjs.dev/config-plugins)
   plugins: [
+    {
+      src: '~plugins/logging.js',
+      ssr: false,
+    },
     {
       src: '~plugins/vue-slider-component.js',
       ssr: false,

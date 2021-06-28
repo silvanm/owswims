@@ -49,6 +49,7 @@
           >silvan@open-water-swims.com</a
         >
       </p>
+      <div class="text-gray-300 text-sm">{{ release }}</div>
     </div>
   </div>
 </template>
@@ -57,6 +58,7 @@ export default {
   data() {
     return {
       activeTab: 'help',
+      release: process.env.ciCommitSHA,
     }
   },
 }
