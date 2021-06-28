@@ -413,6 +413,7 @@ export default {
           position: location,
           map: this.map,
           title: location.name,
+          shape: { coords: [0, 0, 28, 70 / 2], type: 'rect' },
         })
 
         this.locationIdToMarker[location.id] = markerObj
