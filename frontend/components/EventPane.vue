@@ -342,7 +342,7 @@ export default {
       window.setTimeout(() => this.updateEventPaneStyle(), 100)
     },
     activeEventIndex(newVal, oldVal) {
-      this.$store.commit('focusedEventId', this.pickedEvent.id)
+      this.$store.commit('focusedEventId', this.pickedEvent.node)
       window.setTimeout(() => this.updateEventPaneStyle(), 100)
     },
     raceTrackUnderFocusId(newData, oldData) {

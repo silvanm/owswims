@@ -53,6 +53,10 @@ export const mutations = {
       s.pageTitle = `open-water-swims.com - ${locationStr}`
     }
 
+    this.$gtag('event', 'eventView', {
+      event_label: data.allEvents.edges[0].node.slug,
+    })
+
     s.pickedLocationData = data
   },
   pickedLocationZoomedIn(s, data) {
@@ -60,6 +64,9 @@ export const mutations = {
   },
   focusedEventId(s, data) {
     s.focusedEventId = data
+    this.$gtag('event', 'eventView', {
+      event_label: data.slug,
+    })
   },
   keyword(s, keyword) {
     s.keyword = keyword
