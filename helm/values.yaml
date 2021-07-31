@@ -1,0 +1,52 @@
+name: owswims
+
+replicaCount: 1
+
+image:
+  repository: "eu.gcr.io/mpom-shared/owswims"
+  tag: latest
+  pullPolicy: Always
+
+
+
+
+env:
+    GOOGLE_APPLICATION_CREDENTIALS: "/secrets/google-services.json"
+    GRAPHQL_ENDPOINT: http://localhost:8000/graphql
+    DEBUG: True
+    ALLOWED_HOSTS: localhost,hoenggerberg,owswims,open-water-swims.com,new.open-water-swims.com
+    DB_USER: postgres
+    DB_NAME: postgres
+    DB_PASS: owswims
+    DB_HOST: db
+    GS_BUCKET_NAME: owswims-prod
+    FRONTEND_URL: /
+    USE_X_FORWARDED_HOST: true
+    USE_X_FORWARDED_PORT: true
+    SENTRY_DSN: https://583030c0f3a24a5e8ec4b3435f1729f6@o280857.ingest.sentry.io/5697492
+
+
+SecretName: google-services-secret
+
+GoogleSAKey: google-services.json
+
+service:
+  type: ClusterIP
+  port: 8000
+
+
+resources: {}
+
+
+ingress:
+  enabled: true
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    kubernetes.io/tls-acme: "true"
+    ingress.kubernetes.io/ssl-redirect: "true"
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+
+  host: new.open-water-swims.com
+  tls:
+    enabled: true
+    secretName: owswims-tls-secret
