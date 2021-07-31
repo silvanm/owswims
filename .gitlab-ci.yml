@@ -44,6 +44,7 @@ build:
 
 release:
   stage: release
+  image: kiwigrid/gcloud-kubectl-helm:3.2.3-295.0.0-253
   script:
    - echo $GCLOUD_SERVICE_KEY | base64 -d > ${HOME}/gcloud-service-key.json
    - gcloud auth activate-service-account --key-file ${HOME}/gcloud-service-key.json
