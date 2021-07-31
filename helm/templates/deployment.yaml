@@ -1,0 +1,92 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.name }}
+  labels:
+    app: {{ .Values.name }}
+spec:
+  replicas: {{.Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Values.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.name }}
+    spec:
+
+      {{ if .Values.GoogleSAKey }}
+      volumes:
+      - name: secrets
+        secret:
+          secretName: {{ .Values.SecretName }}
+      {{- end }}
+
+      containers:
+        - name: {{ .Values.name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: Always
+
+          {{ if .Values.GoogleSAKey }}
+          volumeMounts:
+          - name: secrets
+            mountPath: "/secrets"
+            readOnly: true
+          {{- end }}
+
+          env:
+            {{- range $key, $val := .Values.env }}
+            - name: {{ $key }}
+              value: {{ $val | quote }}
+            {{- end}}
+            {{ if .Values.SecretName }}
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.SecretName }}
+                  key: DATABASE_URL
+                  optional: true
+            - name: GOOGLE_MAPS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.SecretName }}
+                  key: GOOGLE_MAPS_KEY
+                  optional: true
+            - name: SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.SecretName }}
+                  key: SECRET_KEY
+                  optional: true
+            - name: GOOGLE_MAPS_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.SecretName }}
+                  key: GOOGLE_MAPS_API_KEY
+                  optional: true
+            - name: GOOGLE_APPLICATION_CREDENTIALS
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.SecretName }}
+                  key: GOOGLE_APPLICATION_CREDENTIALS
+                  optional: true
+            - name: SPARKPOST_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.SecretName }}
+                  key: SPARKPOST_API_KEY
+                  optional: true
+            - name: RAPIDAPI_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.SecretName }}
+                  key: RAPIDAPI_KEY
+                  optional: true
+            {{- end }}
+
+          ports:
+            - name: http
+              containerPort: 8000
+              protocol: TCP
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
