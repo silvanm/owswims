@@ -30,6 +30,12 @@ build:
       --build-arg CI_COMMIT_REF_SLUG=$CI_COMMIT_REF_SLUG
       --build-arg CI_COMMIT_SHA=$CI_COMMIT_SHA
       --build-arg CI_BUILD_DATE="$(date)"
+      --build-arg GOOGLE_MAPS_API_KEY
+      --build-arg RAPIDAPI_KEY
+      --build-arg GRAPHQL_ENDPOINT
+      --build-arg DEFAULT_HEADER_IMAGE
+      --build-arg SECRET_KEY
+      --build-arg SENTRY_DSN
       --tag ${CONTAINER_IMAGE}:latest
       --tag $CONTAINER_IMAGE:${CI_COMMIT_SHA:0:8}
       .
