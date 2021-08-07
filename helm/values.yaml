@@ -45,7 +45,7 @@ ingress:
     ingress.kubernetes.io/ssl-redirect: "true"
     cert-manager.io/cluster-issuer: letsencrypt-prod
 
-  host: new.open-water-swims.com
+  host: open-water-swims.com
   tls:
     enabled: true
     secretName: owswims-tls-secret
