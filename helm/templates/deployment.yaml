@@ -40,17 +40,11 @@ spec:
               value: {{ $val | quote }}
             {{- end}}
             {{ if .Values.SecretName }}
-            - name: DATABASE_URL
+            - name: DB_PASS
               valueFrom:
                 secretKeyRef:
                   name: {{ .Values.SecretName }}
-                  key: DATABASE_URL
-                  optional: true
-            - name: GOOGLE_MAPS_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.SecretName }}
-                  key: GOOGLE_MAPS_KEY
+                  key: DB_PASS
                   optional: true
             - name: SECRET_KEY
               valueFrom:
