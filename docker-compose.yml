@@ -13,7 +13,7 @@ services:
     depends_on:
       - db
     build:
-      context: ./frontend
+      context: .
       args:
         - GOOGLE_MAPS_KEY=AIzaSyBJm1Vv5sZa0ZlRZ4-vxNSQQydMwXDPzZw
         - GRAPHQL_ENDPOINT=http://localhost:8000/graphql
