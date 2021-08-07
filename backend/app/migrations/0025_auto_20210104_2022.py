@@ -1,7 +1,5 @@
 from django.db import migrations
 
-from app.models import Event
-
 
 def forwards(apps, schema_editor):
     """
@@ -10,6 +8,7 @@ def forwards(apps, schema_editor):
     :param schema_editor:
     :return:
     """
+    Event = apps.get_model('app', 'Event')
     for event in Event.objects.all():
         event.location.water_type = event.water_type
         event.location.save()

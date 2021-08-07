@@ -22,10 +22,9 @@ before_script:
 build:
   stage: build
   script:
-    - docker pull ${CONTAINER_IMAGE}:latest || true
+    # - docker pull ${CONTAINER_IMAGE}:latest || true
     - >
       docker build
-      --cache-from ${CONTAINER_IMAGE}:latest
       --build-arg RELEASE_ID=$CI_COMMIT_SHORT_SHA
       --build-arg CI_COMMIT_REF_SLUG=$CI_COMMIT_REF_SLUG
       --build-arg CI_COMMIT_SHA=$CI_COMMIT_SHA

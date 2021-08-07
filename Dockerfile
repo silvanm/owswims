@@ -40,7 +40,7 @@ COPY backend/_docker/* /bin/
 
 RUN apt update && apt install gettext gcc -y && rm -rf /var/lib/apt/lists/*
 RUN pip install poetry
-RUN pip install gunicorn uvicorn uvloop httptools
+RUN pip install gunicorn==20.1.0 uvicorn==0.14.0 uvloop==0.15.2 httptools==0.2.0
 COPY backend/pyproject.toml backend/poetry.lock ./
 RUN poetry config virtualenvs.create false
 RUN poetry install --no-interaction --no-dev

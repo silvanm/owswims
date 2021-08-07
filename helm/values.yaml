@@ -15,10 +15,9 @@ env:
     GRAPHQL_ENDPOINT: http://localhost:8000/graphql
     DEBUG: True
     ALLOWED_HOSTS: localhost,hoenggerberg,owswims,open-water-swims.com,new.open-water-swims.com
-    DB_USER: postgres
-    DB_NAME: postgres
-    DB_PASS: owswims
-    DB_HOST: db
+    DB_USER: owswims
+    DB_NAME: owswims
+    DB_HOST: 34.65.96.46
     GS_BUCKET_NAME: owswims-prod
     FRONTEND_URL: /
     USE_X_FORWARDED_HOST: true
