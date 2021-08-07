@@ -38,6 +38,8 @@ google-api-python-client = "^2.1.0"
 google-auth-httplib2 = "^0.1.0"
 google-auth-oauthlib = "^0.4.4"
 sentry-sdk = "^1.1.0"
+uvicorn = "^0.14.0"
+gunicorn = "^20.1.0"
 
 [tool.poetry.dev-dependencies]
 pytest-django = "^4.0.0"
