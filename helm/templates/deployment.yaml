@@ -58,12 +58,6 @@ spec:
                   name: {{ .Values.SecretName }}
                   key: GOOGLE_MAPS_API_KEY
                   optional: true
-            - name: GOOGLE_APPLICATION_CREDENTIALS
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.SecretName }}
-                  key: GOOGLE_APPLICATION_CREDENTIALS
-                  optional: true
             - name: SPARKPOST_API_KEY
               valueFrom:
                 secretKeyRef:
