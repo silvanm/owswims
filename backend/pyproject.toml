@@ -6,7 +6,7 @@ authors = ["Silvan Muehlemann <silvan.muehlemann@muehlemann-popp.ch>"]
 
 [tool.poetry.dependencies]
 python = "^3.8"
-django-countries = "^6.1.3"
+django-countries = "^7.2.1"
 psycopg2-binary = "^2.8.6"
 requests = "^2.24.0"
 beautifulsoup4 = "^4.9.3"
