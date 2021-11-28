@@ -107,6 +107,8 @@ class Event(CloneMixin, models.Model):
     verified_at = models.DateTimeField(
         null=True, blank=True, help_text="set if the event has been verified by the admin"
     )
+    previous_year_event = models.ForeignKey('Event', null=True, blank=True, help_text='Link to the event of the previous year',
+                                            on_delete=models.CASCADE)
 
     _clone_many_to_one_or_one_to_many_fields = ['races']
 
@@ -177,12 +179,12 @@ class Race(CloneMixin, models.Model):
         return repr(f"{self.event.name}, {self.distance}")
 
 
-class Review(models.Model):
+class Review(CloneMixin, models.Model):
     """
     Represents a single review or rating
     """
 
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(editable=False)
     event = models.ForeignKey("Event", related_name="reviews", on_delete=models.CASCADE)
     user = models.ForeignKey(User, related_name="reviews", on_delete=models.CASCADE, null=True)
     rating = models.IntegerField(null=True, validators=[MaxValueValidator(5), MinValueValidator(1)])
@@ -192,6 +194,13 @@ class Review(models.Model):
 
     class Meta:
         ordering = ["created_at"]
+
+    def save(self, *args, **kwargs):
+        # allow to modify the created_at later when copying the events
+        # in app/management/commands/copy_to_next_year.py
+        if not self.id:
+            self.created_at = timezone.now()
+        return super(Review, self).save(*args, **kwargs)
 
     def __str__(self):
         return repr(f"{self.rating}, {self.comment}")
