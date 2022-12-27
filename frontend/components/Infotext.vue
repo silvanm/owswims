@@ -16,7 +16,10 @@
           {{ $t('dismiss') }}
         </button>
       </div>
-      <p v-if="extended" class="font-semibold">
+      <p class="font-semibold">
+        {{ $t('offlineInfo') }}
+      </p>
+      <p v-if="extended">
         <img
           class="inline float-right"
           :src="require('@/assets/silvan-muehlemann.jpg')"
