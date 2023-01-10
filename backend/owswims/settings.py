@@ -160,7 +160,6 @@ GRAPHENE = {
     "MIDDLEWARE": [
         "graphql_jwt.middleware.JSONWebTokenMiddleware",
         "graphene_django.debug.DjangoDebugMiddleware",
-        "requestlog.middleware.RequestLoggingMiddleware",
     ],
 }
 
@@ -210,7 +209,7 @@ if SENTRY_DSN:
 
 REQUEST_LOGGING_ENABLED = True
 REQUEST_LOGGING_IGNORE_PATHS = [
-    '/graphql/',
+    '/graphql',
     '/favicon.ico/',
     '/admin/jsi18n/'
 ]
