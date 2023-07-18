@@ -1,6 +1,6 @@
 {{- if .Values.ingress.enabled -}}
 
-apiVersion: extensions/v1beta1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: {{ .Release.Name }}
@@ -21,8 +21,11 @@ spec:
       http:
         paths:
           - path: /
+            pathType: ImplementationSpecific
             backend:
-              serviceName: {{ .Values.name }}
-              servicePort: 8000
+              service:
+                name: {{ .Values.name }}
+                port:
+                  number: 8000
 
 {{- end }}
