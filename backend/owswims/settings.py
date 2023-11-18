@@ -52,7 +52,6 @@ INSTALLED_APPS = [
     "django_google_maps",
     "django_admin_listfilter_dropdown",
     "app.apps.AppConfig",
-    "requestlog.apps.AppConfig",
 ]
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
@@ -63,7 +62,6 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "app.middleware.DebugMiddleware",
-    "requestlog.middleware.RequestLoggingMiddleware",
     "crum.CurrentRequestUserMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
@@ -206,10 +204,3 @@ if SENTRY_DSN:
         traces_sample_rate=0.2,
         send_default_pii=True,
     )
-
-REQUEST_LOGGING_ENABLED = True
-REQUEST_LOGGING_IGNORE_PATHS = [
-    '/graphql',
-    '/favicon.ico/',
-    '/admin/jsi18n/'
-]
