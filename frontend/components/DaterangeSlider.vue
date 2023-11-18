@@ -42,6 +42,8 @@ import 'vue2-datepicker/locale/es'
 import 'vue2-datepicker/locale/ru'
 import 'vue2-datepicker/locale/it'
 
+const FROZEN_DATE = '2022-06-01'
+
 export default {
   name: 'DaterangeSlider',
   components: { DatePicker },
@@ -62,7 +64,7 @@ export default {
   },
   methods: {
     tooltipFormatter(val) {
-      const d = addMonths(new Date(), val)
+      const d = addMonths(new Date(FROZEN_DATE), val)
       return format(d, 'LLL yy', { locale: localeMap[this.$i18n.locale] })
     },
     marksFormatter(val) {
@@ -76,7 +78,7 @@ export default {
       this.updateDateRangeFromRelative()
     },
     updateDateRangeFromRelative() {
-      const today = new Date()
+      const today = new Date(FROZEN_DATE)
       const newFrom = new Date(
         today.getFullYear(),
         today.getMonth() + this.dateRangeRelative[0],
