@@ -14,7 +14,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         # find all events of this year which are visible and approved
         target_year = int(options['target_year'])
-        events = Event.objects.filter(date_start__gte=date(target_year - 1, 1, 1),
+        events = Event.objects.filter(date_start__gte=date(target_year - 2, 1, 1),
                                       date_start__lt=date(target_year, 1, 1),
                                       verified_at__isnull=False, invisible__isnull=False)
         self.stdout.write(f"Copying {len(events)} events")

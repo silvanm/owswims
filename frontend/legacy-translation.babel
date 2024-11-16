@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<babeledit_project be_version="2.8.0" version="1.2">
+    <!--
+
+    BabelEdit project file
+    https://www.codeandweb.com/babeledit
+
+    This file contains meta data for all translations, but not the translation texts itself.
+    They are stored in framework-specific message files (.json / .vue / .yaml / .properties)
+
+    -->
+    <preset_collections/>
+    <framework>generic-yaml</framework>
+    <filename>legacy-translation.babel</filename>
+    <source_root_dir/>
+    <folder_node>
+        <name/>
+        <children/>
+    </folder_node>
+    <isTemplateProject>false</isTemplateProject>
+    <languages>
+        <language>
+            <code>de-DE</code>
+            <source_id/>
+            <source_file>../../../de-DE.yaml</source_file>
+        </language>
+        <language>
+            <code>en-US</code>
+            <source_id/>
+            <source_file>../../../en-US.yaml</source_file>
+        </language>
+        <language>
+            <code>fr-FR</code>
+            <source_id/>
+            <source_file>../../../fr-FR.yaml</source_file>
+        </language>
+        <language>
+            <code>it-IT</code>
+            <source_id/>
+            <source_file>../../../it-IT.yaml</source_file>
+        </language>
+    </languages>
+    <translation_files>
+        <translation_file>
+            <file>../../../de-DE.yaml</file>
+        </translation_file>
+        <translation_file>
+            <file>../../../en-US.yaml</file>
+        </translation_file>
+        <translation_file>
+            <file>../../../fr-FR.yaml</file>
+        </translation_file>
+        <translation_file>
+            <file>../../../it-IT.yaml</file>
+        </translation_file>
+    </translation_files>
+    <editor_configuration>
+        <save_empty_translations>true</save_empty_translations>
+        <copy_templates>
+            <copy_template>'%1'</copy_template>
+            <copy_template/>
+            <copy_template/>
+        </copy_templates>
+    </editor_configuration>
+    <primary_language>en-US</primary_language>
+    <configuration>
+        <format>yaml</format>
+        <support_arrays>true</support_arrays>
+    </configuration>
+</babeledit_project>
