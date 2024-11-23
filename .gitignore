@@ -6,3 +6,7 @@ geocode_test.py
 /owswims/node_modules/esm/node_modules/.cache/esm/
 backend/static
 /tmp/
+backend/.env-*
+scrapy/
+.history
+.mypy_cache
