@@ -1,6 +1,41 @@
 {
     "version": "0.2.0",
-    "configurations": [
+    "configurations": [   
+
+        {
+            "name": "Node 18 + Yarn Dev",
+            "type": "node",
+            "request": "launch",
+            "runtimeVersion": "18",
+            "runtimeExecutable": "yarn",
+            "cwd": "${workspaceFolder}/frontend/",
+            "runtimeArgs": ["run", "dev"],
+            "console": "integratedTerminal",
+            "env": {
+                "DEFAULT_HEADER_PHOTO_URL": "https://storage.googleapis.com/owswims-prod/photos/default-image.jpg",
+                "NUXT_HOST": "0.0.0.0",
+                "PORT": "3001"
+            }
+        },
+        {
+            "name": "owswims",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/backend/manage.py",
+            "args": [
+                "runserver",
+                "0.0.0.0:8000"
+            ],
+            "django": true,
+            "env": {
+                "PYTHONUNBUFFERED": "1",
+                "DJANGO_SETTINGS_MODULE": "owswims.settings",
+                "GOOGLE_MAPS_KEY": "AIzaSyBJm1Vv5sZa0ZlRZ4-vxNSQQydMwXDPzZw",
+                "GOOGLE_APPLICATION_CREDENTIALS": "${workspaceFolder}/backend/owswims-cc29cfd6d273.json"
+            },
+            "justMyCode": false,
+            "python": "/Users/silvan.muehlemann/Library/Caches/pypoetry/virtualenvs/owswims-AQWlaxwQ-py3.11/bin/python"
+        },
         {
             "name": "Crawl single event",
             "type": "python",
