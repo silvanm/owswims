@@ -53,6 +53,10 @@ INSTALLED_APPS = [
     "django_admin_listfilter_dropdown",
     "app.apps.AppConfig",
 ]
+
+# Default primary key field type
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",

@@ -176,7 +176,7 @@ class Race(CloneMixin, models.Model):
         ordering = ["date", "race_time", "distance"]
 
     def __str__(self):
-        return repr(f"{self.event.name}, {self.distance}")
+        return f"{self.event.name}, {self.distance}"
 
 
 class Review(CloneMixin, models.Model):

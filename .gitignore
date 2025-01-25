@@ -10,3 +10,4 @@ backend/.env-*
 scrapy/
 .history
 .mypy_cache
+.DS_Store
