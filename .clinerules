@@ -1,0 +1,75 @@
+# Cline Rules for OWSwims Project
+
+## Project Structure
+- Backend code is in the `backend/` directory using Django
+- Frontend code is in the `frontend/` directory using Vue.js/Nuxt.js
+- Deployment configuration is in the `helm/` directory
+
+## Development Workflow
+- Always edit in VS Code, not PyCharm (as noted in README)
+- Backend server runs on Django's development server
+- Frontend server runs on Nuxt.js development server
+- Database is PostgreSQL running locally
+
+## Code Style
+
+### Backend (Python/Django)
+- Follow PEP 8 style guidelines
+- Use Django's ORM for database operations
+- GraphQL schema is defined in `backend/app/graphql/`
+- Models are defined in `backend/app/models.py`
+- Migrations are automatically generated and should be committed
+
+### Frontend (Vue.js/Nuxt.js)
+- Use Prettier for code formatting (configured in .prettierrc)
+- ESLint is configured for code quality
+- Component names use PascalCase (e.g., `DaterangeSlider.vue`)
+- Use Tailwind CSS for styling
+- Internationalization uses vue-i18n with locale files in `frontend/locales/`
+
+## API Patterns
+- GraphQL is used for API communication
+- Apollo client is used on the frontend
+- Queries are defined in the components or in `frontend/plugins/queries.js`
+- Backend GraphQL schema is in `backend/app/graphql/`
+
+## State Management
+- Vuex store is used for frontend state management
+- Store modules are in `frontend/store/`
+- Authentication state is in `frontend/store/auth.js`
+
+## Map Integration
+- Google Maps is used for the map interface
+- Map component is in `frontend/components/Map.vue`
+- API key is configured in environment variables
+
+## Data Models
+- Location: Geographic locations where events take place
+- Event: Swimming events with dates and details
+- Race: Individual races within an event with specific distances
+- Organizer: Organizations that run events
+- Review: User reviews and ratings for events
+
+## Environment Variables
+- Backend variables are in `backend/.env`
+- Frontend variables are in `frontend/.env` (not committed to git)
+- Production variables are managed in Kubernetes secrets
+
+## Deployment
+- Application is containerized with Docker
+- Deployment uses Helm charts for Kubernetes
+- CI/CD is handled by GitLab CI
+
+## Current Development Focus
+- Location verification system
+- DaterangeSlider component improvements
+- Mobile interface optimizations
+- Automated event import tool using Gentic crawler (experimental stage)
+
+## Common Commands
+- Start backend: `cd backend && python manage.py runserver`
+- Start frontend: `cd frontend && npm run dev`
+- Run migrations: `cd backend && python manage.py migrate`
+- Create migration: `cd backend && python manage.py makemigrations`
+- Build frontend: `cd frontend && npm run build`
+- Build and push Docker image: `./deploy.sh`
