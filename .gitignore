@@ -12,3 +12,4 @@ scrapy/
 .mypy_cache
 .DS_Store
 __pycache__
+.vscode

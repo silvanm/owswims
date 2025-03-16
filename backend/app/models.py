@@ -17,17 +17,32 @@ class Location(models.Model):
     water_name = models.CharField(max_length=50, null=True, blank=True)
     water_type = models.CharField(
         max_length=10,
-        choices=[("river", "River"), ("sea", "Sea"), ("lake", "Lake"), ("pool", "Pool")],
+        choices=[
+            ("river", "River"),
+            ("sea", "Sea"),
+            ("lake", "Lake"),
+            ("pool", "Pool"),
+        ],
         null=True,
         blank=True,
     )
     country = CountryField()
     lat = models.FloatField(null=True, blank=True)
     lng = models.FloatField(null=True, blank=True)
-    address = map_fields.AddressField(max_length=200, default=None, null=True, blank=True)
-    header_photo = models.ImageField(upload_to='photos', null=True, blank=True)
-    average_rating = models.FloatField(null=True, blank=True,
-                                       help_text='Stores the average rating of all events happened here')
+    address = map_fields.AddressField(
+        max_length=200, default=None, null=True, blank=True
+    )
+    header_photo = models.ImageField(upload_to="photos", null=True, blank=True)
+    average_rating = models.FloatField(
+        null=True,
+        blank=True,
+        help_text="Stores the average rating of all events happened here",
+    )
+    verified_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text="set if the location has been verified by the admin",
+    )
 
     class Meta:
         ordering = ["city"]
@@ -38,18 +53,25 @@ class Location(models.Model):
 
     def update_average_rating(self):
         from django.db.models import Avg
-        result = Review.objects.filter(event__location__pk=2089).aggregate(average_rating=Avg('rating'))
-        self.average_rating = result['average_rating']
+
+        result = Review.objects.filter(event__location__pk=2089).aggregate(
+            average_rating=Avg("rating")
+        )
+        self.average_rating = result["average_rating"]
         self.save()
 
 
 class Organizer(models.Model):
     name = models.CharField(max_length=100)
     website = models.URLField(max_length=200)
-    logo = models.ImageField(upload_to='organizer_logo', null=True, blank=True)
+    logo = models.ImageField(upload_to="organizer_logo", null=True, blank=True)
     slug = models.SlugField(max_length=100, null=True)
-    internal_comment = models.TextField(max_length=10000, default="", blank=True,
-                                        help_text='Comment NOT shown to the public')
+    internal_comment = models.TextField(
+        max_length=10000,
+        default="",
+        blank=True,
+        help_text="Comment NOT shown to the public",
+    )
 
     class Meta:
         ordering = ["name"]
@@ -65,8 +87,12 @@ class Event(CloneMixin, models.Model):
     name = models.CharField(max_length=100)
     website = models.URLField(max_length=200, blank=True)
     slug = models.SlugField(max_length=100, null=True)
-    flyer_image = models.ImageField(upload_to='flyers', null=True, blank=True,
-                                    help_text="Flyer or poster showing event details")
+    flyer_image = models.ImageField(
+        upload_to="flyers",
+        null=True,
+        blank=True,
+        help_text="Flyer or poster showing event details",
+    )
     location = models.ForeignKey(
         Location, on_delete=models.CASCADE, null=True, related_name="events"
     )
@@ -81,16 +107,22 @@ class Event(CloneMixin, models.Model):
     needs_license = models.BooleanField(null=True, blank=True)
     sold_out = models.BooleanField(null=True, blank=True)
     cancelled = models.BooleanField(null=True, blank=True, default=False)
-    invisible = models.BooleanField(null=True, blank=True, default=False,
-                                    help_text="Hidden from public")
+    invisible = models.BooleanField(
+        null=True, blank=True, default=False, help_text="Hidden from public"
+    )
     with_ranking = models.BooleanField(null=True, blank=True)
     date_start = models.DateField()
     date_end = models.DateField()
     water_temp = models.FloatField(null=True, blank=True)
-    description = models.TextField(max_length=2048, default="", blank=True,
-                                   help_text='Comment shown to the public')
-    internal_comment = models.TextField(max_length=2048, default="", blank=True,
-                                        help_text='Comment NOT shown to the public')
+    description = models.TextField(
+        max_length=2048, default="", blank=True, help_text="Comment shown to the public"
+    )
+    internal_comment = models.TextField(
+        max_length=2048,
+        default="",
+        blank=True,
+        help_text="Comment NOT shown to the public",
+    )
     entry_quality = models.CharField(
         max_length=10,
         choices=[("incomplete", "Incomplete"), ("complete", "Complete")],
@@ -98,19 +130,38 @@ class Event(CloneMixin, models.Model):
         blank=True,
     )
     source = models.CharField(max_length=30, null=True, blank=True)
-    created_by = models.ForeignKey(User, null=True, help_text='Author who has created the event',
-                                   on_delete=models.SET_NULL, related_name='created_event')
-    created_at = models.DateTimeField(null=True)
-    edited_by = models.ForeignKey(User, null=True, help_text='Author who has done the last edit',
-                                  on_delete=models.SET_NULL, related_name='edited_event')
-    edited_at = models.DateTimeField(null=True, auto_now=True, help_text='Timestamp of the last edit')
-    verified_at = models.DateTimeField(
-        null=True, blank=True, help_text="set if the event has been verified by the admin"
+    created_by = models.ForeignKey(
+        User,
+        null=True,
+        help_text="Author who has created the event",
+        on_delete=models.SET_NULL,
+        related_name="created_event",
     )
-    previous_year_event = models.ForeignKey('Event', null=True, blank=True, help_text='Link to the event of the previous year',
-                                            on_delete=models.CASCADE)
+    created_at = models.DateTimeField(null=True)
+    edited_by = models.ForeignKey(
+        User,
+        null=True,
+        help_text="Author who has done the last edit",
+        on_delete=models.SET_NULL,
+        related_name="edited_event",
+    )
+    edited_at = models.DateTimeField(
+        null=True, auto_now=True, help_text="Timestamp of the last edit"
+    )
+    verified_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text="set if the event has been verified by the admin",
+    )
+    previous_year_event = models.ForeignKey(
+        "Event",
+        null=True,
+        blank=True,
+        help_text="Link to the event of the previous year",
+        on_delete=models.CASCADE,
+    )
 
-    _clone_many_to_one_or_one_to_many_fields = ['races']
+    _clone_many_to_one_or_one_to_many_fields = ["races"]
 
     class Meta:
         ordering = ["date_start"]
@@ -120,6 +171,7 @@ class Event(CloneMixin, models.Model):
 
     def get_quality_rating(self):
         from app.services import EventChecker
+
         checker = EventChecker(self)
         return checker.get_rating()
 
@@ -145,7 +197,12 @@ class Race(CloneMixin, models.Model):
     """
 
     date = models.DateField(help_text="Date of event, in local time")
-    race_time = models.TimeField(help_text="Date and time of event, in local time", default=None, blank=True, null=True)
+    race_time = models.TimeField(
+        help_text="Date and time of event, in local time",
+        default=None,
+        blank=True,
+        null=True,
+    )
     event = models.ForeignKey("Event", related_name="races", on_delete=models.CASCADE)
     distance = models.FloatField(verbose_name="Distance (km)")
     coordinates = ArrayField(
@@ -155,7 +212,7 @@ class Race(CloneMixin, models.Model):
         ),
         null=True,
         blank=True,
-        help_text="Coordinates (lat/lng) of track"
+        help_text="Coordinates (lat/lng) of track",
     )
     name = models.CharField(max_length=30, null=True, blank=True)
     wetsuit = models.CharField(
@@ -186,11 +243,17 @@ class Review(CloneMixin, models.Model):
 
     created_at = models.DateTimeField(editable=False)
     event = models.ForeignKey("Event", related_name="reviews", on_delete=models.CASCADE)
-    user = models.ForeignKey(User, related_name="reviews", on_delete=models.CASCADE, null=True)
-    rating = models.IntegerField(null=True, validators=[MaxValueValidator(5), MinValueValidator(1)])
+    user = models.ForeignKey(
+        User, related_name="reviews", on_delete=models.CASCADE, null=True
+    )
+    rating = models.IntegerField(
+        null=True, validators=[MaxValueValidator(5), MinValueValidator(1)]
+    )
     comment = models.TextField(max_length=1024, null=True, blank=True)
     name = models.TextField(max_length=100, null=True, blank=True)
-    country = CountryField(help_text='Country of origin of author', null=True, blank=True)
+    country = CountryField(
+        help_text="Country of origin of author", null=True, blank=True
+    )
 
     class Meta:
         ordering = ["created_at"]
