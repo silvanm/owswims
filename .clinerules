@@ -64,7 +64,7 @@
 - Location verification system
 - DaterangeSlider component improvements
 - Mobile interface optimizations
-- Automated event import tool using Gentic crawler (experimental stage)
+- Automated event import tool using LLM-based agents (replacing the experimental Agentic crawler)
 
 ## Common Commands
 - Start backend: `cd backend && python manage.py runserver`
@@ -73,3 +73,5 @@
 - Create migration: `cd backend && python manage.py makemigrations`
 - Build frontend: `cd frontend && npm run build`
 - Build and push Docker image: `./deploy.sh`
+- Process single event: `cd backend && python manage.py crawl_events --event https://example.com/event1 https://example.com/event2`
+- Crawl multiple events: `cd backend && python manage.py crawl_events --crawl https://example.com/events`

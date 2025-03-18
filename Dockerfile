@@ -30,7 +30,7 @@ RUN nuxt generate
 
 #### STAGE 2 ####
 
-FROM python:3.8-slim
+FROM python:3.11-slim
 
 EXPOSE 8000
 WORKDIR /code
