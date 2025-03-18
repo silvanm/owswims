@@ -1,7 +1,12 @@
 import logging
 import json
 import re
+import math
+import os
 import pycountry
+import googlemaps
+from datetime import datetime
+from django.conf import settings
 from django.utils.text import slugify
 from thefuzz import fuzz, process
 from typing import Optional, Dict, Any, List, Tuple
@@ -14,24 +19,109 @@ from .scraping_service import ScrapingService
 from app.models import Event, Location, Organizer, Race
 
 
+# Configure logger
 logger = logging.getLogger(__name__)
+
+# Create logs directory if it doesn't exist
+logs_dir = os.path.join(settings.BASE_DIR, "logs")
+os.makedirs(logs_dir, exist_ok=True)
+
+# Create a file handler for the crawler log
+log_file_path = os.path.join(
+    logs_dir, f'event_crawler_{datetime.now().strftime("%Y%m%d")}.log'
+)
+file_handler = logging.FileHandler(log_file_path)
+file_handler.setLevel(
+    logging.INFO
+)  # Set to INFO to capture both success and error messages
+
+# Make sure the root logger level is also set to INFO
+logger.setLevel(logging.INFO)
+
+# Create a formatter and add it to the handler
+formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
+file_handler.setFormatter(formatter)
+
+# Add the file handler to the logger
+logger.addHandler(file_handler)
+
+
+def deg2rad(deg):
+    return deg / 360 * 2 * math.pi
+
+
+def get_distance_from_lat_lng_in_km(lat1, lon1, lat2, lon2):
+    """Calculate distance between two points in kilometers using the Haversine formula"""
+    R = 6371  # Radius of the earth in km
+    d_lat = deg2rad(lat2 - lat1)
+    d_lon = deg2rad(lon2 - lon1)
+    a = math.sin(d_lat / 2) * math.sin(d_lat / 2) + math.cos(deg2rad(lat1)) * math.cos(
+        deg2rad(lat2)
+    ) * math.sin(d_lon / 2) * math.sin(d_lon / 2)
+    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+    d = R * c  # Distance in km
+    return d
+
+
+def get_nearby_locations(
+    lat: float, lng: float, max_distance_km: float = 1.0
+) -> List[Location]:
+    """Find locations within specified distance (default 1km)"""
+    # First do a rough filter by coordinates to limit the number of locations to check
+    # 0.01 degrees is roughly 1km at the equator
+    buffer = max_distance_km * 0.01
+    nearby_locations = Location.objects.filter(
+        lat__isnull=False,
+        lng__isnull=False,
+        lat__gte=lat - buffer,
+        lat__lte=lat + buffer,
+        lng__gte=lng - buffer,
+        lng__lte=lng + buffer,
+    )
+
+    # Then calculate exact distances and filter by the specified max distance
+    result = []
+    for loc in nearby_locations:
+        distance = get_distance_from_lat_lng_in_km(lat, lng, loc.lat, loc.lng)
+        if distance <= max_distance_km:
+            result.append((loc, distance))
+
+    # Sort by distance (closest first)
+    return sorted(result, key=lambda x: x[1])
 
 
 class EventProcessor:
     """Process event URLs to create or update events in the database"""
 
-    def __init__(self, firecrawl_api_key: str, stdout: OutputWrapper = None, stderr: OutputWrapper = None):
-        self.scraping_service = ScrapingService(api_key=firecrawl_api_key, stdout=stdout, stderr=stderr)
+    def __init__(
+        self,
+        firecrawl_api_key: str,
+        stdout: OutputWrapper = None,
+        stderr: OutputWrapper = None,
+        dry_run: bool = False,
+    ):
+        self.scraping_service = ScrapingService(
+            api_key=firecrawl_api_key, stdout=stdout, stderr=stderr
+        )
         self.llm = OpenAI(model="gpt-4o")
+        self.dry_run = dry_run
+        logger.info(f"EventProcessor initialized (dry_run={dry_run})")
 
     def process_event_urls(self, urls: List[str]) -> Optional[Event]:
         """Process a list of URLs that belong to the same event"""
+        # Log the URLs being processed
+        logger.info(f"Processing event URLs: {', '.join(urls)}")
+
         # Scrape each URL
         contents = []
         for url in urls:
+            logger.info(f"Scraping URL: {url}")
             content = self.scraping_service.scrape(url)
             if content:
                 contents.append({"url": url, "content": content})
+                logger.info(f"Successfully scraped URL: {url}")
+            else:
+                logger.error(f"Failed to scrape URL: {url}")
 
         if not contents:
             logger.error("Failed to scrape any URLs")
@@ -39,12 +129,25 @@ class EventProcessor:
 
         # Create a tool for the LLM to scrape additional pages if needed
         scrape_tool = FunctionTool.from_defaults(fn=self.scraping_service.scrape)
-        agent = ReActAgent.from_tools([scrape_tool], max_iterations=10, llm=self.llm, verbose=True)
+        agent = ReActAgent.from_tools(
+            [scrape_tool], max_iterations=10, llm=self.llm, verbose=True
+        )
+
+        # Get current date for filtering future events
+        from datetime import datetime
+
+        current_date = datetime.now().strftime("%Y-%m-%d")
 
         # Extract event information using LLM
         prompt = f"""Analyze these pages about an open water swimming event.
 Visit the following URLs to gather information about a swim event: {', '.join(urls)}
 These URLs contain details about the same event. Please analyze all pages and combine the information to create a complete event profile.
+
+Today's date is {current_date}. Only process events that will take place in the future (after today's date).
+If the event has already occurred (before today's date), please indicate this in your response.
+
+If the event is virtual or does not have a physical location, skip it.
+
 Return the information as JSON. The response should be in the following format:
 {{
     "event": {{
@@ -110,57 +213,139 @@ For the water_type field, only use one of these values: 'river', 'sea', 'lake', 
             print(f"Error saving to database: {str(e)}")
             return None
 
-    def _save_event_data(self, data: Dict, urls: List[str]) -> Event:
+    def _save_event_data(self, data: Dict, urls: List[str]) -> Optional[Event]:
         """Save the processed event data to the database"""
         # Create or get Location
         location_data = data["event"]["location"]
-        location = self._get_or_create_location(location_data)
+
+        if self.dry_run:
+            logger.info(
+                f"[DRY RUN] Would get or create location: {location_data['city']}, {location_data['country']}"
+            )
+            # Create a dummy location object for dry run
+            from collections import namedtuple
+
+            DummyLocation = namedtuple("DummyLocation", ["id", "city", "country"])
+            location = DummyLocation(
+                id=0, city=location_data["city"], country=location_data["country"]
+            )
+        else:
+            location = self._get_or_create_location(location_data)
+            if not location:
+                logger.error("Failed to create or find location")
+                return None
+
+        # Check if the event is in the future
+        from datetime import datetime
+
+        current_date = datetime.now().date()
+        event_start_date = datetime.strptime(
+            data["event"]["date_start"], "%Y-%m-%d"
+        ).date()
+
+        if event_start_date <= current_date:
+            logger.info(f"Skipping past event with start date {event_start_date}")
+            return None
+
+        # Check if there's already an event at the same location on the same date
+        if not self.dry_run:
+            existing_events = Event.objects.filter(
+                location=location, date_start=data["event"]["date_start"]
+            )
+
+            if existing_events.exists():
+                logger.info(
+                    f"Skipping event '{data['event']['name']}' as there's already an event at {location.city}, {location.country} on {data['event']['date_start']}"
+                )
+                return None
 
         # Get or create organizer
-        organizer = self._get_or_create_organizer(data["event"].get("organizer", {}).get("name", ""))
+        organizer_name = data["event"].get("organizer", {}).get("name", "")
+        if self.dry_run:
+            logger.info(f"[DRY RUN] Would get or create organizer: {organizer_name}")
+            # Create a dummy organizer object for dry run
+            from collections import namedtuple
+
+            DummyOrganizer = namedtuple("DummyOrganizer", ["id", "name"])
+            organizer = (
+                DummyOrganizer(id=0, name=organizer_name) if organizer_name else None
+            )
+        else:
+            organizer = self._get_or_create_organizer(organizer_name)
 
         # Create Event
         event_data = data["event"]
-        event = Event.objects.create(
-            name=event_data["name"],
-            website=event_data.get("website", urls[0]),  # Use the first URL as default
-            slug=slugify(event_data["name"]),  # Generate slug from name
-            location=location,
-            organizer=organizer,
-            needs_medical_certificate=event_data.get("needs_medical_certificate"),
-            needs_license=event_data.get("needs_license"),
-            sold_out=event_data.get("sold_out"),
-            cancelled=event_data.get("cancelled"),
-            with_ranking=event_data.get("with_ranking"),
-            date_start=event_data["date_start"],
-            date_end=event_data["date_end"],
-            water_temp=event_data.get("water_temp"),
-            description=event_data.get("description", ""),
-        )
+        try:
+            if self.dry_run:
+                # Create a dummy event object for dry run
+                from collections import namedtuple
+
+                DummyEvent = namedtuple("DummyEvent", ["id", "name"])
+                event = DummyEvent(id=0, name=event_data["name"])
+                logger.info(f"[DRY RUN] Would create event: {event.name}")
+                logger.info(f"[DRY RUN] Event details: {event_data}")
+            else:
+                event = Event.objects.create(
+                    name=event_data["name"],
+                    website=event_data.get(
+                        "website", urls[0]
+                    ),  # Use the first URL as default
+                    slug=slugify(event_data["name"]),  # Generate slug from name
+                    location=location,
+                    organizer=organizer,
+                    needs_medical_certificate=event_data.get(
+                        "needs_medical_certificate"
+                    ),
+                    needs_license=event_data.get("needs_license"),
+                    sold_out=event_data.get("sold_out"),
+                    cancelled=event_data.get("cancelled"),
+                    with_ranking=event_data.get("with_ranking"),
+                    date_start=event_data["date_start"],
+                    date_end=event_data["date_end"],
+                    water_temp=event_data.get("water_temp"),
+                    description=event_data.get("description", ""),
+                )
+                logger.info(
+                    f"Successfully created event: {event.name} (ID: {event.id})"
+                )
+        except Exception as e:
+            logger.error(f"Failed to create event: {str(e)}")
+            return None
 
         # Create Races
         for race_data in data["races"]:
-            Race.objects.create(
-                event=event,
-                name=race_data["name"],
-                date=race_data["date"],
-                race_time=race_data.get("race_time"),
-                distance=race_data["distance"],
-                wetsuit=race_data.get("wetsuit"),
-                price=race_data.get("price", {}).get("amount"),
-            )
+            try:
+                if self.dry_run:
+                    logger.info(
+                        f"[DRY RUN] Would create race: {race_data['name']} for event: {event.name}"
+                    )
+                    logger.info(f"[DRY RUN] Race details: {race_data}")
+                else:
+                    race = Race.objects.create(
+                        event=event,
+                        name=race_data["name"],
+                        date=race_data["date"],
+                        race_time=race_data.get("race_time"),
+                        distance=race_data["distance"],
+                        wetsuit=race_data.get("wetsuit"),
+                        price=race_data.get("price", {}).get("amount"),
+                    )
+                    logger.info(f"Created race: {race.name} for event: {event.name}")
+            except Exception as e:
+                logger.error(f"Failed to create race: {str(e)}")
 
         return event
 
     def _get_or_create_location(self, location_data: Dict) -> Optional[Location]:
         """Get or create a location from the provided data"""
         if not location_data.get("city") or not location_data.get("country"):
+            logger.error("Missing city or country in location data")
             return None
 
         # Convert country name to code
         country = pycountry.countries.get(name=location_data["country"])
         if not country:
-            print(f"Could not find country code for {location_data['country']}")
+            logger.error(f"Could not find country code for {location_data['country']}")
             return None
         country_code = country.alpha_2
 
@@ -169,28 +354,75 @@ For the water_type field, only use one of these values: 'river', 'sea', 'lake', 
             city=location_data["city"],
             country=country_code,
             water_name=location_data.get("water_name"),
-            water_type=location_data.get("water_type")
+            water_type=location_data.get("water_type"),
         ).first()
 
         if location:
             # Update address if provided and different
-            if location_data.get("address") and location.address != location_data["address"]:
+            if (
+                location_data.get("address")
+                and location.address != location_data["address"]
+            ):
                 location.address = location_data["address"]
                 location.save()
+            logger.info(f"Using existing location: {location.city}, {location.country}")
             return location
 
-        # If no exact match, create new location
-        return Location.objects.create(
+        # If no exact match, create a new location with geocoding
+        new_location = Location(
             city=location_data["city"],
             country=country_code,
             water_name=location_data.get("water_name"),
             water_type=location_data.get("water_type"),
-            address=location_data.get("address")
+            address=location_data.get("address"),
         )
+        logger.info(
+            f"Creating new location: {new_location.city}, {new_location.country}"
+        )
+
+        # Geocode the location using Google Maps API
+        try:
+            gmaps = googlemaps.Client(key=settings.GOOGLE_MAPS_API_KEY)
+            geocode_result = gmaps.geocode(f"{new_location.city}, {country.name}")
+
+            if geocode_result:
+                new_location.lat = geocode_result[0]["geometry"]["location"]["lat"]
+                new_location.lng = geocode_result[0]["geometry"]["location"]["lng"]
+
+                # Check for nearby locations (<1km)
+                if new_location.lat is not None and new_location.lng is not None:
+                    nearby = get_nearby_locations(new_location.lat, new_location.lng)
+
+                    if nearby:
+                        # Use the closest existing location instead
+                        closest_location, distance = nearby[0]
+                        logger.info(
+                            f"Found existing location {closest_location} {distance:.2f}km away. Using it instead of creating a new one."
+                        )
+                        return closest_location
+            else:
+                logger.warning(
+                    f"Geocoding failed for {new_location.city}, {country.name}"
+                )
+        except Exception as e:
+            logger.error(f"Error during geocoding: {str(e)}")
+
+        # If we get here, either geocoding failed or no nearby locations were found
+        # Save and return the new location
+        try:
+            new_location.save()
+            logger.info(
+                f"Successfully created new location: {new_location.city}, {new_location.country}"
+            )
+            return new_location
+        except Exception as e:
+            logger.error(f"Failed to create new location: {str(e)}")
+            return None
 
     def _get_or_create_organizer(self, organizer_name: str) -> Optional[Organizer]:
         """Get or create an organizer using fuzzy matching"""
         if not organizer_name:
+            logger.warning("No organizer name provided")
             return None
 
         # Get all existing organizers
@@ -204,7 +436,15 @@ For the water_type field, only use one of these values: 'river', 'sea', 'lake', 
         )
 
         if best_match:
-            return existing_organizers.get(name=best_match[0])
+            organizer = existing_organizers.get(name=best_match[0])
+            logger.info(f"Using existing organizer: {organizer.name}")
+            return organizer
         else:
             # If no good match found, create new organizer
-            return Organizer.objects.create(name=organizer_name)
+            try:
+                organizer = Organizer.objects.create(name=organizer_name)
+                logger.info(f"Created new organizer: {organizer.name}")
+                return organizer
+            except Exception as e:
+                logger.error(f"Failed to create new organizer: {str(e)}")
+                return None

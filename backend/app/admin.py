@@ -9,6 +9,7 @@ from django.db.models import TextField
 from django.forms import Textarea
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
+from django.utils import timezone
 from django.utils.translation import ugettext_lazy
 from django_admin_listfilter_dropdown.filters import RelatedDropdownFilter
 from model_clone import CloneModelAdmin
@@ -75,15 +76,50 @@ class LocationForm(forms.ModelForm):
         fields = "__all__"
 
 
+class LocationIsVerifiedFilter(admin.SimpleListFilter):
+    title = "is Verified"
+    parameter_name = "is_verified"
+
+    def lookups(self, request, model_admin):
+        return (
+            ("yes", "Yes"),
+            ("no", "No"),
+        )
+
+    def queryset(self, request, queryset):
+        if self.value() == "yes":
+            return queryset.filter(verified_at__isnull=False)
+        elif self.value() == "no":
+            return queryset.filter(verified_at__isnull=True)
+
+
 @admin.register(models.Location)
 class LocationAdmin(admin.ModelAdmin):
     form = LocationForm
     formfield_overrides = {
         map_fields.AddressField: {"widget": map_widgets.GoogleMapsAddressWidget},
     }
-    list_display = ["city", "water_name", "country", "image_display"]
+    list_display = ["city", "water_name", "country", "verified_at", "image_display"]
+    list_filter = [LocationIsVerifiedFilter, "country"]
     search_fields = ["city", "country"]
     readonly_fields = ("image_display",)
+    actions = ["verify_locations", "unverify_locations"]
+
+    def verify_locations(self, request, queryset):
+        updated = queryset.update(verified_at=timezone.now())
+        self.message_user(
+            request, f"{updated} location(s) were successfully marked as verified."
+        )
+
+    verify_locations.short_description = "Mark selected locations as verified"
+
+    def unverify_locations(self, request, queryset):
+        updated = queryset.update(verified_at=None)
+        self.message_user(
+            request, f"{updated} location(s) were successfully marked as unverified."
+        )
+
+    unverify_locations.short_description = "Mark selected locations as unverified"
 
     def image_display(self, obj):
         if obj.header_photo:

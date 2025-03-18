@@ -16,9 +16,6 @@
           {{ $t('dismiss') }}
         </button>
       </div>
-      <p class="font-semibold">
-        {{ $t('offlineInfo') }}
-      </p>
       <p v-if="extended">
         <img
           class="inline float-right"

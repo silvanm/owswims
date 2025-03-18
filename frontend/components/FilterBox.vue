@@ -46,7 +46,7 @@
           transition: 'max-height 0.5s',
         }"
       >
-        {{ $t('offlineInfo') }}
+        {{ $t('tagline') }}
       </h2>
 
       <!--<Ribbon v-if="!filterCollapsed">beta</Ribbon>-->
