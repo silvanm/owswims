@@ -43,7 +43,7 @@ RUN pip install poetry
 RUN pip install --only-binary=:all: gunicorn>=20.1.0 uvicorn>=0.14.0 uvloop httptools
 COPY backend/pyproject.toml backend/poetry.lock ./
 RUN poetry config virtualenvs.create false
-RUN poetry install --no-interaction 
+RUN poetry install --no-interaction --no-root
 COPY backend/ ./
 
 ARG SECRET_KEY
