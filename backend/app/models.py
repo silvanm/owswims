@@ -51,6 +51,9 @@ class Location(models.Model):
         s = f"{self.water_name}, " if self.water_name else ""
         return s + f"{self.city}, {self.country}"
 
+    def is_verified(self):
+        return self.verified_at is not None
+
     def update_average_rating(self):
         from django.db.models import Avg
 
@@ -214,7 +217,7 @@ class Race(CloneMixin, models.Model):
         blank=True,
         help_text="Coordinates (lat/lng) of track",
     )
-    name = models.CharField(max_length=30, null=True, blank=True)
+    name = models.CharField(max_length=50, null=True, blank=True)
     wetsuit = models.CharField(
         max_length=10,
         choices=[
