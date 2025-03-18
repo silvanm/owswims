@@ -41,7 +41,11 @@ OWSwims is a functional web application with core features implemented. The plat
 
 ### Location Verification System
 - ✅ Database schema update (migration 0042)
-- 🔄 Admin interface updates
+- ✅ Admin interface updates
+  - ✅ Added verified_at column to location list view
+  - ✅ Added filter for verified/unverified locations
+  - ✅ Added bulk actions to verify/unverify locations
+  - ✅ Added is_verified() helper method to Location model
 - 🔄 Frontend indicators for verified locations
 - 🔄 Verification workflow implementation
 
@@ -55,9 +59,19 @@ OWSwims is a functional web application with core features implemented. The plat
 
 ### Primary Focus
 1. 📋 Automated Event Import Tool
-   - Tool for automatically importing swims from third-party websites
-   - Uses a Gentic crawler for data extraction
-   - Currently in experimental stage
+   - ✅ Initial implementation of LLM-based agent system for event crawling
+   - ✅ Integration with Firecrawl API for web scraping
+   - ✅ Implementation of event processor using OpenAI GPT-4o
+   - ✅ Support for both single event processing and multi-event crawling
+   - ✅ Filtering for future events only with dynamic date generation
+   - ✅ Replacement of the experimental Agentic crawler approach
+   - ✅ Implementation of crawl profiles for website-specific interactions
+     - ✅ Configuration file-based approach with JSON profiles
+     - ✅ Support for various Firecrawl actions (wait, click, scroll, etc.)
+     - ✅ Profile management with list_crawl_profiles command
+     - ✅ Enhanced crawl_events command with --profile option
+   - 🔄 Moving from experimental stage to production-ready
+   - 🔄 Improving accuracy and reliability of data extraction
    - Will significantly reduce manual data entry and increase event coverage
 
 ## Known Issues

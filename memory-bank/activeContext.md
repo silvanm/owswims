@@ -1,7 +1,9 @@
 # Active Context
 
 ## Current Focus
-The current development focus is on enhancing the location verification system. A recent migration (0042_add_verified_at_to_location.py) added a `verified_at` timestamp field to the Location model, similar to the existing verification field for events. This allows administrators to mark locations as verified, improving data quality and user trust.
+The current development focus is on enhancing the event crawling system with the implementation of a crawl profiles feature. This allows for defining reusable profiles with Firecrawl actions for different event websites, making it easier to interact with pages that require specific actions (like accepting cookies or clicking "load more" buttons) before scraping.
+
+The location verification system also continues to be a focus area. A recent migration (0042_add_verified_at_to_location.py) added a `verified_at` timestamp field to the Location model, similar to the existing verification field for events. This allows administrators to mark locations as verified, improving data quality and user trust.
 
 ## Recent Changes
 
@@ -10,6 +12,10 @@ The current development focus is on enhancing the location verification system. 
 - This field is set when an administrator verifies the location information
 - Similar to the existing event verification system
 - Helps ensure location data accuracy
+- Added `verified_at` column to the location admin list view
+- Implemented filtering by verification status in the admin interface
+- Added bulk actions to verify/unverify multiple locations at once
+- Added `is_verified()` helper method to the Location model
 
 ### Frontend Components
 - The DaterangeSlider component is currently being worked on
@@ -49,8 +55,12 @@ The current development focus is on enhancing the location verification system. 
 ### Primary Development Goal
 1. Automated Event Import Tool
    - Develop a tool for automatically importing swims from third-party websites
-   - Utilize the Gentic crawler for data extraction
-   - Move from experimental stage to production-ready
+   - Implementation of an LLM-based agent system for crawling and processing event data
+   - Uses Firecrawl for web scraping and OpenAI's GPT-4o for data extraction
+   - Structured as a Django management command with supporting services
+   - Capable of both processing individual events and crawling multiple events from a website
+   - Filters for future events only, using dynamically generated current date
+   - Replacing the experimental Agentic crawler approach
    - Reduce manual data entry and increase event coverage
 
 ### Long-term Vision

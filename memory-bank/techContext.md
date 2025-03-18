@@ -10,6 +10,8 @@
 - **Geospatial**: django-google-maps
 - **Error Tracking**: Sentry
 - **Email**: SparkPost
+- **Web Scraping**: Firecrawl API with action profiles
+- **LLM Integration**: OpenAI GPT-4o with llama-index
 
 ### Frontend
 - **Framework**: Vue.js with Nuxt.js
@@ -60,6 +62,8 @@ Key environment variables required for the application:
 - `GOOGLE_MAPS_API_KEY`: API key for Google Maps
 - `FRONTEND_URL`: URL of the frontend application
 - `SPARKPOST_API_KEY`: API key for email service
+- `FIRECRAWL_API_KEY`: API key for Firecrawl web scraping service
+- `OPENAI_API_KEY`: API key for OpenAI (used by the event crawling system)
 
 ## API Structure
 
