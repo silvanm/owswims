@@ -1,6 +1,6 @@
-#### STAGE 2 ####
+#### STAGE 1 ####
 
-FROM node:14 as frontend
+FROM node:18 as frontend
 
 WORKDIR /code
 
@@ -25,25 +25,25 @@ ENV CI_BUILD_DATE=$CI_BUILD_DATE
 
 COPY frontend/ ./
 
-
 RUN nuxt generate
 
 #### STAGE 2 ####
 
-FROM python:3.11-slim
+FROM python:3.11-alpine
 
 EXPOSE 8000
 WORKDIR /code
 CMD ["/bin/entrypoint.sh"]
 
 COPY backend/_docker/* /bin/
+RUN chmod +x /bin/entrypoint.sh
 
-RUN apt update && apt install gettext gcc -y && rm -rf /var/lib/apt/lists/*
+RUN apk add --no-cache gettext gcc musl-dev zlib-dev jpeg-dev freetype-dev lcms2-dev openjpeg-dev tiff-dev
 RUN pip install poetry
-RUN pip install gunicorn==20.1.0 uvicorn==0.14.0 uvloop==0.15.2 httptools==0.2.0
+RUN pip install --only-binary=:all: gunicorn>=20.1.0 uvicorn>=0.14.0 uvloop httptools
 COPY backend/pyproject.toml backend/poetry.lock ./
 RUN poetry config virtualenvs.create false
-RUN poetry install --no-interaction --no-dev
+RUN poetry install --no-interaction 
 COPY backend/ ./
 
 ARG SECRET_KEY
@@ -54,4 +54,3 @@ COPY --from=frontend /code/dist/static/ /code/dist/index.html static/
 RUN python ./manage.py collectstatic --noinput
 
 RUN echo "Commit Ref = ${CI_COMMIT_REF_SLUG} - Commit SHA = ${CI_COMMIT_SHA} - Built at = " ${CI_BUILD_DATE} > ./version
-SHELL ["/bin/bash"]
