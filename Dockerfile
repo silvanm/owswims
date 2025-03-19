@@ -1,6 +1,6 @@
 #### STAGE 1 ####
 
-FROM node:14 as frontend
+FROM node:14   as frontend
 
 WORKDIR /code
 
@@ -38,7 +38,7 @@ CMD ["/bin/entrypoint.sh"]
 COPY backend/_docker/* /bin/
 RUN chmod +x /bin/entrypoint.sh
 
-RUN apk add --no-cache gettext gcc musl-dev zlib-dev jpeg-dev freetype-dev lcms2-dev openjpeg-dev tiff-dev
+RUN apk add --no-cache bash gettext gcc musl-dev zlib-dev jpeg-dev freetype-dev lcms2-dev openjpeg-dev tiff-dev
 RUN pip install poetry
 RUN pip install --only-binary=:all: gunicorn>=20.1.0 uvicorn>=0.14.0 uvloop httptools
 COPY backend/pyproject.toml backend/poetry.lock ./
