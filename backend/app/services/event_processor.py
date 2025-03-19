@@ -383,7 +383,16 @@ For the water_type field, only use one of these values: 'river', 'sea', 'lake', 
         # Geocode the location using Google Maps API
         try:
             gmaps = googlemaps.Client(key=settings.GOOGLE_MAPS_API_KEY)
-            geocode_result = gmaps.geocode(f"{new_location.city}, {country.name}")
+
+            # Use the full address if available, otherwise fall back to city and country
+            if new_location.address:
+                geocode_query = f"{new_location.address}, {country.name}"
+                logger.info(f"Geocoding with full address: {geocode_query}")
+            else:
+                geocode_query = f"{new_location.city}, {country.name}"
+                logger.info(f"Geocoding with city and country: {geocode_query}")
+
+            geocode_result = gmaps.geocode(geocode_query)
 
             if geocode_result:
                 new_location.lat = geocode_result[0]["geometry"]["location"]["lat"]

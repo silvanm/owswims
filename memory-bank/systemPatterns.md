@@ -49,9 +49,10 @@ flowchart TD
 
 3. **Services**: Business logic encapsulation
    - Event verification
-   - Location management
+   - Location management and verification
    - Rating calculations
    - Event crawling and processing
+   - Automated location processing
 
 ## Frontend Architecture
 
@@ -240,4 +241,91 @@ sequenceDiagram
         DB-->>Processor: Confirmation
         Processor-->>Command: Processing result
     end
+```
+
+## Location Verification System
+
+The location verification system automates the process of verifying and enhancing location data:
+
+```mermaid
+flowchart TD
+    Command[process_unverified_locations Command]
+    Admin[Admin Interface Action]
+    Processor[Location Processor]
+    GoogleMaps[Google Maps API]
+    GooglePlaces[Google Places API]
+    GCS[Google Cloud Storage]
+    DB[(Database)]
+    
+    Command --> Processor
+    Admin --> Processor
+    Processor --> GoogleMaps
+    Processor --> GooglePlaces
+    GooglePlaces --> GCS
+    Processor --> DB
+```
+
+### Key Components
+
+1. **Django Management Command**: Entry point for batch processing
+   - `process_unverified_locations.py`: Command for processing unverified locations
+   - Supports limiting the number of locations to process
+   - Option for automatic verification after processing
+   - Dry run mode for testing
+
+2. **Admin Interface Integration**: Allows processing from the admin UI
+   - Custom admin action for processing selected locations
+   - Filtering for unverified locations
+   - Detailed feedback on processing results
+
+3. **Location Processor**: Core processing logic
+   - Geocoding using the full address field
+   - Place search using Google Places API
+   - Header image selection from place photos
+   - Coordinate refinement from identified places
+
+4. **Multi-Strategy Approach**: Fallback mechanisms for reliability
+   - Primary: Find place from address (matching frontend behavior)
+   - Secondary: Text search with address
+   - Tertiary: Nearby search with water type-specific place types
+
+### Data Flow
+
+```mermaid
+sequenceDiagram
+    participant Admin
+    participant Command as Django Command
+    participant Processor as Location Processor
+    participant GMaps as Google Maps API
+    participant GPlaces as Google Places API
+    participant GCS as Google Cloud Storage
+    participant DB as Database
+    
+    Admin->>Command: Run process_unverified_locations
+    Command->>DB: Get unverified locations
+    DB-->>Command: Unverified location data
+    
+    loop For each location
+        Command->>Processor: Process location
+        
+        alt No coordinates
+            Processor->>GMaps: Geocode address
+            GMaps-->>Processor: Coordinates
+            Processor->>DB: Update coordinates
+        end
+        
+        alt No header image
+            Processor->>GPlaces: Find place from address
+            GPlaces-->>Processor: Place details & photos
+            Processor->>GPlaces: Get photo
+            GPlaces-->>Processor: Photo data
+            Processor->>GCS: Store image
+            GCS-->>Processor: Image URL
+            Processor->>DB: Update header_photo
+        end
+        
+        Processor-->>Command: Processing result
+    end
+    
+    Command->>Admin: Summary report
 ```
