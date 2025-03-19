@@ -1,9 +1,18 @@
 # Active Context
 
 ## Current Focus
-The current development focus is on enhancing the event crawling system with the implementation of a crawl profiles feature. This allows for defining reusable profiles with Firecrawl actions for different event websites, making it easier to interact with pages that require specific actions (like accepting cookies or clicking "load more" buttons) before scraping.
+The current development focus is on enhancing the location verification system with automated processing capabilities. This builds upon the previous addition of the `verified_at` timestamp field to the Location model (migration 0042_add_verified_at_to_location.py), which allows administrators to mark locations as verified.
 
-The location verification system also continues to be a focus area. A recent migration (0042_add_verified_at_to_location.py) added a `verified_at` timestamp field to the Location model, similar to the existing verification field for events. This allows administrators to mark locations as verified, improving data quality and user trust.
+The latest improvements include:
+1. Automated geocoding using the full address field
+2. Intelligent place search using Google Places API
+3. Automatic header image selection from place photos
+4. Coordinate refinement based on identified places
+5. Admin interface integration for batch processing
+
+These enhancements significantly streamline the location verification workflow, improving data quality and reducing manual effort.
+
+The event crawling system with crawl profiles feature also remains an important focus area. This allows for defining reusable profiles with Firecrawl actions for different event websites, making it easier to interact with pages that require specific actions (like accepting cookies or clicking "load more" buttons) before scraping.
 
 ## Recent Changes
 
@@ -16,6 +25,14 @@ The location verification system also continues to be a focus area. A recent mig
 - Implemented filtering by verification status in the admin interface
 - Added bulk actions to verify/unverify multiple locations at once
 - Added `is_verified()` helper method to the Location model
+- Implemented automated location processing
+  - Created `process_unverified_locations` management command
+  - Added admin action for batch processing from the UI
+  - Improved geocoding to use full address for better accuracy
+  - Integrated with Google Places API for place search
+  - Implemented automatic header image selection
+  - Added coordinate refinement from identified places
+  - Added robust error handling and detailed logging
 
 ### Frontend Components
 - The DaterangeSlider component is currently being worked on
