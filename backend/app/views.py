@@ -21,32 +21,26 @@ def sitemap(request):
     )
 
     # needs to correspond to the frontend
-    other_languages = ['de', 'fr', 'it']
+    other_languages = ["de", "fr", "it"]
 
     # Homepage
     sitemap.add(
-        '/en/',
-        changefreq='monthly',
+        "/en/",
+        changefreq="monthly",
         priority=1,
-        alternates={
-            code: urljoin('/', code)
-            for code in other_languages
-        },
+        alternates={code: urljoin("/", code) for code in other_languages},
     )
 
     # Eventpages
     events = models.Event.objects.filter(date_start__gte=datetime.now())
     for event in events:
-        url = f'/en/events/{event.slug}'
+        url = f"/events/{event.slug}"
         sitemap.add(
             url,
-            changefreq='monthly',
+            changefreq="monthly",
             priority=0.5,
-            alternates={
-                code: f'/{code}{url}'
-                for code in other_languages
-            },
-            lastmod=event.edited_at
+            alternates={code: f"/{code}{url}" for code in other_languages},
+            lastmod=event.edited_at,
         )
 
     return sitemap.response(
