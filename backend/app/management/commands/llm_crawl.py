@@ -40,15 +40,7 @@ class Command(BaseCommand):
                 url,
                 params={
                     "formats": ["markdown"],
-                    "excludeTags": [
-                        "script",
-                        "style",
-                        "svg",
-                        "iframe",
-                        "nav",
-                        "footer",
-                        "header",
-                    ],
+                    "excludeTags": ["script", "style", "svg", "iframe"],
                     "waitFor": 1000,
                 },
             )
