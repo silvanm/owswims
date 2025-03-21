@@ -44,15 +44,8 @@ class ScrapingService:
         try:
             params = {
                 "formats": ["markdown"],
-                "excludeTags": [
-                    "script",
-                    "style",
-                    "svg",
-                    "iframe",
-                    "nav",
-                    "footer",
-                    "header",
-                ],
+                "excludeTags": ["script", "style", "svg", "iframe", "footer"],
+                "onlyMainContent": False,
                 "waitFor": 1000,
             }
 
@@ -62,6 +55,8 @@ class ScrapingService:
                 self._log(
                     f"Using crawl profile '{profile.get('name', 'unnamed')}' for {url}"
                 )
+
+            self._log(f"Scraping {url}...", "info")
 
             scrape_result = self.firecrawl_app.scrape_url(url, params=params)
             return scrape_result["markdown"]

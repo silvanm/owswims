@@ -103,7 +103,7 @@ class LocationAdmin(admin.ModelAdmin):
     list_filter = [LocationIsVerifiedFilter, "country"]
     search_fields = ["city", "country"]
     readonly_fields = ("image_display",)
-    actions = ["verify_locations", "unverify_locations"]
+    actions = ["verify_locations", "unverify_locations", "process_unverified_locations"]
 
     def verify_locations(self, request, queryset):
         updated = queryset.update(verified_at=timezone.now())
@@ -120,6 +120,62 @@ class LocationAdmin(admin.ModelAdmin):
         )
 
     unverify_locations.short_description = "Mark selected locations as unverified"
+
+    def process_unverified_locations(self, request, queryset):
+        """Process selected unverified locations to add coordinates and header images"""
+        import io
+        import sys
+        from contextlib import redirect_stdout
+        from app.management.commands.process_unverified_locations import Command
+
+        # Filter to only unverified locations
+        unverified = queryset.filter(verified_at__isnull=True)
+        if not unverified:
+            self.message_user(
+                request, "No unverified locations were selected.", level="WARNING"
+            )
+            return
+
+        # Create a command instance with custom output handling
+        cmd = Command()
+
+        # Process each location and collect results
+        processed = 0
+        messages = []
+
+        for location in unverified:
+            # Capture command output
+            output = io.StringIO()
+            with redirect_stdout(output):
+                result = cmd.process_location(location)
+
+            # Store output messages
+            output_text = output.getvalue()
+            if output_text:
+                messages.append(f"Location {location}: {output_text}")
+
+            if result:
+                processed += 1
+
+        # Show summary message
+        self.message_user(
+            request,
+            f"Successfully processed {processed} out of {unverified.count()} unverified locations.",
+        )
+
+        # Show detailed messages if there are any
+        if messages:
+            self.message_user(
+                request,
+                "Details: "
+                + " | ".join(messages[:5])
+                + ("... and more" if len(messages) > 5 else ""),
+                level="INFO",
+            )
+
+    process_unverified_locations.short_description = (
+        "Process selected unverified locations"
+    )
 
     def image_display(self, obj):
         if obj.header_photo:

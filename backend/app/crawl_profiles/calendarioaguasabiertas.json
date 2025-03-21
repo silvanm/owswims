@@ -1,0 +1,17 @@
+{
+  "name": "Calendario Aguas Abiertas",
+  "start_url": "https://calendarioaguasabiertas.com/",
+  "actions": [
+    {"type": "wait", "milliseconds": 2000},
+    {"type": "click", "selector": "button.load-more"},
+    {"type": "wait", "milliseconds": 3000},
+    {"type": "click", "selector": "button.load-more"},
+    {"type": "wait", "milliseconds": 3000},
+    {"type": "click", "selector": "button.load-more"},
+    {"type": "wait", "milliseconds": 3000},
+    {"type": "click", "selector": "button.load-more"},
+    {"type": "wait", "milliseconds": 3000},
+    {"type": "scrape"}
+  ],
+  "description": "loads more events"
+}

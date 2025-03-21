@@ -17,6 +17,9 @@ from llama_index.core.tools import FunctionTool
 
 from .scraping_service import ScrapingService
 from app.models import Event, Location, Organizer, Race
+from app.management.commands.process_unverified_locations import (
+    Command as LocationProcessor,
+)
 
 
 # Configure logger
@@ -91,7 +94,14 @@ def get_nearby_locations(
 
 
 class EventProcessor:
-    """Process event URLs to create or update events in the database"""
+    """
+    Process event URLs to create or update events in the database.
+
+    This class is responsible for:
+    1. Scraping content from event URLs
+    2. Using LLM to analyze the content and extract structured event data
+    3. Creating or updating events, races, locations, and organizers in the database
+    """
 
     def __init__(
         self,
@@ -105,6 +115,7 @@ class EventProcessor:
         )
         self.llm = OpenAI(model="gpt-4o")
         self.dry_run = dry_run
+
         logger.info(f"EventProcessor initialized (dry_run={dry_run})")
 
     def process_event_urls(self, urls: List[str]) -> Optional[Event]:
@@ -112,7 +123,7 @@ class EventProcessor:
         # Log the URLs being processed
         logger.info(f"Processing event URLs: {', '.join(urls)}")
 
-        # Scrape each URL
+        # Standard scraping
         contents = []
         for url in urls:
             logger.info(f"Scraping URL: {url}")
@@ -130,7 +141,7 @@ class EventProcessor:
         # Create a tool for the LLM to scrape additional pages if needed
         scrape_tool = FunctionTool.from_defaults(fn=self.scraping_service.scrape)
         agent = ReActAgent.from_tools(
-            [scrape_tool], max_iterations=10, llm=self.llm, verbose=True
+            [scrape_tool], max_iterations=20, llm=self.llm, verbose=True
         )
 
         # Get current date for filtering future events
@@ -145,6 +156,10 @@ These URLs contain details about the same event. Please analyze all pages and co
 
 Today's date is {current_date}. Only process events that will take place in the future (after today's date).
 If the event has already occurred (before today's date), please indicate this in your response.
+
+If the event has an item "Links" which appears to include more information about it, follow it.
+
+To find out the price of the event, look for the registration page ("Anmeldung" or "Ausschreibung") or the page where you can buy tickets.
 
 If the event is virtual or does not have a physical location, skip it.
 
@@ -186,6 +201,8 @@ Return the information as JSON. The response should be in the following format:
         }}
     }}]
 }}   
+
+Do not return any comments in the JSON file.
 
 Note: There are multiple races per swim event.
 Please analyze all the URLs provided and combine the information to create the most complete event profile possible.
@@ -303,7 +320,7 @@ For the water_type field, only use one of these values: 'river', 'sea', 'lake', 
                     date_start=event_data["date_start"],
                     date_end=event_data["date_end"],
                     water_temp=event_data.get("water_temp"),
-                    description=event_data.get("description", ""),
+                    description=event_data.get("description") or "",
                 )
                 logger.info(
                     f"Successfully created event: {event.name} (ID: {event.id})"
@@ -417,12 +434,35 @@ For the water_type field, only use one of these values: 'river', 'sea', 'lake', 
             logger.error(f"Error during geocoding: {str(e)}")
 
         # If we get here, either geocoding failed or no nearby locations were found
-        # Save and return the new location
+        # Save the new location
         try:
             new_location.save()
             logger.info(
                 f"Successfully created new location: {new_location.city}, {new_location.country}"
             )
+
+            # Fetch and set header image for the new location if we have coordinates
+            if new_location.lat is not None and new_location.lng is not None:
+                try:
+                    location_processor = LocationProcessor()
+                    image_added = location_processor.fetch_and_set_header_image(
+                        new_location
+                    )
+                    if image_added:
+                        logger.info(
+                            f"Successfully added header image for location: {new_location.city}"
+                        )
+                    else:
+                        logger.warning(
+                            f"Failed to add header image for location: {new_location.city}"
+                        )
+                except Exception as e:
+                    logger.error(f"Error fetching header image: {str(e)}")
+            else:
+                logger.warning(
+                    f"Cannot fetch header image for location without coordinates: {new_location.city}"
+                )
+
             return new_location
         except Exception as e:
             logger.error(f"Failed to create new location: {str(e)}")

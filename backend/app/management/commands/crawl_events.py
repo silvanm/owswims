@@ -54,7 +54,12 @@ class Command(BaseCommand):
                 )
             )
 
-        processor = EventProcessor(firecrawl_api_key=api_key, dry_run=dry_run)
+        processor = EventProcessor(
+            firecrawl_api_key=api_key,
+            stdout=self.stdout,
+            stderr=self.stderr,
+            dry_run=dry_run,
+        )
 
         if options["event"]:
             # Process single event mode
@@ -108,7 +113,9 @@ class Command(BaseCommand):
     ):
         """Crawl and process multiple events from a website"""
         crawler = EventCrawler(
-            firecrawl_api_key=api_key, stdout=self.stdout, stderr=self.stderr
+            firecrawl_api_key=api_key,
+            stdout=self.stdout,
+            stderr=self.stderr,
         )
 
         # Get event URLs

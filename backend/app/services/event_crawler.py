@@ -1,5 +1,7 @@
 import logging
-from typing import List
+import re
+import urllib.parse
+from typing import List, Dict, Any, Set, Tuple, Optional
 from django.core.management.base import OutputWrapper
 from llama_index.core.agent import ReActAgent
 from llama_index.llms.openai import OpenAI
@@ -12,7 +14,15 @@ logger = logging.getLogger(__name__)
 
 
 class EventCrawler:
-    """Crawler that finds event URLs from any swimming event website"""
+    """
+    Crawler that finds swimming event URLs from directory websites.
+
+    This class is responsible for:
+    1. Finding event URLs from swimming event websites (get_event_urls method)
+       - Discovers and extracts URLs for swimming events from directory websites
+       - Groups related URLs for the same event together
+       - Filters events by location and date
+    """
 
     def __init__(
         self,
@@ -26,6 +36,9 @@ class EventCrawler:
         )
         self.llm = OpenAI(model="gpt-4o")
         self.profile = profile
+
+        # Cache for scraped pages to avoid re-scraping
+        self.page_cache = {}
 
     def get_event_urls(self, start_url: str) -> List[List[str]]:
         """
