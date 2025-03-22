@@ -72,7 +72,9 @@ export default {
 
   env: {
     googleMapsKey: process.env.GOOGLE_MAPS_API_KEY,
-    defaultHeaderPhotoUrl: process.env.DEFAULT_HEADER_PHOTO_URL,
+    defaultHeaderPhotoUrl:
+      process.env.DEFAULT_HEADER_PHOTO_URL ||
+      'https://storage.googleapis.com/owswims-prod/photos/default-image.jpg',
     sentryDSN: process.env.SENTRY_DSN,
     rapidapiKey: process.env.RAPIDAPI_KEY,
     ciCommitSHA: process.env.CI_COMMIT_SHA,
