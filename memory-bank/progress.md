@@ -22,6 +22,7 @@ OWSwims is a functional web application with core features implemented. The plat
 - ✅ Admin interface for content management
 - ✅ Event verification system
 - ✅ Basic location verification (recently added)
+- ✅ Asynchronous task processing with Django Q
 
 ### Frontend Components
 - ✅ Map component with Google Maps integration

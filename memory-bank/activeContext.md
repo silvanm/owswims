@@ -1,7 +1,9 @@
 # Active Context
 
 ## Current Focus
-The current development focus is on enhancing the location verification system with automated processing capabilities. This builds upon the previous addition of the `verified_at` timestamp field to the Location model (migration 0042_add_verified_at_to_location.py), which allows administrators to mark locations as verified.
+The current development focus is on enhancing the location verification system with automated processing capabilities and implementing asynchronous task processing with Django Q. 
+
+The location verification system builds upon the previous addition of the `verified_at` timestamp field to the Location model (migration 0042_add_verified_at_to_location.py), which allows administrators to mark locations as verified.
 
 The latest improvements include:
 1. Automated geocoding using the full address field
@@ -9,10 +11,11 @@ The latest improvements include:
 3. Automatic header image selection from place photos
 4. Coordinate refinement based on identified places
 5. Admin interface integration for batch processing
+6. Asynchronous processing using Django Q for better user experience
 
 These enhancements significantly streamline the location verification workflow, improving data quality and reducing manual effort.
 
-The event crawling system with crawl profiles feature also remains an important focus area. This allows for defining reusable profiles with Firecrawl actions for different event websites, making it easier to interact with pages that require specific actions (like accepting cookies or clicking "load more" buttons) before scraping.
+The event crawling system with crawl profiles feature also remains an important focus area. This allows for defining reusable profiles with Firecrawl actions for different event websites, making it easier to interact with pages that require specific actions (like accepting cookies or clicking "load more" buttons) before scraping. The crawling system now also supports asynchronous processing through Django Q.
 
 ## Recent Changes
 
