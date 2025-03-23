@@ -197,6 +197,9 @@ SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 SPARKPOST_API_KEY = env.str("SPARKPOST_API_KEY", "")
 
+# API key for FireCrawl service used in event crawling
+FIRECRAWL_API_KEY = env.str("FIRECRAWL_API_KEY", "")
+
 SENTRY_DSN = env.str("SENTRY_DSN", "")
 if SENTRY_DSN:
     import sentry_sdk
