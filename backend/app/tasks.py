@@ -1,6 +1,5 @@
 import logging
 import os
-import dotenv
 from django.conf import settings
 from django.utils import timezone
 from django.core.management.base import OutputWrapper
@@ -34,9 +33,8 @@ def crawl_single_event_async(url, dry_run=False):
     stderr_wrapper = OutputWrapper(stderr_buffer)
 
     try:
-        # Load environment variables
-        dotenv.load_dotenv()
-        api_key = os.environ.get("FIRECRAWL_API_KEY")
+        # Get API key from settings
+        api_key = settings.FIRECRAWL_API_KEY
 
         if not api_key:
             return "Error: FIRECRAWL_API_KEY environment variable not set"

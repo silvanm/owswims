@@ -68,6 +68,12 @@ spec:
               name: {{ .Values.SecretName }}
               key: RAPIDAPI_KEY
               optional: true
+        - name: FIRECRAWL_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.SecretName }}
+              key: FIRECRAWL_API_KEY
+              optional: true
 {{- end }}
         resources:
 {{ toYaml .Values.qcluster.resources | indent 10 }}

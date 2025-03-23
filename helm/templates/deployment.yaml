@@ -14,32 +14,28 @@ spec:
       labels:
         app: {{ .Values.name }}
     spec:
-
-      {{ if .Values.GoogleSAKey }}
+      {{- if .Values.GoogleSAKey }}
       volumes:
       - name: secrets
         secret:
           secretName: {{ .Values.SecretName }}
       {{- end }}
-
       containers:
         - name: {{ .Values.name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: Always
-
-          {{ if .Values.GoogleSAKey }}
+          {{- if .Values.GoogleSAKey }}
           volumeMounts:
           - name: secrets
             mountPath: "/secrets"
             readOnly: true
           {{- end }}
-
           env:
             {{- range $key, $val := .Values.env }}
             - name: {{ $key }}
               value: {{ $val | quote }}
             {{- end}}
-            {{ if .Values.SecretName }}
+            {{- if .Values.SecretName }}
             - name: DB_PASS
               valueFrom:
                 secretKeyRef:
@@ -69,6 +65,12 @@ spec:
                 secretKeyRef:
                   name: {{ .Values.SecretName }}
                   key: RAPIDAPI_KEY
+                  optional: true
+            - name: FIRECRAWL_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.SecretName }}
+                  key: FIRECRAWL_API_KEY
                   optional: true
             {{- end }}
 
