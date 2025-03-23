@@ -9,6 +9,7 @@ https://docs.djangoproject.com/en/3.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.1/ref/settings/
 """
+
 from datetime import timedelta
 from pathlib import Path
 import environ
@@ -51,11 +52,12 @@ INSTALLED_APPS = [
     "model_clone",
     "django_google_maps",
     "django_admin_listfilter_dropdown",
+    "django_q",
     "app.apps.AppConfig",
 ]
 
 # Default primary key field type
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
@@ -72,9 +74,7 @@ MIDDLEWARE = [
 
 CORS_ORIGIN_ALLOW_ALL = True
 
-CORS_ORIGIN_WHITELIST = (
-    'http://localhost:3000',
-)
+CORS_ORIGIN_WHITELIST = ("http://localhost:3000",)
 
 ROOT_URLCONF = "owswims.urls"
 
@@ -119,7 +119,7 @@ DATABASES = {
 AUTH_PASSWORD_VALIDATORS = [
     {
         "NAME": "django.contrib.auth.password_validation."
-                "UserAttributeSimilarityValidator",
+        "UserAttributeSimilarityValidator",
     },
     {
         "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
@@ -189,15 +189,15 @@ GS_BUCKET_NAME = env.str("GS_BUCKET_NAME", "owswims-local")
 
 GRAPHQL_AUTH = {"ALLOW_LOGIN_NOT_VERIFIED": True}
 
-FRONTEND_URL = env.str('FRONTEND_URL', '')
+FRONTEND_URL = env.str("FRONTEND_URL", "")
 
-USE_X_FORWARDED_HOST = env.bool('USE_X_FORWARDED_HOST', False)
-USE_X_FORWARDED_PORT = env.bool('USE_X_FORWARDED_PORT', False)
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+USE_X_FORWARDED_HOST = env.bool("USE_X_FORWARDED_HOST", False)
+USE_X_FORWARDED_PORT = env.bool("USE_X_FORWARDED_PORT", False)
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
-SPARKPOST_API_KEY = env.str('SPARKPOST_API_KEY', '')
+SPARKPOST_API_KEY = env.str("SPARKPOST_API_KEY", "")
 
-SENTRY_DSN = env.str('SENTRY_DSN', '')
+SENTRY_DSN = env.str("SENTRY_DSN", "")
 if SENTRY_DSN:
     import sentry_sdk
     from sentry_sdk.integrations.django import DjangoIntegration
@@ -208,3 +208,18 @@ if SENTRY_DSN:
         traces_sample_rate=0.2,
         send_default_pii=True,
     )
+
+# Django Q configuration
+Q_CLUSTER = {
+    "name": "owswims",
+    "workers": 4,
+    "recycle": 500,
+    "timeout": 300,
+    "retry": 600,  # Set retry larger than timeout to avoid warning
+    "compress": True,
+    "save_limit": 250,
+    "queue_limit": 500,
+    "cpu_affinity": 1,
+    "label": "Django Q",
+    "orm": "default",  # Use Django's ORM as the broker
+}

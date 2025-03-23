@@ -1,0 +1,11 @@
+{% extends "admin/change_list.html" %}
+{% load i18n admin_urls %}
+
+{% block object-tools-items %}
+    {{ block.super }}
+    <li>
+        <a href="{% url 'admin:app_event_crawl_single' %}" class="addlink">
+            {% trans 'Crawl Single Event' %}
+        </a>
+    </li>    
+{% endblock %}

@@ -7,12 +7,15 @@ from django.conf import settings
 from django.contrib import admin
 from django.db.models import TextField
 from django.forms import Textarea
+from django.http import HttpResponseRedirect
+from django.shortcuts import render
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy
 from django_admin_listfilter_dropdown.filters import RelatedDropdownFilter
 from model_clone import CloneModelAdmin
+from django_q.tasks import async_task, result
 
 from django_google_maps import widgets as map_widgets
 from django_google_maps import fields as map_fields
@@ -122,11 +125,8 @@ class LocationAdmin(admin.ModelAdmin):
     unverify_locations.short_description = "Mark selected locations as unverified"
 
     def process_unverified_locations(self, request, queryset):
-        """Process selected unverified locations to add coordinates and header images"""
-        import io
-        import sys
-        from contextlib import redirect_stdout
-        from app.management.commands.process_unverified_locations import Command
+        """Process selected unverified locations to add coordinates and header images asynchronously"""
+        from .tasks import verify_locations_async
 
         # Filter to only unverified locations
         unverified = queryset.filter(verified_at__isnull=True)
@@ -136,42 +136,23 @@ class LocationAdmin(admin.ModelAdmin):
             )
             return
 
-        # Create a command instance with custom output handling
-        cmd = Command()
+        # Get location IDs
+        location_ids = list(unverified.values_list("id", flat=True))
 
-        # Process each location and collect results
-        processed = 0
-        messages = []
-
-        for location in unverified:
-            # Capture command output
-            output = io.StringIO()
-            with redirect_stdout(output):
-                result = cmd.process_location(location)
-
-            # Store output messages
-            output_text = output.getvalue()
-            if output_text:
-                messages.append(f"Location {location}: {output_text}")
-
-            if result:
-                processed += 1
-
-        # Show summary message
-        self.message_user(
-            request,
-            f"Successfully processed {processed} out of {unverified.count()} unverified locations.",
+        # Submit the task to Django Q
+        task_id = async_task(
+            verify_locations_async,
+            location_ids=location_ids,
+            dry_run=False,
+            hook="app.tasks_hooks.location_verification_hook",
         )
 
-        # Show detailed messages if there are any
-        if messages:
-            self.message_user(
-                request,
-                "Details: "
-                + " | ".join(messages[:5])
-                + ("... and more" if len(messages) > 5 else ""),
-                level="INFO",
-            )
+        # Show message to user
+        self.message_user(
+            request,
+            f"Processing {unverified.count()} locations asynchronously. Task ID: {task_id}",
+            level="INFO",
+        )
 
     process_unverified_locations.short_description = (
         "Process selected unverified locations"
@@ -251,6 +232,20 @@ class IsVerifiedFilter(admin.SimpleListFilter):
             return queryset.filter(verified_at__isnull=True)
 
 
+class CrawlSingleEventForm(forms.Form):
+    """Form for crawling a single event asynchronously"""
+
+    url = forms.URLField(
+        widget=forms.URLInput(attrs={"size": 80}),
+        help_text="Enter the URL of the event to crawl",
+    )
+    dry_run = forms.BooleanField(
+        required=False,
+        initial=False,
+        help_text="Check to perform a dry run without saving to the database",
+    )
+
+
 @admin.register(models.Event)
 class EventAdmin(CloneModelAdmin):
     list_per_page = 30
@@ -276,6 +271,59 @@ class EventAdmin(CloneModelAdmin):
     inlines = [RaceInline, ReviewInline]
     date_hierarchy = "date_start"
     prepopulated_fields = {"slug": ("name", "date_start")}
+
+    # Add custom actions
+    actions = []
+
+    def get_urls(self):
+        from django.urls import path
+
+        urls = super().get_urls()
+        my_urls = [
+            path(
+                "crawl-single-event/",
+                self.admin_site.admin_view(self.crawl_single_event_view),
+                name="app_event_crawl_single",
+            ),
+        ]
+        return my_urls + urls
+
+    def crawl_single_event_view(self, request):
+        """Custom view to crawl a single event asynchronously"""
+        from .tasks import crawl_single_event_async
+
+        if request.method == "POST":
+            form = CrawlSingleEventForm(request.POST)
+            if form.is_valid():
+                url = form.cleaned_data["url"]
+                dry_run = form.cleaned_data["dry_run"]
+
+                # Submit the task to Django Q
+                task_id = async_task(
+                    crawl_single_event_async,
+                    url=url,
+                    dry_run=dry_run,
+                    hook="app.tasks_hooks.crawl_single_event_hook",
+                )
+
+                # Show message to user
+                self.message_user(
+                    request,
+                    f"Crawling event from URL: {url} asynchronously. Task ID: {task_id}",
+                    level="INFO",
+                )
+                return HttpResponseRedirect("../")
+        else:
+            form = CrawlSingleEventForm()
+
+        # Render the form
+        context = {
+            "title": "Crawl Single Event",
+            "form": form,
+            "opts": self.model._meta,
+            "media": self.media,
+        }
+        return render(request, "admin/crawl_single_event.html", context)
 
     class Media:
         js = ("js/admin/EventAdmin.js",)
