@@ -1,6 +1,6 @@
 <template>
   <div>
-    <p>Sende uns Verbesserungsvorschläge, Korrekturen und weitere Rennen.</p>
+    <p>{{ $t('contactIntro') }}</p>
     <label class="block font-semibold pt-4" for="sender">
       <div class="pb-2">{{ $t('contactEmail') }}</div>
       <input id="sender" v-model="sender" type="text" />
