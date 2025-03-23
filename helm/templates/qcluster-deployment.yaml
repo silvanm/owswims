@@ -1,0 +1,74 @@
+{{- if .Values.qcluster.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.name }}-qcluster
+  labels:
+    app: {{ .Values.name }}-qcluster
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Values.name }}-qcluster
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.name }}-qcluster
+    spec:
+{{- if .Values.GoogleSAKey }}
+      volumes:
+      - name: secrets
+        secret:
+          secretName: {{ .Values.SecretName }}
+{{- end }}
+      containers:
+      - name: {{ .Values.name }}-qcluster
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: Always
+        command: ["python", "manage.py", "qcluster"]
+{{- if .Values.GoogleSAKey }}
+        volumeMounts:
+        - name: secrets
+          mountPath: "/secrets"
+          readOnly: true
+{{- end }}
+        env:
+{{- range $key, $val := .Values.env }}
+        - name: {{ $key }}
+          value: {{ $val | quote }}
+{{- end }}
+{{- if .Values.SecretName }}
+        - name: DB_PASS
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.SecretName }}
+              key: DB_PASS
+              optional: true
+        - name: SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.SecretName }}
+              key: SECRET_KEY
+              optional: true
+        - name: GOOGLE_MAPS_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.SecretName }}
+              key: GOOGLE_MAPS_API_KEY
+              optional: true
+        - name: SPARKPOST_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.SecretName }}
+              key: SPARKPOST_API_KEY
+              optional: true
+        - name: RAPIDAPI_KEY
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.SecretName }}
+              key: RAPIDAPI_KEY
+              optional: true
+{{- end }}
+        resources:
+{{ toYaml .Values.qcluster.resources | indent 10 }}
+{{- end }}

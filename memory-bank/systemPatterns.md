@@ -158,6 +158,8 @@ sequenceDiagram
 
 6. **LLM-based Crawling System**: Agent-based approach for automated event data extraction
 
+7. **Django Q for Asynchronous Processing**: Task queue for handling time-consuming operations in the background
+
 ## Event Crawling System
 
 The event crawling system uses LLM-based agents to automate the extraction of swimming event data from websites:
@@ -241,6 +243,99 @@ sequenceDiagram
         DB-->>Processor: Confirmation
         Processor-->>Command: Processing result
     end
+```
+
+## Asynchronous Processing System
+
+The asynchronous processing system uses Django Q to handle time-consuming operations in the background:
+
+```mermaid
+flowchart TD
+    Admin[Admin Interface]
+    Tasks[Django Q Tasks]
+    Cluster[Django Q Cluster]
+    Hooks[Task Hooks]
+    DB[(PostgreSQL Database)]
+    
+    Admin --> Tasks
+    Tasks --> Cluster
+    Cluster --> DB
+    Cluster --> Hooks
+    Hooks --> DB
+```
+
+### Key Components
+
+1. **Django Q Cluster**: Background worker process that executes tasks
+   - Configured in `settings.py` with parameters for workers, timeouts, etc.
+   - Runs as a separate process from the Django server
+   - Can be started via VS Code launch configuration or command line
+
+2. **Asynchronous Tasks**: Functions that run in the background
+   - `crawl_single_event_async`: Crawls a single event asynchronously
+   - `verify_locations_async`: Verifies locations asynchronously
+   - `process_event_urls_async`: Processes event URLs asynchronously
+
+3. **Task Hooks**: Functions that run after task completion
+   - Log task completion status
+   - Create admin log entries for successful tasks
+   - Log errors for failed tasks
+
+4. **Admin Interface Integration**: Custom actions in the admin interface
+   - "Crawl Single Event" action for events
+   - "Process selected unverified locations" action for locations
+
+### Benefits
+
+- Improved user experience by keeping the admin interface responsive
+- Better resource utilization through distributed task processing
+- Reliability with automatic retry for failed tasks
+- Scalability by adjusting the number of workers
+
+### Deployment
+
+The Django Q cluster is deployed as a separate container in Kubernetes:
+
+```mermaid
+flowchart TD
+    Main[Main Django Container]
+    QCluster[Django Q Cluster Container]
+    DB[(PostgreSQL Database)]
+    
+    Main --> DB
+    QCluster --> DB
+```
+
+- Both containers use the same Docker image
+- The Django Q container runs the `python manage.py qcluster` command
+- Both containers share the same environment variables and secrets
+- The Django Q container can be enabled/disabled via configuration
+- Resource limits can be configured separately for the Django Q container
+
+### Data Flow
+
+```mermaid
+sequenceDiagram
+    participant Admin
+    participant AdminUI as Admin Interface
+    participant Task as Async Task
+    participant Cluster as Django Q Cluster
+    participant Hook as Task Hook
+    participant DB as Database
+    
+    Admin->>AdminUI: Trigger async action
+    AdminUI->>Task: Submit task to Django Q
+    Task-->>AdminUI: Return task ID
+    AdminUI-->>Admin: Show confirmation message
+    
+    Cluster->>Task: Execute task in background
+    Task->>DB: Perform database operations
+    DB-->>Task: Return results
+    Task-->>Cluster: Complete task
+    
+    Cluster->>Hook: Call task hook
+    Hook->>DB: Log task completion
+    Hook-->>Cluster: Hook completed
 ```
 
 ## Location Verification System
