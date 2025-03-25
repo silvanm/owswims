@@ -3,6 +3,7 @@ import json
 import re
 import math
 import os
+import sys
 import pycountry
 import googlemaps
 from datetime import datetime
@@ -22,31 +23,49 @@ from app.management.commands.process_unverified_locations import (
 )
 
 
+def is_running_from_django_q():
+    """Check if the code is running from Django Q"""
+    # Check if any of the modules in the call stack are from Django Q
+    for frame in sys._current_frames().values():
+        while frame:
+            if frame.f_globals.get("__name__", "").startswith("django_q"):
+                return True
+            frame = frame.f_back
+    return False
+
+
 # Configure logger
 logger = logging.getLogger(__name__)
 
-# Create logs directory if it doesn't exist
-logs_dir = os.path.join(settings.BASE_DIR, "logs")
-os.makedirs(logs_dir, exist_ok=True)
-
-# Create a file handler for the crawler log
-log_file_path = os.path.join(
-    logs_dir, f'event_crawler_{datetime.now().strftime("%Y%m%d")}.log'
-)
-file_handler = logging.FileHandler(log_file_path)
-file_handler.setLevel(
-    logging.INFO
-)  # Set to INFO to capture both success and error messages
-
-# Make sure the root logger level is also set to INFO
+# Make sure the root logger level is set to INFO
 logger.setLevel(logging.INFO)
 
-# Create a formatter and add it to the handler
+# Create a formatter
 formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
-file_handler.setFormatter(formatter)
 
-# Add the file handler to the logger
-logger.addHandler(file_handler)
+# Check if running from Django Q
+if is_running_from_django_q():
+    # Add console handler for Django Q tasks
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(logging.INFO)
+    console_handler.setFormatter(formatter)
+    logger.addHandler(console_handler)
+    logger.info("Running from Django Q - logging to console")
+else:
+    # Create logs directory if it doesn't exist
+    logs_dir = os.path.join(settings.BASE_DIR, "logs")
+    os.makedirs(logs_dir, exist_ok=True)
+
+    # Create a file handler for the crawler log
+    log_file_path = os.path.join(
+        logs_dir, f'event_crawler_{datetime.now().strftime("%Y%m%d")}.log'
+    )
+    file_handler = logging.FileHandler(log_file_path)
+    file_handler.setLevel(logging.INFO)
+    file_handler.setFormatter(formatter)
+
+    # Add the file handler to the logger
+    logger.addHandler(file_handler)
 
 
 def deg2rad(deg):
