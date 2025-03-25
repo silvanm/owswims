@@ -72,6 +72,18 @@ spec:
                   name: {{ .Values.SecretName }}
                   key: FIRECRAWL_API_KEY
                   optional: true
+            - name: SERPER_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.SecretName }}
+                  key: SERPER_API_KEY
+                  optional: true
+            - name: OPENAI_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.SecretName }}
+                  key: OPENAI_API_KEY
+                  optional: true
             {{- end }}
 
           ports:
