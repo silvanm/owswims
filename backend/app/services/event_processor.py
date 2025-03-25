@@ -155,7 +155,9 @@ Visit the following URLs to gather information about a swim event: {', '.join(ur
 These URLs contain details about the same event. Please analyze all pages and combine the information to create a complete event profile.
 
 Today's date is {current_date}. Only process events that will take place in the future (after today's date).
-If the event has already occurred (before today's date), please indicate this in your response.
+If the event has already occurred (before today's date), do not process it.
+
+If the page is not about a single open water swim event, skip it.
 
 If the event has an item "Links" which appears to include more information about it, follow it.
 
