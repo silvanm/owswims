@@ -215,7 +215,7 @@ if SENTRY_DSN:
 # Django Q configuration
 Q_CLUSTER = {
     "name": "owswims",
-    "workers": 4,
+    "workers": 1,  # Reduced from 4 to 1 to prevent OOM issues
     "recycle": 500,
     "timeout": 300,
     "retry": 600,  # Set retry larger than timeout to avoid warning
