@@ -49,6 +49,9 @@ COPY backend/ ./
 ARG SECRET_KEY
 ARG GOOGLE_APPLICATION_CREDENTIALS
 ARG GOOGLE_MAPS_API_KEY
+ARG FIRECRAWL_API_KEY
+ARG SERPER_API_KEY
+ARG OPENAI_API_KEY
 
 COPY --from=frontend /code/dist/static/ /code/dist/index.html static/
 RUN python ./manage.py collectstatic --noinput
