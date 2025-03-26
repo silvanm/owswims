@@ -255,6 +255,7 @@ class EventAdmin(CloneModelAdmin):
         "locationstr",
         "entry_quality",
         "verified_at",
+        "created_at",
     )
     list_display_links = ("eventstr",)
     list_filter = (
@@ -332,7 +333,9 @@ class EventAdmin(CloneModelAdmin):
         if request.GET:
             return super().changelist_view(request, extra_context=extra_context)
 
-        url = "{}??date_start__year=2021".format(request.path)
+        # Get current year
+        current_year = datetime.now().year
+        url = "{}??date_start__year={}".format(request.path, current_year)
         from django.shortcuts import redirect
 
         return redirect(url)

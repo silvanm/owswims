@@ -68,10 +68,6 @@ Please analyze the page and find URLs for all swimming events. Some events might
 
 Today's date is {current_date}. Only include events that will take place in the future (after today's date).
 
-IMPORTANT: Only include events located in Europe or northern Africa. Specifically, include events in:
-- All European countries (e.g., France, Italy, Spain, Germany, UK, Switzerland, etc.)
-- Northern African countries (Morocco, Algeria, Tunisia, Libya, Egypt)
-
 Return the information as JSON in the following format:
 {{
     "events": [
@@ -90,12 +86,12 @@ Return the information as JSON in the following format:
 
 Make sure to:
 1. Only include URLs that lead to specific event pages
-2. Group URLs that belong to the same event together
+2. Group URLs that belong to the same event together. If two entries are on the same date and 
+   the same location, you can assume that they are the same event.
 3. Include both info pages and registration pages when available
 4. Follow pagination or "Load More" links if present
 5. Make URLs absolute, not relative
 6. Only include URLs from the same domain or known registration platforms
-7. Only include events in Europe or northern Africa
 8. Only include future events (after {current_date})
 
 """
