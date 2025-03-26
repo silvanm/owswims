@@ -189,6 +189,7 @@ class Command(BaseCommand):
     ):
         """Process events from a discovered_event_urls.json file"""
         import json
+        from app.services.event_crawler import EventCrawler
 
         # Load the discovered URLs from the JSON file
         try:
@@ -219,10 +220,23 @@ class Command(BaseCommand):
                 )
             )
 
-        # Process each discovered URL as a separate event
+        # Create an EventCrawler for processing multiple event URLs
+        # Get the API key from the environment (same as used for the processor)
+        import os
+
+        api_key = os.environ["FIRECRAWL_API_KEY"]
+        crawler = EventCrawler(
+            firecrawl_api_key=api_key,
+            stdout=self.stdout,
+            stderr=self.stderr,
+        )
+
+        # Process each discovered URL
         successful = 0
         failed = 0
         skipped = 0
+        multiple_processed = 0
+
         for i, url_data in enumerate(discovered_urls, 1):
             url = url_data.get("url")
             if not url:
@@ -232,8 +246,9 @@ class Command(BaseCommand):
                 failed += 1
                 continue
 
-            # Skip events that are not single events
+            # Check event type
             event_type = url_data.get("event_type", "unknown")
+
             if event_type == "unknown":
                 self.stdout.write(
                     self.style.WARNING(
@@ -243,18 +258,88 @@ class Command(BaseCommand):
                 skipped += 1
                 continue
 
-            self.stdout.write(f"Processing event {i}/{len(discovered_urls)}: {url}")
-            try:
-                # Process each URL as a single event
-                if self._process_single_event(processor, [url]):
-                    successful += 1
-                else:
-                    failed += 1
-            except Exception as e:
-                self.stderr.write(
-                    self.style.ERROR(f"Failed to process event: {str(e)}")
+            # Process based on event type
+            if event_type == "single":
+                # Process as a single event
+                self.stdout.write(
+                    f"Processing single event {i}/{len(discovered_urls)}: {url}"
                 )
-                failed += 1
+                try:
+                    if self._process_single_event(processor, [url]):
+                        successful += 1
+                    else:
+                        failed += 1
+                except Exception as e:
+                    self.stderr.write(
+                        self.style.ERROR(f"Failed to process single event: {str(e)}")
+                    )
+                    failed += 1
+
+            elif event_type == "multiple":
+                # Process as a page with multiple events
+                self.stdout.write(
+                    f"Processing multiple events page {i}/{len(discovered_urls)}: {url}"
+                )
+                try:
+                    # Use EventCrawler to extract all event URLs from the page
+                    self.stdout.write(f"Crawling events from {url}")
+                    event_url_sets = crawler.get_event_urls(url)
+
+                    if not event_url_sets:
+                        self.stdout.write(
+                            self.style.WARNING(f"No events found on {url}")
+                        )
+                        skipped += 1
+                        continue
+
+                    self.stdout.write(
+                        self.style.SUCCESS(
+                            f"Found {len(event_url_sets)} events on {url}"
+                        )
+                    )
+
+                    # Process each extracted event
+                    multiple_successful = 0
+                    multiple_failed = 0
+
+                    for j, urls in enumerate(event_url_sets, 1):
+                        self.stdout.write(
+                            f"Processing extracted event {j}/{len(event_url_sets)} from {url}"
+                        )
+                        try:
+                            if self._process_single_event(processor, urls):
+                                multiple_successful += 1
+                                successful += 1
+                            else:
+                                multiple_failed += 1
+                                failed += 1
+                        except Exception as e:
+                            self.stderr.write(
+                                self.style.ERROR(
+                                    f"Failed to process extracted event: {str(e)}"
+                                )
+                            )
+                            multiple_failed += 1
+                            failed += 1
+
+                    # Summary for this multiple events page
+                    self.stdout.write(
+                        self.style.SUCCESS(
+                            f"Finished processing events from {url}:\n"
+                            f"- Successful: {multiple_successful}\n"
+                            f"- Failed: {multiple_failed}\n"
+                            f"- Total: {len(event_url_sets)}"
+                        )
+                    )
+                    multiple_processed += 1
+
+                except Exception as e:
+                    self.stderr.write(
+                        self.style.ERROR(
+                            f"Failed to process multiple events page: {str(e)}"
+                        )
+                    )
+                    failed += 1
 
         # Summary
         dry_run_prefix = "[DRY RUN] " if processor.dry_run else ""
@@ -263,8 +348,9 @@ class Command(BaseCommand):
                 f"\n{dry_run_prefix}Finished processing discovered events:\n"
                 f"- Successful: {successful}\n"
                 f"- Failed: {failed}\n"
-                f"- Skipped (non-single events): {skipped}\n"
-                f"- Total: {len(discovered_urls)}"
+                f"- Skipped (unknown type): {skipped}\n"
+                f"- Multiple event pages processed: {multiple_processed}\n"
+                f"- Total URLs processed: {len(discovered_urls)}"
             )
         )
 
