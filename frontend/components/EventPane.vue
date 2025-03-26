@@ -99,6 +99,16 @@
           <a class="event-icon" @click="zoomToEvent">
             <font-awesome-icon icon="search" />
           </a>
+          <a
+            v-if="$store.getters['auth/loggedIn']"
+            class="event-icon"
+            :href="getAdminEditUrl(pickedEvent.node.id)"
+            target="_blank"
+            @click="trackAdminEdit"
+          >
+            <font-awesome-icon icon="edit" />
+            <span class="ml-1">Admin</span>
+          </a>
         </h3>
         <div class="cursor-pointer inline-block pb-1" @click="showReviews()">
           <reviews :event="pickedEvent.node" flavor="summary"></reviews>
@@ -427,6 +437,22 @@ export default {
     showReviews() {
       this.$gtag('event', 'reviewsShow')
       this.showsReviews = true
+    },
+    getAdminEditUrl(nodeId) {
+      // Extract numeric ID from GraphQL node ID (format: "RXZlbnQ6MTIz" -> "123")
+      try {
+        const idParts = atob(nodeId).split(':')
+        const numericId = idParts.length > 1 ? idParts[1] : null
+        return numericId ? `/admin/app/event/${numericId}/change/` : '#'
+      } catch (e) {
+        console.error('Error extracting ID:', e)
+        return '#'
+      }
+    },
+    trackAdminEdit() {
+      this.$gtag('event', 'editEventInAdmin', {
+        event_id: this.pickedEvent.node.id,
+      })
     },
   },
 }
