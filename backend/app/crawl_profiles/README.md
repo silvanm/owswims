@@ -18,6 +18,7 @@ Profiles are stored as JSON files with the following structure:
     {"type": "wait", "milliseconds": 3000},
     {"type": "scrape"}
   ],
+  "custom_prompt": "Optional custom prompt for the ReactAgent with placeholders like {start_url} and {current_date}",
   "description": "Description of what this profile does"
 }
 ```
@@ -41,6 +42,14 @@ To use a profile with the crawl_events command:
 ```bash
 python manage.py crawl_events --profile outdoorswimmer
 ```
+
+You can also provide a custom prompt at runtime:
+
+```bash
+python manage.py crawl_events --profile outdoorswimmer --custom-prompt "Your custom prompt with {start_url} and {current_date} placeholders"
+```
+
+This will override any custom prompt defined in the profile file.
 
 To list all available profiles:
 
@@ -66,3 +75,41 @@ If a profile isn't working as expected:
 1. Check the CSS selectors using browser developer tools
 2. Adjust wait times to ensure the page has time to load
 3. Make sure the final action is `scrape` to capture the page content
+
+## Custom Prompts
+
+The `custom_prompt` field allows you to provide a specialized prompt for the ReactAgent that performs the crawling. This is useful for websites with unique structures or when you need to extract specific information.
+
+### Placeholders
+
+The following placeholders are available in custom prompts:
+
+- `{start_url}`: Replaced with the start URL from the profile
+- `{current_date}`: Replaced with the current date in YYYY-MM-DD format
+
+### Expected Output
+
+The custom prompt should instruct the ReactAgent to return a JSON object with the following structure:
+
+```json
+{
+  "events": [
+    {
+      "urls": ["https://event1-info.com", "https://event1-registration.com"],
+      "name": "Event 1 name",
+      "location": "Paris, France"
+    },
+    {
+      "urls": ["https://event2.com"],
+      "name": "Event 2 name",
+      "location": "Barcelona, Spain"
+    }
+  ]
+}
+```
+
+The `urls` field is required and should contain one or more URLs for each event. The `name` and `location` fields are optional but helpful for logging and filtering.
+
+### Example
+
+See `example_with_custom_prompt.json` for a complete example of a profile with a custom prompt.

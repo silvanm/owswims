@@ -56,6 +56,11 @@ OWSwims is a functional web application with core features implemented. The plat
   - ✅ Created admin action for batch processing
 - ✅ Improved EventProcessor geocoding
   - ✅ Updated to use full address for more accurate coordinates
+- ✅ Shared Geocoding Service
+  - ✅ Created GeocodingService class to centralize geocoding functionality
+  - ✅ Refactored existing commands to use the shared service
+  - ✅ Removed duplicated geocoding logic
+  - ✅ Removed unused Scrapy functionality and dependencies
 - 🔄 Frontend indicators for verified locations
 - 🔄 Verification workflow refinement
 
@@ -80,9 +85,18 @@ OWSwims is a functional web application with core features implemented. The plat
      - ✅ Support for various Firecrawl actions (wait, click, scroll, etc.)
      - ✅ Profile management with list_crawl_profiles command
      - ✅ Enhanced crawl_events command with --profile option
+     - ✅ Added support for custom prompts in crawl profiles
    - 🔄 Moving from experimental stage to production-ready
    - 🔄 Improving accuracy and reliability of data extraction
    - Will significantly reduce manual data entry and increase event coverage
+
+2. 📋 Event Fuzzy Search Service
+   - 📋 Develop a service for quickly finding events by name and date using fuzzy search
+   - 📋 Implement efficient matching algorithm for event names and dates
+   - 📋 Create API endpoint for fuzzy event search
+   - 📋 Integrate with event crawler to avoid duplicate processing
+   - 📋 Add support for handling calendar-style event listings
+   - Will improve efficiency when processing event calendars with many existing events
 
 ## Known Issues
 

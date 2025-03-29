@@ -53,6 +53,7 @@ flowchart TD
    - Rating calculations
    - Event crawling and processing
    - Automated location processing
+   - Geocoding service
 
 ## Frontend Architecture
 
@@ -338,6 +339,46 @@ sequenceDiagram
     Hook-->>Cluster: Hook completed
 ```
 
+## Geocoding Service
+
+The geocoding service centralizes all geocoding functionality in the application:
+
+```mermaid
+flowchart TD
+    Commands[Django Management Commands]
+    EventProcessor[Event Processor]
+    GeocodingService[Geocoding Service]
+    GoogleMaps[Google Maps API]
+    GooglePlaces[Google Places API]
+    DB[(Database)]
+    
+    Commands --> GeocodingService
+    EventProcessor --> GeocodingService
+    GeocodingService --> GoogleMaps
+    GeocodingService --> GooglePlaces
+    GeocodingService --> DB
+```
+
+### Key Components
+
+1. **Geocoding Service**: Central service for all geocoding operations
+   - Forward geocoding (address to coordinates)
+   - Reverse geocoding (coordinates to address)
+   - Finding nearby locations
+   - Fetching place details and images
+   - Distance calculations between coordinates
+
+2. **Integration Points**: Used by multiple components
+   - Management commands (geocode, process_unverified_locations)
+   - Event processor for location creation and verification
+   - Location verification system
+
+3. **Benefits**:
+   - Eliminates code duplication
+   - Provides consistent geocoding behavior
+   - Centralizes Google Maps API interactions
+   - Makes it easier to update or replace the geocoding implementation
+
 ## Location Verification System
 
 The location verification system automates the process of verifying and enhancing location data:
@@ -347,15 +388,15 @@ flowchart TD
     Command[process_unverified_locations Command]
     Admin[Admin Interface Action]
     Processor[Location Processor]
-    GoogleMaps[Google Maps API]
-    GooglePlaces[Google Places API]
+    GeocodingService[Geocoding Service]
     GCS[Google Cloud Storage]
     DB[(Database)]
     
     Command --> Processor
     Admin --> Processor
-    Processor --> GoogleMaps
-    Processor --> GooglePlaces
+    Processor --> GeocodingService
+    GeocodingService --> GoogleMaps[Google Maps API]
+    GeocodingService --> GooglePlaces[Google Places API]
     GooglePlaces --> GCS
     Processor --> DB
 ```

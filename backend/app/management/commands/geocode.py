@@ -1,26 +1,31 @@
-import googlemaps
-from django.conf import settings
 from django.core.management.base import BaseCommand
 
 from app.models import Location
+from app.services import GeocodingService
 
 
 class Command(BaseCommand):
     help = "Geocodes the locations which are not geocoded yet"
 
     def handle(self, *args, **options):
-        gmaps = googlemaps.Client(key=settings.GOOGLE_MAPS_API_KEY)
+        # Initialize the geocoding service
+        geocoding_service = GeocodingService(stdout=self.stdout, stderr=self.stderr)
 
-        for location in Location.objects.filter(lat__isnull=True):
-            geocode_result = gmaps.geocode(f"{location.city}, {location.country.name}")
-            if geocode_result:
-                location.lat = geocode_result[0]["geometry"]["location"]["lat"]
-                location.lng = geocode_result[0]["geometry"]["location"]["lng"]
+        # Get all locations without coordinates
+        locations = Location.objects.filter(lat__isnull=True)
+        self.stdout.write(f"Found {locations.count()} locations to geocode")
+
+        # Process each location
+        for location in locations:
+            self.stdout.write(f"Geocoding {location}...")
+
+            # Use the geocoding service to geocode the location
+            success = geocoding_service.geocode_location(location)
+
+            if success:
                 location.save()
-                self.stderr.write(
-                    self.style.WARNING(f"Geocoding {repr(location)} successful.")
+                self.stdout.write(
+                    self.style.SUCCESS(f"Geocoding {location} successful.")
                 )
             else:
-                self.stdout.write(
-                    self.style.SUCCESS(f"Geocoding {repr(location)} failed.")
-                )
+                self.stdout.write(self.style.ERROR(f"Geocoding {location} failed."))

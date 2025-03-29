@@ -19,7 +19,7 @@ django-cors-headers = "^3.5.0"
 django-environ = "^0.4.5"
 whitenoise = "^5.2.0"
 graphene-django-optimizer = "^0.7.1"
-Scrapy = "^2.4.1"
+# Scrapy dependency removed
 django-money = "^1.2.1"
 django-crum = "^0.7.9"
 django-storages = {extras = ["google"], version = "^1.11"}
