@@ -62,11 +62,27 @@ class EventCrawler:
 
         current_date = datetime.now().strftime("%Y-%m-%d")
 
-        prompt = f"""Visit this URL and find all open water swimming events: {start_url}
+        # Check if a custom prompt is provided in the profile
+        if self.profile and "custom_prompt" in self.profile:
+            # Use the custom prompt from the profile
+            # Replace placeholders with actual values
+            prompt = (
+                self.profile["custom_prompt"]
+                .replace("{start_url}", start_url)
+                .replace("{current_date}", current_date)
+            )
+            logger.info(
+                f"Using custom prompt from profile '{self.profile.get('name', 'unnamed')}'"
+            )
+        else:
+            # Use the default prompt
+            prompt = f"""Visit this URL and find all open water swimming events: {start_url}
 Please analyze the page and find URLs for all swimming events. Some events might have multiple URLs 
 (e.g. a registration page and an info page).
 
 Today's date is {current_date}. Only include events that will take place in the future (after today's date).
+
+It's sufficient just to extract the URLs. Extracting event names and locations is not your responsibility.
 
 Return the information as JSON in the following format:
 {{

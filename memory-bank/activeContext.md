@@ -1,19 +1,18 @@
 # Active Context
 
 ## Current Focus
-The current development focus is on enhancing the location verification system with automated processing capabilities and implementing asynchronous task processing with Django Q. 
+The current development focus is on improving code organization, reducing duplication, and enhancing maintainability through shared services. We've recently completed a significant refactoring of the geocoding functionality into a shared service.
 
-The location verification system builds upon the previous addition of the `verified_at` timestamp field to the Location model (migration 0042_add_verified_at_to_location.py), which allows administrators to mark locations as verified.
+The location verification system continues to be an important focus area, now enhanced with a centralized geocoding service that provides consistent functionality across different parts of the application.
 
 The latest improvements include:
-1. Automated geocoding using the full address field
-2. Intelligent place search using Google Places API
-3. Automatic header image selection from place photos
-4. Coordinate refinement based on identified places
-5. Admin interface integration for batch processing
-6. Asynchronous processing using Django Q for better user experience
+1. Creation of a shared `GeocodingService` class that consolidates all geocoding functionality
+2. Refactoring of existing commands and services to use the shared geocoding service
+3. Removal of duplicated geocoding logic across multiple files
+4. Removal of unused Scrapy functionality and dependencies
+5. Enhanced maintainability through centralized geocoding logic
 
-These enhancements significantly streamline the location verification workflow, improving data quality and reducing manual effort.
+These enhancements significantly improve code organization and maintainability while ensuring consistent geocoding behavior throughout the application.
 
 The event crawling system with crawl profiles feature also remains an important focus area. This allows for defining reusable profiles with Firecrawl actions for different event websites, making it easier to interact with pages that require specific actions (like accepting cookies or clicking "load more" buttons) before scraping. The crawling system now also supports asynchronous processing through Django Q.
 
@@ -82,6 +81,14 @@ The event crawling system with crawl profiles feature also remains an important 
    - Filters for future events only, using dynamically generated current date
    - Replacing the experimental Agentic crawler approach
    - Reduce manual data entry and increase event coverage
+
+2. Event Fuzzy Search Service
+   - Develop a service for quickly finding events by name and date using fuzzy search
+   - Use case: Processing calendars like https://anatreselvagge.wordpress.com/2025/02/09/traversate2025/
+   - Avoid having to scrape each event when many are already in the system
+   - Implement efficient matching algorithm to identify existing events
+   - Support partial name matches and approximate date matching
+   - Integrate with the event crawler to check for existing events before processing
 
 ### Long-term Vision
 1. Develop a mobile app for on-the-go event discovery

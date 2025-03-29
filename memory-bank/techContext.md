@@ -13,6 +13,7 @@
 - **Web Scraping**: Firecrawl API with action profiles
 - **LLM Integration**: OpenAI GPT-4o with llama-index
 - **Asynchronous Processing**: Django Q
+- **Geocoding**: Shared GeocodingService using Google Maps API
 
 ### Frontend
 - **Framework**: Vue.js with Nuxt.js

@@ -1,11 +1,11 @@
 import logging
 import json
 import re
-import math
 import os
 import sys
 import pycountry
-import googlemaps
+import requests
+import uuid
 from datetime import datetime
 from django.conf import settings
 from django.utils.text import slugify
@@ -17,10 +17,8 @@ from llama_index.llms.openai import OpenAI
 from llama_index.core.tools import FunctionTool
 
 from .scraping_service import ScrapingService
+from .geocoding_service import GeocodingService
 from app.models import Event, Location, Organizer, Race
-from app.management.commands.process_unverified_locations import (
-    Command as LocationProcessor,
-)
 
 
 def is_running_from_django_q():
@@ -68,48 +66,7 @@ else:
     logger.addHandler(file_handler)
 
 
-def deg2rad(deg):
-    return deg / 360 * 2 * math.pi
-
-
-def get_distance_from_lat_lng_in_km(lat1, lon1, lat2, lon2):
-    """Calculate distance between two points in kilometers using the Haversine formula"""
-    R = 6371  # Radius of the earth in km
-    d_lat = deg2rad(lat2 - lat1)
-    d_lon = deg2rad(lon2 - lon1)
-    a = math.sin(d_lat / 2) * math.sin(d_lat / 2) + math.cos(deg2rad(lat1)) * math.cos(
-        deg2rad(lat2)
-    ) * math.sin(d_lon / 2) * math.sin(d_lon / 2)
-    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
-    d = R * c  # Distance in km
-    return d
-
-
-def get_nearby_locations(
-    lat: float, lng: float, max_distance_km: float = 1.0
-) -> List[Location]:
-    """Find locations within specified distance (default 1km)"""
-    # First do a rough filter by coordinates to limit the number of locations to check
-    # 0.01 degrees is roughly 1km at the equator
-    buffer = max_distance_km * 0.01
-    nearby_locations = Location.objects.filter(
-        lat__isnull=False,
-        lng__isnull=False,
-        lat__gte=lat - buffer,
-        lat__lte=lat + buffer,
-        lng__gte=lng - buffer,
-        lng__lte=lng + buffer,
-    )
-
-    # Then calculate exact distances and filter by the specified max distance
-    result = []
-    for loc in nearby_locations:
-        distance = get_distance_from_lat_lng_in_km(lat, lng, loc.lat, loc.lng)
-        if distance <= max_distance_km:
-            result.append((loc, distance))
-
-    # Sort by distance (closest first)
-    return sorted(result, key=lambda x: x[1])
+# Geocoding functionality is now provided by the shared GeocodingService
 
 
 class EventProcessor:
@@ -418,35 +375,29 @@ For the water_type field, only use one of these values: 'river', 'sea', 'lake', 
             f"Creating new location: {new_location.city}, {new_location.country}"
         )
 
-        # Geocode the location using Google Maps API
+        # Geocode the location using our shared geocoding service
         try:
-            gmaps = googlemaps.Client(key=settings.GOOGLE_MAPS_API_KEY)
+            # Initialize the geocoding service
+            geocoding_service = GeocodingService(stdout=self.stdout, stderr=self.stderr)
 
-            # Use the full address if available, otherwise fall back to city and country
-            if new_location.address:
-                geocode_query = f"{new_location.address}, {country.name}"
-                logger.info(f"Geocoding with full address: {geocode_query}")
-            else:
-                geocode_query = f"{new_location.city}, {country.name}"
-                logger.info(f"Geocoding with city and country: {geocode_query}")
+            # Geocode the location
+            success = geocoding_service.geocode_location(new_location)
 
-            geocode_result = gmaps.geocode(geocode_query)
-
-            if geocode_result:
-                new_location.lat = geocode_result[0]["geometry"]["location"]["lat"]
-                new_location.lng = geocode_result[0]["geometry"]["location"]["lng"]
-
+            if success:
                 # Check for nearby locations (<1km)
                 if new_location.lat is not None and new_location.lng is not None:
-                    nearby = get_nearby_locations(new_location.lat, new_location.lng)
+                    nearby_locations = geocoding_service.get_nearby_locations(
+                        new_location.lat, new_location.lng, max_distance_km=1.0
+                    )
 
-                    if nearby:
+                    if nearby_locations:
                         # Use the closest existing location instead
-                        closest_location, distance = nearby[0]
+                        closest = nearby_locations[0]
                         logger.info(
-                            f"Found existing location {closest_location} {distance:.2f}km away. Using it instead of creating a new one."
+                            f"Found existing location {closest['location']} {closest['distance']:.2f}km away. "
+                            f"Using it instead of creating a new one."
                         )
-                        return closest_location
+                        return closest["location"]
             else:
                 logger.warning(
                     f"Geocoding failed for {new_location.city}, {country.name}"
@@ -465,17 +416,44 @@ For the water_type field, only use one of these values: 'river', 'sea', 'lake', 
             # Fetch and set header image for the new location if we have coordinates
             if new_location.lat is not None and new_location.lng is not None:
                 try:
-                    location_processor = LocationProcessor()
-                    image_added = location_processor.fetch_and_set_header_image(
+                    # Use the same geocoding service to find a place and set header image
+                    place_details = geocoding_service.find_place_by_location(
                         new_location
                     )
-                    if image_added:
-                        logger.info(
-                            f"Successfully added header image for location: {new_location.city}"
-                        )
+
+                    if (
+                        place_details
+                        and "photos" in place_details
+                        and place_details["photos"]
+                    ):
+                        # Get the first photo
+                        photo_reference = place_details["photos"][0]["photo_reference"]
+                        photo_url = f"https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photoreference={photo_reference}&key={settings.GOOGLE_MAPS_API_KEY}"
+
+                        # Download and save the image
+                        import requests
+                        import uuid
+
+                        with requests.get(photo_url, stream=True) as r:
+                            if r.status_code == 200:
+                                r.raw.seek = lambda x, y: 0
+                                r.raw.size = int(r.headers.get("Content-Length", 0))
+                                filename = f"location_{new_location.id}_{uuid.uuid4().hex[:8]}.jpeg"
+
+                                # Save the image
+                                new_location.header_photo.save(
+                                    filename, r.raw, save=True
+                                )
+                                logger.info(
+                                    f"Successfully added header image for location: {new_location.city}"
+                                )
+                            else:
+                                logger.warning(
+                                    f"Failed to download image: HTTP {r.status_code}"
+                                )
                     else:
                         logger.warning(
-                            f"Failed to add header image for location: {new_location.city}"
+                            f"No photos found for location: {new_location.city}"
                         )
                 except Exception as e:
                     logger.error(f"Error fetching header image: {str(e)}")

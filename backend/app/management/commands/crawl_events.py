@@ -46,6 +46,11 @@ class Command(BaseCommand):
             action="store_true",
             help="Perform crawling and processing without saving to the database",
         )
+        parser.add_argument(
+            "--custom-prompt",
+            type=str,
+            help="Provide a custom prompt for the ReactAgent (only works with --profile)",
+        )
 
     def handle(self, *args, **options):
         dotenv.load_dotenv()
@@ -79,7 +84,7 @@ class Command(BaseCommand):
         elif options["profile"]:
             # Profile-based crawling mode
             self._crawl_with_profile(
-                processor, api_key, options["profile"], limit=options.get("limit")
+                processor, api_key, options["profile"], options=options
             )
         elif options["discovered"]:
             # Process events from discovered_event_urls.json file
@@ -366,7 +371,7 @@ class Command(BaseCommand):
         processor: EventProcessor,
         api_key: str,
         profile_id: str,
-        limit: int = None,
+        options: dict = None,
     ):
         """Crawl and process events using a specific profile"""
         from app.crawl_profiles.profiles import get_profile
@@ -384,6 +389,15 @@ class Command(BaseCommand):
                 self.style.ERROR(f"Profile '{profile_id}' does not contain a start_url")
             )
             return
+
+        # Check if a custom prompt was provided
+        custom_prompt = options.get("custom_prompt")
+        if custom_prompt:
+            # Add the custom prompt to the profile
+            profile["custom_prompt"] = custom_prompt
+            self.stdout.write(
+                self.style.SUCCESS(f"Using custom prompt provided via command line")
+            )
 
         # Create a crawler with the profile
         crawler = EventCrawler(
@@ -404,6 +418,7 @@ class Command(BaseCommand):
             return
 
         # Apply limit if specified
+        limit = options.get("limit")
         if limit and limit > 0:
             original_count = len(event_url_sets)
             event_url_sets = event_url_sets[:limit]
