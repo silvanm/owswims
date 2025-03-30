@@ -1,20 +1,21 @@
 # Active Context
 
 ## Current Focus
-The current development focus is on improving code organization, reducing duplication, and enhancing maintainability through shared services. We've recently completed a significant refactoring of the geocoding functionality into a shared service.
+The current development focus has shifted to the Vue 2 to Vue 3 migration for the frontend application. This is a significant undertaking that will modernize the frontend codebase and enable us to leverage the latest Vue.js features and performance improvements.
 
-The location verification system continues to be an important focus area, now enhanced with a centralized geocoding service that provides consistent functionality across different parts of the application.
+We have created a comprehensive migration plan and started the preparation and analysis phase. The migration will follow a phased approach with the assistance of AI tools to accelerate the process while maintaining quality.
 
-The latest improvements include:
-1. Creation of a shared `GeocodingService` class that consolidates all geocoding functionality
-2. Refactoring of existing commands and services to use the shared geocoding service
-3. Removal of duplicated geocoding logic across multiple files
-4. Removal of unused Scrapy functionality and dependencies
-5. Enhanced maintainability through centralized geocoding logic
+The latest progress includes:
+1. Creation of a detailed migration plan document (migration_plan.md)
+2. Establishment of a Vue 3 migration directory structure (vue3-migration/)
+3. Initial dependency analysis to identify Vue 3 compatibility issues
+4. Creation of a migration tracker to monitor progress
 
-These enhancements significantly improve code organization and maintainability while ensuring consistent geocoding behavior throughout the application.
+While the Vue 3 migration is now the primary focus, the backend improvements remain important:
+- The location verification system with the centralized geocoding service
+- The event crawling system with crawl profiles feature
 
-The event crawling system with crawl profiles feature also remains an important focus area. This allows for defining reusable profiles with Firecrawl actions for different event websites, making it easier to interact with pages that require specific actions (like accepting cookies or clicking "load more" buttons) before scraping. The crawling system now also supports asynchronous processing through Django Q.
+These backend systems are stable and functioning well, allowing us to shift focus to the frontend migration.
 
 ## Recent Changes
 
@@ -65,43 +66,52 @@ The event crawling system with crawl profiles feature also remains an important 
 
 ## Next Steps
 
-### Short-term Tasks
-1. Complete the location verification system implementation
-2. Update admin interface to support location verification
-3. Enhance the DaterangeSlider component for better usability
-4. Add visual indicators for verified locations on the map
+### Short-term Tasks (Vue 3 Migration)
+1. Complete the dependency analysis
+   - Verify the complete list of dependencies from package.json
+   - Research each dependency for Vue 3 compatibility
+   - Document specific version recommendations
 
-### Primary Development Goal
+2. Evaluate Migration Build approach
+   - Assess whether using the Vue 3 Migration Build as an intermediate step would be beneficial
+   - Consider the complexity of the codebase and the number of Vue 2 specific patterns
+   - Make a recommendation based on findings
+
+3. Set up development environment for migration
+   - Create a separate development environment for Vue 3 migration
+   - Set up testing infrastructure
+   - Prepare environment for AI-assisted development
+
+4. Create migration branch
+   - Create a new branch from the main development branch for migration work
+   - This will allow parallel development on the Vue 2 version if needed
+
+### Backend Development Goals (On Hold)
 1. Automated Event Import Tool
-   - Develop a tool for automatically importing swims from third-party websites
-   - Implementation of an LLM-based agent system for crawling and processing event data
-   - Uses Firecrawl for web scraping and OpenAI's GPT-4o for data extraction
+   - Currently functional but will be refined after the Vue 3 migration
+   - Uses LLM-based agent system for crawling and processing event data
    - Structured as a Django management command with supporting services
-   - Capable of both processing individual events and crawling multiple events from a website
-   - Filters for future events only, using dynamically generated current date
-   - Replacing the experimental Agentic crawler approach
-   - Reduce manual data entry and increase event coverage
 
 2. Event Fuzzy Search Service
-   - Develop a service for quickly finding events by name and date using fuzzy search
-   - Use case: Processing calendars like https://anatreselvagge.wordpress.com/2025/02/09/traversate2025/
-   - Avoid having to scrape each event when many are already in the system
-   - Implement efficient matching algorithm to identify existing events
-   - Support partial name matches and approximate date matching
-   - Integrate with the event crawler to check for existing events before processing
+   - Development planned after Vue 3 migration is complete
+   - Will improve efficiency when processing event calendars
 
 ### Long-term Vision
-1. Develop a mobile app for on-the-go event discovery
-2. Implement user profiles with event history and preferences
-3. Add event registration integration
-4. Expand to more regions with localized content
+1. Complete Vue 3 migration to modernize the frontend
+2. Develop a mobile app for on-the-go event discovery
+3. Implement user profiles with event history and preferences
+4. Add event registration integration
+5. Expand to more regions with localized content
 
 ## Active Decisions
 
 ### Technical Decisions
+- Migrating from Vue 2 to Vue 3 for improved performance and maintainability
+- Adopting the Composition API for complex components
+- Migrating from Vuex to Pinia for state management
+- Upgrading from Nuxt 2 to Nuxt 3
 - Using GraphQL for flexible querying capabilities
 - Leveraging Google Maps for geospatial visualization
-- Implementing a component-based frontend architecture
 - Using Kubernetes for scalable deployment
 
 ### Product Decisions
@@ -109,3 +119,4 @@ The event crawling system with crawl profiles feature also remains an important 
 - Prioritize map-based discovery experience
 - Support multiple languages for international accessibility
 - Balance features for both swimmers and event organizers
+- Ensure the Vue 3 migration maintains all existing functionality

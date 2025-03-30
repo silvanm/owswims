@@ -1,0 +1,42 @@
+{
+  "name": "nuxt-app",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare"
+  },
+  "dependencies": {
+    "@chahindb7/vue-star-rating": "^1.0.0",
+    "@fortawesome/fontawesome-svg-core": "^6.7.2",
+    "@fortawesome/free-solid-svg-icons": "^6.7.2",
+    "@fortawesome/vue-fontawesome": "^3.0.8",
+    "@nuxt/content": "^3.4.0",
+    "@nuxt/eslint": "^1.2.0",
+    "@nuxt/fonts": "^0.11.0",
+    "@nuxt/scripts": "^0.11.5",
+    "@nuxt/test-utils": "^3.17.2",
+    "@nuxtjs/apollo": "^4.0.1-rc.5",
+    "@pinia/nuxt": "^0.10.1",
+    "@unhead/vue": "^2.0.2",
+    "@vueform/slider": "^2.1.10",
+    "@vuepic/vue-datepicker": "^11.0.2",
+    "date-fns": "^4.1.0",
+    "eslint": "^9.23.0",
+    "floating-vue": "^5.2.2",
+    "nuxt": "^3.16.1",
+    "nuxt-apollo": "^0.2.1",
+    "pinia": "^3.0.1",
+    "vue": "^3.5.13",
+    "vue-loading": "^0.1.4",
+    "vue-router": "^4.5.0",
+    "vue3-touch-events": "^5.0.13"
+  },
+  "devDependencies": {
+    "@nuxtjs/tailwindcss": "^6.13.2",
+    "sass-embedded": "^1.86.0"
+  }
+}
