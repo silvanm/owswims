@@ -1,10 +1,14 @@
-import gql from 'graphql-tag'
+import { gql } from '@apollo/client/core'
 import { formatISO } from 'date-fns'
 
-export default ({ app }, inject) => {
-  inject('queries', {
+// This plugin is updated for Vue 3/Nuxt 3 and Apollo Client 3.x
+export default defineNuxtPlugin((nuxtApp) => {
+  // Define GraphQL queries
+  const queries = {
     location(locationId, keyword, dateRange) {
-      const client = app.apolloProvider.defaultClient
+      // Get the Apollo client from the nuxtApp
+      const client = nuxtApp.$apollo.defaultClient
+
       return client.query({
         fetchPolicy: 'no-cache', // allow to refetch when reviews are updated
         query: gql`
@@ -90,5 +94,11 @@ export default ({ app }, inject) => {
         },
       })
     },
-  })
-}
+  }
+
+  // Provide the queries to the app
+  nuxtApp.provide('queries', queries)
+
+  // For backward compatibility with Vue 2 code
+  nuxtApp.vueApp.config.globalProperties.$queries = queries
+})

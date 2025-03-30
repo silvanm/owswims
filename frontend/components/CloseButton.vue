@@ -1,16 +1,22 @@
 <template>
-  <font-awesome-icon
-    class="cursor-pointer"
-    icon="plus"
-    size="lg"
-    :transform="{ rotate: collapsed && !isStatic ? 0 : 45 }"
-    @click="click"
-  ></font-awesome-icon>
+  <client-only>
+    <div 
+      class="close-button"
+      @click="click"
+    >
+      <div 
+        class="plus-icon"
+        :style="{ transform: `rotate(${collapsed && !isStatic ? 0 : 45}deg)` }"
+      ></div>
+    </div>
+  </client-only>
 </template>
 
 <script>
 export default {
   name: 'CloseButton',
+  // Explicitly declare emitted events (new in Vue 3)
+  emits: ['collapse', 'expand'],
   props: {
     isStatic: {
       type: Boolean,
@@ -43,7 +49,42 @@ export default {
 </script>
 
 <style scoped>
-.collapse-icon {
-  @apply h-6 w-6 float-right mt-1 cursor-pointer;
+.close-button {
+  cursor: pointer;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.plus-icon {
+  position: relative;
+  width: 20px;
+  height: 20px;
+  transition: transform 0.3s ease;
+}
+
+.plus-icon::before,
+.plus-icon::after {
+  content: '';
+  position: absolute;
+  background-color: #333;
+}
+
+.plus-icon::before {
+  width: 100%;
+  height: 2px;
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+}
+
+.plus-icon::after {
+  width: 2px;
+  height: 100%;
+  left: 50%;
+  top: 0;
+  transform: translateX(-50%);
 }
 </style>

@@ -40,6 +40,16 @@ OWSwims is a functional web application with core features implemented. The plat
 
 ## In Progress
 
+### Vue 2 to Vue 3 Migration
+- ✅ Created comprehensive migration plan
+- ✅ Established Vue 3 migration directory structure
+- ✅ Started dependency analysis
+- ✅ Created migration tracker
+- 🔄 Completing dependency analysis
+- 🔄 Evaluating Migration Build approach
+- 🔄 Setting up development environment for migration
+- 🔄 Creating migration branch
+
 ### Location Verification System
 - ✅ Database schema update (migration 0042)
 - ✅ Admin interface updates
@@ -61,19 +71,40 @@ OWSwims is a functional web application with core features implemented. The plat
   - ✅ Refactored existing commands to use the shared service
   - ✅ Removed duplicated geocoding logic
   - ✅ Removed unused Scrapy functionality and dependencies
-- 🔄 Frontend indicators for verified locations
-- 🔄 Verification workflow refinement
+- ⏸️ Frontend indicators for verified locations (on hold during Vue 3 migration)
+- ⏸️ Verification workflow refinement (on hold during Vue 3 migration)
 
 ### User Experience Improvements
-- 🔄 DaterangeSlider component enhancements
-- 🔄 Mobile interface optimizations
-- 🔄 Map performance improvements
-- 🔄 Filter usability enhancements
+- ⏸️ DaterangeSlider component enhancements (will be addressed during Vue 3 migration)
+- ⏸️ Mobile interface optimizations (will be addressed during Vue 3 migration)
+- ⏸️ Map performance improvements (will be addressed during Vue 3 migration)
+- ⏸️ Filter usability enhancements (will be addressed during Vue 3 migration)
 
 ## What's Left to Build
 
 ### Primary Focus
-1. 📋 Automated Event Import Tool
+1. 📋 Vue 2 to Vue 3 Migration
+   - 🔄 Phase 1: Preparation and Analysis (15% complete)
+   - 📋 Phase 2: Core Infrastructure Updates
+     - 📋 Update Nuxt.js to Nuxt 3
+     - 📋 Update build system
+     - 📋 Migrate Vuex to Pinia
+     - 📋 Update Vue Router
+   - 📋 Phase 3: Component Migration
+     - 📋 Migrate shared components
+     - 📋 Migrate page components
+     - 📋 Migrate Map component
+     - 📋 Update third-party component integrations
+   - 📋 Phase 4: Feature Updates and Testing
+     - 📋 Update Apollo GraphQL integration
+     - 📋 Update internationalization
+     - 📋 Comprehensive testing
+   - 📋 Phase 5: Deployment and Monitoring
+     - 📋 Staging deployment
+     - 📋 Production deployment
+     - 📋 Post-migration optimization
+
+2. 📋 Automated Event Import Tool (on hold during Vue 3 migration)
    - ✅ Initial implementation of LLM-based agent system for event crawling
    - ✅ Integration with Firecrawl API for web scraping
    - ✅ Implementation of event processor using OpenAI GPT-4o
@@ -86,17 +117,15 @@ OWSwims is a functional web application with core features implemented. The plat
      - ✅ Profile management with list_crawl_profiles command
      - ✅ Enhanced crawl_events command with --profile option
      - ✅ Added support for custom prompts in crawl profiles
-   - 🔄 Moving from experimental stage to production-ready
-   - 🔄 Improving accuracy and reliability of data extraction
-   - Will significantly reduce manual data entry and increase event coverage
+   - ⏸️ Moving from experimental stage to production-ready (on hold)
+   - ⏸️ Improving accuracy and reliability of data extraction (on hold)
 
-2. 📋 Event Fuzzy Search Service
+3. 📋 Event Fuzzy Search Service (planned after Vue 3 migration)
    - 📋 Develop a service for quickly finding events by name and date using fuzzy search
    - 📋 Implement efficient matching algorithm for event names and dates
    - 📋 Create API endpoint for fuzzy event search
    - 📋 Integrate with event crawler to avoid duplicate processing
    - 📋 Add support for handling calendar-style event listings
-   - Will improve efficiency when processing event calendars with many existing events
 
 ## Known Issues
 
