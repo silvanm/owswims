@@ -102,10 +102,17 @@ class LocationAdmin(admin.ModelAdmin):
     formfield_overrides = {
         map_fields.AddressField: {"widget": map_widgets.GoogleMapsAddressWidget},
     }
-    list_display = ["city", "water_name", "country", "verified_at", "image_display"]
+    list_display = [
+        "city",
+        "water_name",
+        "country",
+        "verified_at",
+        "image_display",
+        "number_of_events",
+    ]
     list_filter = [LocationIsVerifiedFilter, "country"]
     search_fields = ["city", "country"]
-    readonly_fields = ("image_display",)
+    readonly_fields = ("image_display", "number_of_events")
     actions = ["verify_locations", "unverify_locations", "process_unverified_locations"]
 
     def verify_locations(self, request, queryset):
@@ -169,6 +176,11 @@ class LocationAdmin(admin.ModelAdmin):
             return ""
 
     image_display.short_description = "Image"
+
+    def number_of_events(self, obj):
+        return obj.events.count()
+
+    number_of_events.short_description = "Events"
 
 
 class RaceInline(admin.TabularInline):
