@@ -347,7 +347,7 @@ class EventAdmin(CloneModelAdmin):
 
         # Get current year
         current_year = datetime.now().year
-        url = "{}??date_start__year={}".format(request.path, current_year)
+        url = "{}?date_start__year={}".format(request.path, current_year)
         from django.shortcuts import redirect
 
         return redirect(url)
