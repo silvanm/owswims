@@ -17,7 +17,7 @@
             <a href="https://muehlemann-popp.ch">
               <img
                 :src="require('@/assets/Mühlemann&Popp.svg')"
-                style="width: 200px; margin-top: 5px"
+                style="width: 120px; margin-top: 5px"
               />
             </a>
           </div>
