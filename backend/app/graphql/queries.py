@@ -26,7 +26,7 @@ class OrganizerNode(DjangoObjectType):
         interfaces = (Node,)
 
     logo = graphene.String(resolver=get_organization_logo_url)
-    number_of_events = graphene.Int(source='number_of_events')
+    number_of_events = graphene.Int(source="number_of_events")
 
 
 def get_header_photo_url(obj, resolve_obj):
@@ -49,7 +49,7 @@ class LocationNode(DjangoObjectType):
             "lng",
             "events",
             "header_photo",
-            "average_rating"
+            "average_rating",
         )
         interfaces = (Node,)
 
@@ -173,7 +173,11 @@ WHERE ("app_event"."date_start" >= now()
         with connection.cursor() as c:
             c.execute(sql)
             (event_count, race_cont, countries_count) = c.fetchone()
-        return Statistics(event_count=event_count, race_count=race_cont, countries_count=countries_count)
+        return Statistics(
+            event_count=event_count,
+            race_count=race_cont,
+            countries_count=countries_count,
+        )
 
 
 class LocationsFilteredQuery(graphene.ObjectType):
@@ -192,15 +196,15 @@ class LocationsFilteredQuery(graphene.ObjectType):
     )
 
     def resolve_locations_filtered(
-            root,
-            info,
-            race_distance_gte,
-            race_distance_lte,
-            date_from,
-            date_to,
-            keyword="",
-            organizer_slug=None,
-            organizer_id=None,
+        root,
+        info,
+        race_distance_gte,
+        race_distance_lte,
+        date_from,
+        date_to,
+        keyword="",
+        organizer_slug=None,
+        organizer_id=None,
     ):
         q = Q(
             events__races__distance__gte=race_distance_gte,
@@ -212,7 +216,7 @@ class LocationsFilteredQuery(graphene.ObjectType):
 
         if len(keyword) >= 3:
             q = q & (
-                    Q(events__name__istartswith=keyword) | Q(city__istartswith=keyword)
+                Q(events__name__istartswith=keyword) | Q(city__istartswith=keyword)
             )
 
         if organizer_slug:
@@ -220,6 +224,7 @@ class LocationsFilteredQuery(graphene.ObjectType):
 
         if organizer_id:
             from base64 import b64decode
+
             model_with_pk = b64decode(organizer_id).decode("utf-8")
             model_name, pk = model_with_pk.split(":")
             q = q & Q(events__organizer__id=pk)
@@ -235,7 +240,9 @@ class ReviewNode(DjangoObjectType):
         interfaces = (Node,)
 
 
-class Query(UserQuery, MeQuery, LocationsFilteredQuery, StatisticsQuery, graphene.ObjectType):
+class Query(
+    UserQuery, MeQuery, LocationsFilteredQuery, StatisticsQuery, graphene.ObjectType
+):
     location = relay.Node.Field(LocationNode)
     all_locations = DjangoFilterConnectionField(
         LocationNode, filterset_class=LocationNodeFilter
@@ -246,6 +253,15 @@ class Query(UserQuery, MeQuery, LocationsFilteredQuery, StatisticsQuery, graphen
     race = relay.Node.Field(RaceNode)
 
     organizer = relay.Node.Field(OrganizerNode)
-    all_organizers = DjangoFilterConnectionField(OrganizerNode)
+    all_organizers = DjangoFilterConnectionField(
+        OrganizerNode, number_of_events_gt=graphene.Int()
+    )
+
+    def resolve_all_organizers(self, info, number_of_events_gt=None, **kwargs):
+        qs = Organizer.objects.all()
+        if number_of_events_gt is not None:
+            ids = [org.id for org in qs if org.number_of_events() > number_of_events_gt]
+            qs = Organizer.objects.filter(id__in=ids)
+        return qs
 
     debug = graphene.Field(DjangoDebug, name="_debug")

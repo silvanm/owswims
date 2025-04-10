@@ -27,7 +27,7 @@ export default {
     allOrganizers: {
       query: gql`
         query {
-          allOrganizers {
+          allOrganizers(numberOfEventsGt: 1) {
             edges {
               node {
                 name
