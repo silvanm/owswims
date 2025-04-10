@@ -10,6 +10,7 @@ from django_countries.fields import CountryField
 from djmoney.models.fields import MoneyField
 from django_google_maps import fields as map_fields
 from model_clone import CloneMixin
+from django.utils.text import slugify
 
 
 class Location(models.Model):
@@ -81,6 +82,21 @@ class Organizer(models.Model):
 
     def number_of_events(self):
         return len(self.events.filter(date_start__gte=datetime.now()))
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            # Generate a slug from the name
+            base_slug = slugify(self.name)
+            slug = base_slug
+            counter = 1
+
+            # Check if slug already exists and append a number if it does
+            while Organizer.objects.filter(slug=slug).exclude(pk=self.pk).exists():
+                slug = f"{base_slug}-{counter}"
+                counter += 1
+
+            self.slug = slug
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.name}"
