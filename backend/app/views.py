@@ -43,6 +43,20 @@ def sitemap(request):
             lastmod=event.edited_at,
         )
 
+    # Organizer pages
+    organizers = models.Organizer.objects.filter(
+        events__date_start__gte=datetime.now()
+    ).distinct()
+    for organizer in organizers:
+        if organizer.slug:  # Only add if organizer has a slug
+            url = f"/organizer/{organizer.slug}"
+            sitemap.add(
+                url,
+                changefreq="monthly",
+                priority=0.7,
+                alternates={code: f"/{code}{url}" for code in other_languages},
+            )
+
     return sitemap.response(
         # pretty_print is False by default
         pretty_print=settings.DEBUG,
