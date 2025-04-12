@@ -5,6 +5,7 @@ import dotenv
 
 from app.services.event_processor import EventProcessor
 from app.services.event_crawler import EventCrawler
+from app.utils.url_utils import URLUtils
 
 
 class Command(BaseCommand):
@@ -139,6 +140,18 @@ class Command(BaseCommand):
 
         if not event_url_sets:
             self.stdout.write(self.style.WARNING("No events found"))
+            return
+
+        # Filter out URLs that already exist in the database
+        self.stdout.write("Filtering out URLs that already exist in the database...")
+        event_url_sets = URLUtils.filter_existing_url_sets(
+            event_url_sets, stdout=self.stdout, stderr=self.stderr
+        )
+
+        if not event_url_sets:
+            self.stdout.write(
+                self.style.WARNING("All events already exist in the database")
+            )
             return
 
         # Apply limit if specified
@@ -303,6 +316,31 @@ class Command(BaseCommand):
                         )
                     )
 
+                    # Filter out URLs that already exist in the database
+                    self.stdout.write(
+                        "Filtering out URLs that already exist in the database..."
+                    )
+                    filtered_event_url_sets = URLUtils.filter_existing_url_sets(
+                        event_url_sets, stdout=self.stdout, stderr=self.stderr
+                    )
+
+                    if not filtered_event_url_sets:
+                        self.stdout.write(
+                            self.style.WARNING(
+                                f"All events from {url} already exist in the database"
+                            )
+                        )
+                        skipped += 1
+                        continue
+
+                    self.stdout.write(
+                        self.style.SUCCESS(
+                            f"After filtering, {len(filtered_event_url_sets)} of {len(event_url_sets)} events from {url} remain to be processed"
+                        )
+                    )
+
+                    event_url_sets = filtered_event_url_sets
+
                     # Process each extracted event
                     multiple_successful = 0
                     multiple_failed = 0
@@ -415,6 +453,18 @@ class Command(BaseCommand):
 
         if not event_url_sets:
             self.stdout.write(self.style.WARNING("No events found"))
+            return
+
+        # Filter out URLs that already exist in the database
+        self.stdout.write("Filtering out URLs that already exist in the database...")
+        event_url_sets = URLUtils.filter_existing_url_sets(
+            event_url_sets, stdout=self.stdout, stderr=self.stderr
+        )
+
+        if not event_url_sets:
+            self.stdout.write(
+                self.style.WARNING("All events already exist in the database")
+            )
             return
 
         # Apply limit if specified
