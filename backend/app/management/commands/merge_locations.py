@@ -87,7 +87,20 @@ def print_location_info(location: Location, distance: float = None) -> str:
 
 
 class Command(BaseCommand):
-    help = "Merge locations that are within a specified distance of each other"
+    help = """
+    Merge locations that are within a specified distance of each other.
+    
+    This command identifies duplicate locations within the database that are geographically close
+    (within the specified distance) and merges them to consolidate data. The command will:
+    
+    1. Find all locations with coordinates that are within the specified distance of each other
+    2. Prioritize which location to keep based on verification status, presence of images, and number of events
+    3. Update all events at the merged locations to point to the kept location
+    4. Delete the merged locations
+    
+    Use the --dry-run option to see what would be merged without making any changes.
+    Use the --limit option to process only a specific number of location groups.
+    """
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -113,6 +126,9 @@ class Command(BaseCommand):
         dry_run = options["dry_run"]
         limit = options["limit"]
 
+        self.stdout.write(
+            f"Searching for locations within {distance} meters of each other..."
+        )
         nearby_pairs = find_nearby_locations(distance)
 
         if not nearby_pairs:
@@ -128,6 +144,22 @@ class Command(BaseCommand):
             self.stdout.write(
                 f"Found {len(nearby_pairs)} groups of nearby locations to merge."
             )
+
+        self.stdout.write("Location prioritization criteria:")
+        self.stdout.write("1. Verified locations are preferred over non-verified")
+        self.stdout.write("2. Locations with images are preferred over those without")
+        self.stdout.write(
+            "3. Locations with more events are preferred over those with fewer"
+        )
+
+        total_locations_to_merge = sum(
+            len(merge_locs) for _, merge_locs in nearby_pairs
+        )
+        self.stdout.write(
+            f"Total locations that will be merged: {total_locations_to_merge}"
+        )
+        self.stdout.write(f"Total locations that will remain: {len(nearby_pairs)}")
+        self.stdout.write("=" * 50)
 
         for keep_loc, merge_locs in nearby_pairs:
             self.stdout.write("\n" + "=" * 50)
@@ -145,12 +177,17 @@ class Command(BaseCommand):
                     "\nDo you want to merge these locations?", default=True
                 ):
                     # Update all events to point to the kept location
+                    total_events_updated = 0
                     for loc, _ in merge_locs:
+                        event_count = loc.events.count()
                         Event.objects.filter(location=loc).update(location=keep_loc)
+                        total_events_updated += event_count
                         # Delete the merged location
                         loc.delete()
                     self.stdout.write(
-                        self.style.SUCCESS("Locations merged successfully.")
+                        self.style.SUCCESS(
+                            f"Locations merged successfully. {total_events_updated} events updated to the kept location."
+                        )
                     )
                 else:
                     self.stdout.write(
