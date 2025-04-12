@@ -132,6 +132,7 @@ These URLs contain details about the same event. Please analyze all pages and co
 
 Today's date is {current_date}. Only process events that will take place in the future (after today's date).
 If the event has already occurred (before today's date), do not process it.
+If the event is at no specific date, skip it.
 
 If the page is not about a single open water swim event, skip it.
 
@@ -299,6 +300,7 @@ For the water_type field, only use one of these values: 'river', 'sea', 'lake', 
                     date_end=event_data["date_end"],
                     water_temp=event_data.get("water_temp"),
                     description=event_data.get("description") or "",
+                    source=f"agentic crawling, source urls: {', '.join(urls)}",
                 )
                 logger.info(
                     f"Successfully created event: {event.name} (ID: {event.id})"
@@ -356,6 +358,7 @@ For the water_type field, only use one of these values: 'river', 'sea', 'lake', 
                 "Scotland": "GB",  # Teil des Vereinigten Königreichs
                 "Wales": "GB",  # Teil des Vereinigten Königreichs
                 "United Kingdom": "GB",
+                "UK": "GB",  # Add mapping for UK to GB
                 "USA": "US",
                 "United States": "US",
                 "United States of America": "US",
@@ -409,7 +412,7 @@ For the water_type field, only use one of these values: 'river', 'sea', 'lake', 
             logger.info(f"Using existing location: {location.city}, {location.country}")
             return location
 
-        # If no exact match, create a new location with geocoding
+        # If no exact match, create a new location but don't save yet until after geocoding
         new_location = Location(
             city=location_data["city"],
             country=country_code,
@@ -430,6 +433,11 @@ For the water_type field, only use one of these values: 'river', 'sea', 'lake', 
             success = geocoding_service.geocode_location(new_location)
 
             if success:
+                # The geocode_location method will update the country code to the correct ISO code from Google Maps API
+                logger.info(
+                    f"Geocoding successful. Country code set to: {new_location.country}"
+                )
+
                 # Check for nearby locations (<1km)
                 if new_location.lat is not None and new_location.lng is not None:
                     nearby_locations = geocoding_service.get_nearby_locations(
@@ -446,13 +454,13 @@ For the water_type field, only use one of these values: 'river', 'sea', 'lake', 
                         return closest["location"]
             else:
                 logger.warning(
-                    f"Geocoding failed for {new_location.city}, {country.name}"
+                    f"Geocoding failed for {new_location.city}, {country_name}"
                 )
         except Exception as e:
             logger.error(f"Error during geocoding: {str(e)}")
 
         # If we get here, either geocoding failed or no nearby locations were found
-        # Save the new location
+        # Now save the new location
         try:
             new_location.save()
             logger.info(
