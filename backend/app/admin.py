@@ -96,6 +96,23 @@ class LocationIsVerifiedFilter(admin.SimpleListFilter):
             return queryset.filter(verified_at__isnull=True)
 
 
+class LocationHasCoordinatesFilter(admin.SimpleListFilter):
+    title = "has Coordinates"
+    parameter_name = "has_coordinates"
+
+    def lookups(self, request, model_admin):
+        return (
+            ("yes", "Yes"),
+            ("no", "No"),
+        )
+
+    def queryset(self, request, queryset):
+        if self.value() == "yes":
+            return queryset.exclude(lat__isnull=True).exclude(lng__isnull=True)
+        elif self.value() == "no":
+            return queryset.filter(lat__isnull=True) | queryset.filter(lng__isnull=True)
+
+
 @admin.register(models.Location)
 class LocationAdmin(admin.ModelAdmin):
     form = LocationForm
@@ -107,10 +124,12 @@ class LocationAdmin(admin.ModelAdmin):
         "water_name",
         "country",
         "verified_at",
+        "lat",
+        "lng",
         "image_display",
         "number_of_events",
     ]
-    list_filter = [LocationIsVerifiedFilter, "country"]
+    list_filter = [LocationIsVerifiedFilter, LocationHasCoordinatesFilter, "country"]
     search_fields = ["city", "country"]
     readonly_fields = ("image_display", "number_of_events")
     actions = ["verify_locations", "unverify_locations", "process_unverified_locations"]
@@ -270,6 +289,7 @@ class EventAdmin(CloneModelAdmin):
         "created_at",
     )
     list_display_links = ("eventstr",)
+    sortable_by = ("date_start", "verified_at", "created_at")
     list_filter = (
         IsUpcomingFilter,
         "entry_quality",
