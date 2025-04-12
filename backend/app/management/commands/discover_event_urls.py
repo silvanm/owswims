@@ -9,6 +9,7 @@ from llama_index.llms.openai import OpenAI
 
 from app.models import Event
 from app.services.scraping_service import ScrapingService
+from app.utils.url_utils import URLUtils
 
 
 class EventType(Enum):
@@ -164,23 +165,25 @@ class Command(BaseCommand):
 
         # 6. Filter results against database and already processed URLs
         self.stdout.write("Filtering out URLs already in database or processed...")
-        new_urls = self.filter_existing_urls(all_urls)
+        new_urls = URLUtils.filter_existing_urls(
+            all_urls, stdout=self.stdout, stderr=self.stderr
+        )
 
         # Also filter out URLs that are already in the validation cache
         new_urls = [
             url_data
             for url_data in new_urls
-            if self.normalize_url(url_data["url"]) not in validation_cache
+            if URLUtils.normalize_url(url_data["url"]) not in validation_cache
         ]
 
         # Also filter out URLs that are already in the valid_urls list
         existing_valid_urls = {
-            self.normalize_url(url_data["url"]) for url_data in valid_urls
+            URLUtils.normalize_url(url_data["url"]) for url_data in valid_urls
         }
         new_urls = [
             url_data
             for url_data in new_urls
-            if self.normalize_url(url_data["url"]) not in existing_valid_urls
+            if URLUtils.normalize_url(url_data["url"]) not in existing_valid_urls
         ]
 
         self.stdout.write(
@@ -193,7 +196,7 @@ class Command(BaseCommand):
 
         for i, url_data in enumerate(new_urls, 1):
             url = url_data["url"]
-            normalized_url = self.normalize_url(url)
+            normalized_url = URLUtils.normalize_url(url)
             self.stdout.write(f"Validating ({i}/{len(new_urls)}): {url}")
 
             # Check if URL is already in the validation cache
@@ -295,17 +298,15 @@ class Command(BaseCommand):
             )
 
     def load_existing_valid_urls(self, output_file: str) -> List[Dict[str, Any]]:
-        """Load existing valid URLs from file"""
-        if os.path.exists(output_file):
-            try:
-                with open(output_file, "r") as f:
-                    urls = json.load(f)
-                return urls
-            except Exception as e:
-                self.stderr.write(
-                    self.style.WARNING(f"Error loading existing valid URLs: {str(e)}")
-                )
-        return []
+        """Load existing valid URLs from a file"""
+        if not os.path.exists(output_file):
+            return []
+
+        try:
+            with open(output_file, "r") as f:
+                return json.load(f)
+        except (json.JSONDecodeError, FileNotFoundError):
+            return []
 
     def generate_keywords(self) -> List[str]:
         """Generate the main keyword for searching open water swimming events"""
@@ -488,72 +489,6 @@ class Command(BaseCommand):
                 self.style.ERROR(f"Error searching for '{query}': {str(e)}")
             )
             return []
-
-    def normalize_url(self, url: str) -> str:
-        """Normalize URL for comparison"""
-        # Remove protocol
-        url = url.split("://")[-1]
-
-        # Remove trailing slash
-        if url.endswith("/"):
-            url = url[:-1]
-
-        # Remove www.
-        if url.startswith("www."):
-            url = url[4:]
-
-        return url.lower()
-
-    def filter_existing_urls(self, urls: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-        """Filter out URLs that are already in the database"""
-        new_urls = []
-
-        try:
-            # Fetch all events once
-            self.stdout.write("Fetching all events from database...")
-            all_events = list(Event.objects.all())
-            self.stdout.write(f"Found {len(all_events)} events in database")
-
-            # Create a set of normalized website URLs for faster lookup
-            existing_urls = set()
-            for event in all_events:
-                if event.website:
-                    existing_urls.add(self.normalize_url(event.website))
-
-            self.stdout.write(
-                f"Found {len(existing_urls)} unique website URLs in database"
-            )
-
-            # Filter URLs
-            for url_data in urls:
-                url = url_data["url"]
-                normalized_url = self.normalize_url(url)
-
-                # Check if this URL exists in the database
-                exists = False
-                for existing_url in existing_urls:
-                    if existing_url in normalized_url or normalized_url in existing_url:
-                        exists = True
-                        break
-
-                if not exists:
-                    new_urls.append(url_data)
-
-        except Exception as e:
-            # If database access fails, log the error and return all URLs
-            self.stderr.write(
-                self.style.WARNING(
-                    f"Database access failed, skipping database filtering: {str(e)}"
-                )
-            )
-            self.stdout.write(
-                self.style.WARNING(
-                    "Continuing without filtering against database. All URLs will be treated as new."
-                )
-            )
-            return urls
-
-        return new_urls
 
     def validate_url_with_gpt(
         self, url_data: Dict[str, Any], scraping_service: ScrapingService
