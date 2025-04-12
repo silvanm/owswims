@@ -180,7 +180,7 @@ Return the information as JSON. The response should be in the following format:
     }}]
 }}   
 
-Do not return any comments in the JSON file.
+Do not return any comments in the JSON file! Return plain JSON.
 
 Note: There are multiple races per swim event.
 Please analyze all the URLs provided and combine the information to create the most complete event profile possible.
@@ -337,12 +337,58 @@ For the water_type field, only use one of these values: 'river', 'sea', 'lake', 
             logger.error("Missing city or country in location data")
             return None
 
-        # Convert country name to code
-        country = pycountry.countries.get(name=location_data["country"])
-        if not country:
-            logger.error(f"Could not find country code for {location_data['country']}")
-            return None
-        country_code = country.alpha_2
+        country_name = location_data["country"]
+
+        # First check if the country is already a 2-letter code
+        if (
+            isinstance(country_name, str)
+            and len(country_name) == 2
+            and country_name.upper() == country_name
+        ):
+            country_code = country_name
+            logger.info(f"Using provided country code directly: {country_code}")
+        else:
+            # Country name to code mapping for special cases
+            country_name_mappings = {
+                "Czech Republic": "CZ",
+                "Czechia": "CZ",
+                "England": "GB",  # Teil des Vereinigten Königreichs
+                "Scotland": "GB",  # Teil des Vereinigten Königreichs
+                "Wales": "GB",  # Teil des Vereinigten Königreichs
+                "United Kingdom": "GB",
+                "USA": "US",
+                "United States": "US",
+                "United States of America": "US",
+            }
+
+            # Check if we have a direct mapping for this country name
+            if country_name in country_name_mappings:
+                country_code = country_name_mappings[country_name]
+                logger.info(
+                    f"Using mapped country code {country_code} for {country_name}"
+                )
+            else:
+                # Try to find the country code using pycountry
+                country = pycountry.countries.get(name=country_name)
+
+                # If not found by exact name, try with common name
+                if not country:
+                    country = pycountry.countries.get(common_name=country_name)
+
+                # If still not found, try searching by name
+                if not country:
+                    try:
+                        countries = list(pycountry.countries.search_fuzzy(country_name))
+                        country = countries[0] if countries else None
+                    except LookupError:
+                        # Handle the case where fuzzy search fails
+                        country = None
+
+                if not country:
+                    logger.error(f"Could not find country code for {country_name}")
+                    return None
+
+                country_code = country.alpha_2
 
         # Try to find an exact match first using all available fields
         location = Location.objects.filter(
