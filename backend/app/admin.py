@@ -30,6 +30,7 @@ class OrganizerAdmin(admin.ModelAdmin):
     prepopulated_fields = {"slug": ("name",)}
     list_display = ["name", "website_link", "public_url", "number_of_events"]
     readonly_fields = ["public_url", "website_link", "number_of_events"]
+    search_fields = ["name", "website", "internal_comment"]
 
     def public_url(self, obj):
         if obj.slug:
