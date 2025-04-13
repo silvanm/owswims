@@ -517,8 +517,8 @@ class Command(BaseCommand):
             {content} 
             
             Determine:
-            1. If this is a valid open water swimming event website (A race or a list of races): True/False
-            2. Whether it's for a single event or contains multiple events: 
+            1. If this is a valid open water swimming event website (A race or a list of races on a specific date): True/False
+            2. Whether it's for a single event or contains multiple events 
             3. Provide a brief explanation for your decision
             
             Only classify as valid if it's clearly related to open water swimming events (not pool swimming, not general sports).
