@@ -107,6 +107,10 @@ OWSwims is a functional web application with core features implemented. The plat
 - 🐛 Test coverage needs improvement
 
 ### Bugs
+- ✅ Fixed: GraphQL error "Expected a value of type 'LocationCountry' but received: UK"
+  - Added "UK" to "GB" mapping in EventProcessor
+  - Ensured proper use of Google Maps API country codes
+  - Updated existing database records with incorrect codes
 - 🐛 Race track visualization occasionally shows incorrect paths
 - 🐛 Date range filter sometimes resets unexpectedly
 - 🐛 Mobile map interaction has usability issues on some devices

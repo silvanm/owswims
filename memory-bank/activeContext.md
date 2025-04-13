@@ -18,6 +18,17 @@ The event crawling system with crawl profiles feature also remains an important 
 
 ## Recent Changes
 
+### Fixed LocationCountry Enum Error
+- Fixed GraphQL error "Expected a value of type 'LocationCountry' but received: UK"
+- Updated EventProcessor to properly handle country codes
+  - Added "UK" mapping to "GB" in country_name_mappings dictionary
+  - Improved the flow to ensure geocoded country codes from Google Maps API are used
+  - Added better logging for country code conversions
+  - Fixed bug with incorrect variable reference in error message
+- Updated existing database records with "UK" country code to use "GB" instead
+- These changes ensure all country codes stored in the database are consistent with ISO 3166-1 standards (GB for United Kingdom)
+- Prevents GraphQL schema validation errors when retrieving locations
+
 ### Location Verification
 - Added `verified_at` timestamp field to the Location model
 - This field is set when an administrator verifies the location information
