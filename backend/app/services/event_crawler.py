@@ -34,7 +34,7 @@ class EventCrawler:
         self.scraping_service = ScrapingService(
             api_key=firecrawl_api_key, stdout=stdout, stderr=stderr
         )
-        self.llm = OpenAI(model="gpt-4o")
+        self.llm = OpenAI(model="gpt-4o", response_format="json")
         self.profile = profile
 
         # Cache for scraped pages to avoid re-scraping
