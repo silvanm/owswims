@@ -148,7 +148,7 @@ class Event(CloneMixin, models.Model):
         null=True,
         blank=True,
     )
-    source = models.CharField(max_length=30, null=True, blank=True)
+    source = models.CharField(max_length=200, null=True, blank=True)
     created_by = models.ForeignKey(
         User,
         null=True,
