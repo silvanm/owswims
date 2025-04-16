@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     "django_google_maps",
     "django_admin_listfilter_dropdown",
     "django_q",
+    "ckeditor",
     "app.apps.AppConfig",
 ]
 
@@ -84,6 +85,7 @@ TEMPLATES = [
         "DIRS": [
             BASE_DIR / "templates",
             os.path.join(BASE_DIR, "static"),
+            os.path.join(BASE_DIR, "templates", "ckeditor"),
         ],
         "APP_DIRS": True,
         "OPTIONS": {
@@ -226,3 +228,39 @@ Q_CLUSTER = {
     "label": "Django Q",
     "orm": "default",  # Use Django's ORM as the broker
 }
+
+# CKEditor Configuration
+CKEDITOR_UPLOAD_PATH = "uploads/"
+CKEDITOR_IMAGE_BACKEND = "pillow"
+CKEDITOR_JQUERY_URL = "//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"
+CKEDITOR_CONFIGS = {
+    "default": {
+        "toolbar": "Custom",
+        "toolbar_Custom": [
+            ["Bold", "Italic", "Underline"],
+            [
+                "NumberedList",
+                "BulletedList",
+                "-",
+                "Outdent",
+                "Indent",
+                "-",
+                "JustifyLeft",
+                "JustifyCenter",
+                "JustifyRight",
+                "JustifyBlock",
+            ],
+            ["Link", "Unlink"],
+            ["RemoveFormat", "Source"],
+        ],
+        "height": 300,
+        "width": "100%",
+    }
+}
+
+# OpenAI Configuration
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4.1")
+
+# SparkPost Configuration
+SPARKPOST_API_KEY = os.getenv("SPARKPOST_API_KEY")

@@ -76,6 +76,24 @@ class Organizer(models.Model):
         blank=True,
         help_text="Comment NOT shown to the public",
     )
+    contact_email = models.EmailField(max_length=200, null=True, blank=True)
+    contact_form_url = models.URLField(max_length=200, null=True, blank=True)
+    contact_status = models.CharField(
+        max_length=20,
+        choices=[
+            ("pending", "Pending"),
+            ("contacted", "Contacted"),
+            ("responded", "Responded"),
+            ("completed", "Completed"),
+            ("failed", "Failed to Contact"),
+            ("needs_review", "Needs Review"),
+        ],
+        default="pending",
+        null=True,
+        blank=True,
+    )
+    last_contact_attempt = models.DateTimeField(null=True, blank=True)
+    contact_notes = models.TextField(max_length=1000, blank=True, default="")
 
     class Meta:
         ordering = ["name"]
