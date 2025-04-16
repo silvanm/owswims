@@ -1,0 +1,14 @@
+{
+  "name": "Example with Custom Prompt",
+  "start_url": "https://example.com/events",
+  "actions": [
+    {"type": "wait", "milliseconds": 2000},
+    {"type": "click", "selector": "button.accept-cookies"},
+    {"type": "wait", "milliseconds": 1000},
+    {"type": "click", "selector": "button.load-more"},
+    {"type": "wait", "milliseconds": 2000},
+    {"type": "scrape"}
+  ],
+  "custom_prompt": "Visit this URL and find all open water swimming events: {start_url}\nPlease analyze the page and find URLs for all swimming events. Some events might have multiple URLs (e.g. a registration page and an info page).\n\nToday's date is {current_date}. Only include events that will take place in the future (after today's date).\n\nThis website has a specific structure where each event card has a class 'event-card' and contains links to both the event details page and registration page.\n\nReturn the information as JSON in the following format:\n{\n    \"events\": [\n        {\n            \"urls\": [\"https://event1-info.com\", \"https://event1-registration.com\"],\n            \"name\": \"Event 1 name\",  // optional, for logging\n            \"location\": \"Paris, France\"  // optional, for filtering\n        },\n        {\n            \"urls\": [\"https://event2.com\"],\n            \"name\": \"Event 2 name\",  // optional, for logging\n            \"location\": \"Barcelona, Spain\"  // optional, for filtering\n        }\n    ]\n}\n\nMake sure to:\n1. Only include URLs that lead to specific event pages\n2. Group URLs that belong to the same event together\n3. Include both info pages and registration pages when available\n4. Follow pagination or \"Load More\" links if present\n5. Make URLs absolute, not relative\n6. Only include URLs from the same domain or known registration platforms\n7. Only include future events (after {current_date})\n8. Look specifically for elements with class 'event-card' to find events\n",
+  "description": "Example profile with a custom prompt for the ReactAgent"
+}
