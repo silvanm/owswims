@@ -6,6 +6,8 @@ from typing import List, Dict, Any
 import dotenv
 from django.core.management.base import BaseCommand
 from llama_index.llms.openai import OpenAI
+from django.conf import settings
+from pydantic import BaseModel
 
 from app.models import Event
 from app.services.scraping_service import ScrapingService
@@ -40,7 +42,7 @@ def serper(keyword: str, country_code: str = "ch", language: str = "en"):
 
 
 class Command(BaseCommand):
-    help = "Discover new event URLs using Google Search and GPT-4o validation"
+    help = "Discover new event URLs using Google Search and validation with AI"
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -365,7 +367,7 @@ class Command(BaseCommand):
             languages.remove("en")
 
         translated_keywords = {}
-        llm = OpenAI(model="gpt-4o")
+        llm = OpenAI(model=settings.OPENAI_MODEL)
 
         for language in languages:
             self.stdout.write(f"Translating keywords to {language}...")
@@ -382,9 +384,6 @@ class Command(BaseCommand):
 
             try:
                 # Extract JSON array from response
-                import re
-
-                # Convert the response to a string
                 response_text = str(response)
 
                 json_match = re.search(r"\[.*\]", response_text, re.DOTALL)
@@ -493,7 +492,7 @@ class Command(BaseCommand):
     def validate_url_with_gpt(
         self, url_data: Dict[str, Any], scraping_service: ScrapingService
     ) -> tuple:
-        """Use GPT-4o to validate if a URL is an event website and determine its type"""
+        """Use AI to validate if a URL is an event website and determine its type"""
         url = url_data["url"]
 
         try:
@@ -525,9 +524,6 @@ class Command(BaseCommand):
             """
 
             # Use Pydantic model for structured output
-            from pydantic import BaseModel
-            from openai import OpenAI
-
             class EventValidation(BaseModel):
                 is_valid: bool
                 event_type: EventType
@@ -536,7 +532,7 @@ class Command(BaseCommand):
             client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
 
             completion = client.beta.chat.completions.parse(
-                model="gpt-4o",
+                model=settings.OPENAI_MODEL,
                 messages=[
                     {"role": "system", "content": system_message},
                     {"role": "user", "content": user_message},

@@ -1,9 +1,10 @@
 import os
 import json
-from django.core.management.base import BaseCommand
+from django.core.management.base import BaseCommand, CommandError
+from django.conf import settings
 from llama_index.llms.openai import OpenAI
-
 from app.services.scraping_service import ScrapingService
+
 from .discover_event_urls import serper
 
 
@@ -12,89 +13,77 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
-            "--keyword",
-            type=str,
-            default="open water swimming Switzerland 2025",
-            help="Test search keyword",
+            "--keyword", type=str, help="Test keyword search with a specific term"
         )
         parser.add_argument(
-            "--url",
+            "--url", type=str, help="Test URL validation with a specific URL"
+        )
+        parser.add_argument(
+            "--firecrawl-api-key",
             type=str,
-            help="Test URL to validate (skips search if provided)",
+            help="FireCrawl API key (falls back to FIRECRAWL_API_KEY env var)",
         )
 
     def handle(self, *args, **options):
         # Check for required environment variables
-        required_env_vars = ["OPENAI_API_KEY", "SERPER_API_KEY", "FIRECRAWL_API_KEY"]
-        missing_vars = [var for var in required_env_vars if var not in os.environ]
-        if missing_vars:
-            self.stderr.write(
-                self.style.ERROR(
-                    f"Missing required environment variables: {', '.join(missing_vars)}"
-                )
-            )
-            return
+        if not os.environ.get("OPENAI_API_KEY"):
+            raise CommandError("OPENAI_API_KEY environment variable is required")
 
-        # Initialize services
-        scraping_service = ScrapingService(
-            api_key=os.environ["FIRECRAWL_API_KEY"],
-            stdout=self.stdout,
-            stderr=self.stderr,
+        firecrawl_api_key = options.get("firecrawl_api_key") or os.environ.get(
+            "FIRECRAWL_API_KEY"
         )
+        if not firecrawl_api_key:
+            raise CommandError(
+                "FireCrawl API key is required (use --firecrawl-api-key or set FIRECRAWL_API_KEY env var)"
+            )
 
-        # Test URL validation if provided
-        if options.get("url"):
-            self._test_url_validation(options["url"], scraping_service)
-            return
+        # Initialize scraping service
+        scraping_service = ScrapingService(api_key=firecrawl_api_key)
 
-        # Otherwise test search
-        self._test_search(options["keyword"])
+        # Test keyword search
+        keyword = options.get("keyword")
+        if keyword:
+            self._test_search(keyword)
+
+        # Test URL validation
+        url = options.get("url")
+        if url:
+            self._test_url_validation(url, scraping_service)
+
+        # If no specific test was requested
+        if not keyword and not url:
+            self.stdout.write(
+                "No test specified. Use --keyword or --url to run specific tests."
+            )
 
     def _test_search(self, keyword):
-        """Test the Google Search functionality"""
-        self.stdout.write(self.style.SUCCESS(f"Testing search with keyword: {keyword}"))
+        """Test search functionality"""
+        self.stdout.write(f"Testing search with keyword: {keyword}")
 
         try:
-            # Execute search
-            self.stdout.write("Executing Google search...")
+            # Execute the search
             result = serper(keyword)
             data = json.loads(result)
 
             # Display results
-            self.stdout.write(self.style.SUCCESS("Search results:"))
-
-            if "organic" in data:
-                for i, item in enumerate(data["organic"], 1):
-                    self.stdout.write(f"\n{i}. {item.get('title', 'No title')}")
-                    self.stdout.write(f"   URL: {item.get('link', 'No link')}")
-                    self.stdout.write(
-                        f"   Snippet: {item.get('snippet', 'No snippet')}"
-                    )
-            else:
-                self.stdout.write(self.style.WARNING("No organic results found"))
-
-            # Suggest next steps
-            self.stdout.write("\nTo test URL validation, run:")
-            if "organic" in data and len(data["organic"]) > 0:
-                example_url = data["organic"][0].get("link", "https://example.com")
-                self.stdout.write(
-                    f'python manage.py test_event_discovery --url "{example_url}"'
-                )
-            else:
-                self.stdout.write(
-                    'python manage.py test_event_discovery --url "https://example.com"'
-                )
+            self.stdout.write(
+                self.style.SUCCESS(f"Found {len(data.get('organic', []))} results")
+            )
+            for idx, item in enumerate(data.get("organic", [])[:5], 1):
+                self.stdout.write(f"{idx}. {item.get('title')}")
+                self.stdout.write(f"   URL: {item.get('link')}")
+                self.stdout.write("")
 
         except Exception as e:
             self.stderr.write(self.style.ERROR(f"Error during search test: {str(e)}"))
 
     def _test_url_validation(self, url, scraping_service):
-        """Test the URL validation functionality"""
-        self.stdout.write(self.style.SUCCESS(f"Testing URL validation with: {url}"))
+        """Test URL validation with GPT"""
+        self.stdout.write(f"Testing URL validation for: {url}")
 
         try:
-            # Scrape the webpage content
-            self.stdout.write("Scraping webpage content...")
+            # Scrape the content
+            self.stdout.write("Scraping content...")
             content = scraping_service.scrape(url)
 
             if not content:
@@ -104,8 +93,8 @@ class Command(BaseCommand):
             self.stdout.write(self.style.SUCCESS("Successfully scraped content"))
             self.stdout.write(f"Content length: {len(content)} characters")
 
-            # Create a prompt for GPT-4o
-            self.stdout.write("Validating with GPT-4o...")
+            # Create a prompt for the model
+            self.stdout.write(f"Validating with {settings.OPENAI_MODEL}...")
             prompt = f"""
             Analyze this webpage content and determine if it's an open water swimming event website.
             
@@ -116,8 +105,13 @@ class Command(BaseCommand):
             Only answer YES if this is clearly a page for a specific open water swimming event or a directory of such events.
             """
 
-            # Call GPT-4o-mini for faster and less expensive validation
-            llm = OpenAI(model="gpt-4o-mini")
+            # Call a smaller model variant for faster and less expensive validation
+            mini_model = (
+                f"{settings.OPENAI_MODEL}-mini"
+                if "-mini" not in settings.OPENAI_MODEL
+                else settings.OPENAI_MODEL
+            )
+            llm = OpenAI(model=mini_model)
             response = llm.complete(prompt)
 
             # Convert the response to a string

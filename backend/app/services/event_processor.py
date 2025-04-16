@@ -89,7 +89,7 @@ class EventProcessor:
         self.scraping_service = ScrapingService(
             api_key=firecrawl_api_key, stdout=stdout, stderr=stderr
         )
-        self.llm = OpenAI(model="gpt-4o")
+        self.llm = OpenAI(model=settings.OPENAI_MODEL)
         self.dry_run = dry_run
 
         logger.info(f"EventProcessor initialized (dry_run={dry_run})")
