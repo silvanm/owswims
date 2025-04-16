@@ -12,3 +12,6 @@ scrapy/
 .mypy_cache
 .DS_Store
 __pycache__
+vue3-migration/
+backend/url_validation_cache.json
+backend/owswims-*.json
