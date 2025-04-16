@@ -8,7 +8,7 @@ from django.contrib import admin
 from django.db.models import TextField
 from django.forms import Textarea
 from django.http import HttpResponseRedirect
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.utils import timezone
@@ -16,21 +16,53 @@ from django.utils.translation import ugettext_lazy
 from django_admin_listfilter_dropdown.filters import RelatedDropdownFilter
 from model_clone import CloneModelAdmin
 from django_q.tasks import async_task, result
+from django.urls import path
+from django.contrib import messages
+from django.urls import reverse
+from ckeditor.widgets import CKEditorWidget
 
 from django_google_maps import widgets as map_widgets
 from django_google_maps import fields as map_fields
 from . import models
 from .models import Race, Event, Location, Review
+from .services.email_service import EmailService
 
 admin.site.site_header = ugettext_lazy("Open-Water-Swims Admin")
+
+
+class HasFutureEventsFilter(admin.SimpleListFilter):
+    title = "has future events"
+    parameter_name = "has_future_events"
+
+    def lookups(self, request, model_admin):
+        return (
+            ("yes", "Yes"),
+            ("no", "No"),
+        )
+
+    def queryset(self, request, queryset):
+        if self.value() == "yes":
+            return queryset.filter(events__date_start__gte=timezone.now()).distinct()
+        elif self.value() == "no":
+            return queryset.exclude(events__date_start__gte=timezone.now()).distinct()
 
 
 @admin.register(models.Organizer)
 class OrganizerAdmin(admin.ModelAdmin):
     prepopulated_fields = {"slug": ("name",)}
-    list_display = ["name", "website_link", "public_url", "number_of_events"]
-    readonly_fields = ["public_url", "website_link", "number_of_events"]
-    search_fields = ["name", "website", "internal_comment"]
+    list_display = [
+        "name",
+        "website_link",
+        "public_url",
+        "events_link",
+        "contact_email",
+        "contact_status",
+        "last_contact_attempt",
+        "email_actions",
+    ]
+    readonly_fields = ["public_url", "website_link", "events_link"]
+    search_fields = ["name", "website", "internal_comment", "contact_email"]
+    list_filter = ("contact_status", HasFutureEventsFilter)
 
     def public_url(self, obj):
         if obj.slug:
@@ -49,6 +81,127 @@ class OrganizerAdmin(admin.ModelAdmin):
 
     website_link.allow_tags = True
     public_url.allow_tags = True
+
+    def email_actions(self, obj):
+        if obj.contact_email:
+            return format_html(
+                '<a class="button" href="{}">Compose Email</a>',
+                reverse("admin:compose-organizer-email", args=[obj.pk]),
+            )
+        return "No email"
+
+    email_actions.short_description = "Actions"
+    email_actions.allow_tags = True
+
+    def events_link(self, obj):
+        future_events = obj.events.filter(date_start__gte=timezone.now())
+        count = future_events.count()
+        if count > 0:
+            url = (
+                reverse("admin:app_event_changelist")
+                + f"?organizer__id__exact={obj.id}&is_upcoming=yes"
+            )
+            return format_html('<a href="{}">{} future events</a>', url, count)
+        return "0 future events"
+
+    events_link.short_description = "View Events"
+    events_link.allow_tags = True
+
+    def get_urls(self):
+        urls = super().get_urls()
+        custom_urls = [
+            path(
+                "<int:organizer_id>/compose-email/",
+                self.admin_site.admin_view(self.compose_email),
+                name="compose-organizer-email",
+            ),
+        ]
+        return custom_urls + urls
+
+    def compose_email(self, request, organizer_id):
+        organizer = models.Organizer.objects.get(id=organizer_id)
+        email_service = EmailService()
+
+        if request.method == "POST":
+            form = EmailComposeForm(request.POST)
+            if form.is_valid():
+                success = email_service.send_email(
+                    organizer,
+                    form.cleaned_data["subject"],
+                    form.cleaned_data["content"],
+                    to_email=form.cleaned_data["to_email"],
+                )
+
+                if success:
+                    messages.success(
+                        request, f"Email sent successfully to {organizer.name}"
+                    )
+                else:
+                    messages.error(request, f"Failed to send email to {organizer.name}")
+
+                # Check which button was pressed by its name attribute
+                if "_send_and_next" in request.POST:
+                    # Find the next organizer in the queue, ordered by name
+                    next_organizer = (
+                        models.Organizer.objects.filter(
+                            contact_status="pending",
+                            events__date_start__gte=timezone.now(),
+                            name__gt=organizer.name,  # Filter for names alphabetically after the current one
+                        )
+                        .distinct()
+                        .order_by("name")
+                        .first()
+                    )  # Order by name
+
+                    if next_organizer:
+                        messages.info(
+                            request,
+                            f"Proceeding to next organizer: {next_organizer.name}",
+                        )
+                        return HttpResponseRedirect(
+                            reverse(
+                                "admin:compose-organizer-email",
+                                args=[next_organizer.id],
+                            )
+                        )
+                    else:
+                        messages.info(request, "No more organizers in the queue.")
+                        return HttpResponseRedirect(
+                            reverse("admin:app_organizer_changelist")
+                        )
+
+                elif "_send" in request.POST:
+                    # Default action: redirect back to the list
+                    return HttpResponseRedirect(
+                        reverse("admin:app_organizer_changelist")
+                    )
+
+                else:
+                    # Should not happen unless form submitted differently (e.g., pressing Enter)
+                    # Default to going back to the list
+                    return HttpResponseRedirect(
+                        reverse("admin:app_organizer_changelist")
+                    )
+        else:
+            # Generate initial content with subject and body
+            email_data = email_service.generate_email_content(organizer)
+            form = EmailComposeForm(
+                initial={
+                    "subject": email_data["subject"],
+                    "content": email_data["body"],
+                    "to_email": organizer.contact_email,
+                }
+            )
+
+        context = {
+            "title": f"Compose Email to {organizer.name}",
+            "form": form,
+            "organizer": organizer,
+            "opts": self.model._meta,
+            "has_change_permission": self.has_change_permission(request),
+        }
+
+        return render(request, "admin/compose_email.html", context)
 
 
 class LocationForm(forms.ModelForm):
@@ -369,8 +522,6 @@ class EventAdmin(CloneModelAdmin):
         # Get current year
         current_year = datetime.now().year
         url = "{}?date_start__year={}".format(request.path, current_year)
-        from django.shortcuts import redirect
-
         return redirect(url)
 
     def eventstr(self, obj: Event):
@@ -406,3 +557,21 @@ class EventAdmin(CloneModelAdmin):
         return format_html(f'<a target="_blank" href="{url}">{url}</a>')
 
     public_url.allow_tags = True
+
+
+class EmailComposeForm(forms.Form):
+    subject = forms.CharField(
+        max_length=200,
+        required=True,
+        widget=forms.TextInput(attrs={"style": "width: 90%;"}),
+    )
+    to_email = forms.EmailField(
+        required=True,
+        label="To",
+        widget=forms.EmailInput(attrs={"style": "width: 90%;"}),
+    )
+    content = forms.CharField(
+        widget=CKEditorWidget(config_name="default", attrs={"style": "width: 95%;"}),
+        required=True,
+        label="Email Content",
+    )
