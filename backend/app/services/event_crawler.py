@@ -6,6 +6,7 @@ from django.core.management.base import OutputWrapper
 from llama_index.core.agent import ReActAgent
 from llama_index.llms.openai import OpenAI
 from llama_index.core.tools import FunctionTool
+from django.conf import settings
 
 from .scraping_service import ScrapingService
 
@@ -34,7 +35,7 @@ class EventCrawler:
         self.scraping_service = ScrapingService(
             api_key=firecrawl_api_key, stdout=stdout, stderr=stderr
         )
-        self.llm = OpenAI(model="gpt-4o", response_format="json")
+        self.llm = OpenAI(model=settings.OPENAI_MODEL, response_format="json")
         self.profile = profile
 
         # Cache for scraped pages to avoid re-scraping
