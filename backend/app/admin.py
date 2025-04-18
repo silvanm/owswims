@@ -148,6 +148,12 @@ class OrganizerAdmin(admin.ModelAdmin):
                             events__date_start__gte=timezone.now(),
                             name__gt=organizer.name,  # Filter for names alphabetically after the current one
                         )
+                        .exclude(
+                            contact_email__isnull=True,  # Ensure email exists
+                        )
+                        .exclude(
+                            contact_email="",  # Ensure email is not empty
+                        )
                         .distinct()
                         .order_by("name")
                         .first()
@@ -183,12 +189,16 @@ class OrganizerAdmin(admin.ModelAdmin):
                         reverse("admin:app_organizer_changelist")
                     )
         else:
-            # Generate initial content with subject and body
-            email_data = email_service.generate_email_content(organizer)
+            # Generate initial content and perform quality check
+            generation_result = email_service.generate_email_content(organizer)
+            subject = generation_result.subject
+            content = generation_result.body
+            quality_warnings = generation_result.quality_warnings
+
             form = EmailComposeForm(
                 initial={
-                    "subject": email_data["subject"],
-                    "content": email_data["body"],
+                    "subject": subject,
+                    "content": content,
                     "to_email": organizer.contact_email,
                 }
             )
@@ -199,6 +209,8 @@ class OrganizerAdmin(admin.ModelAdmin):
             "organizer": organizer,
             "opts": self.model._meta,
             "has_change_permission": self.has_change_permission(request),
+            "quality_warnings": quality_warnings,  # Pass warnings to template
+            "media": form.media,  # Ensure media is passed for CKEditor
         }
 
         return render(request, "admin/compose_email.html", context)
