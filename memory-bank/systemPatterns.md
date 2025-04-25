@@ -171,7 +171,7 @@ flowchart TD
     Crawler[EventCrawler]
     Processor[EventProcessor]
     Scraper[ScrapingService]
-    LLM[OpenAI GPT-4o]
+    LLM[OpenAI (configurable model)]
     Firecrawl[Firecrawl API]
     Profiles[Crawl Profiles]
     DB[(Database)]
@@ -222,7 +222,7 @@ sequenceDiagram
     participant Command as Django Command
     participant Crawler as EventCrawler
     participant Processor as EventProcessor
-    participant LLM as GPT-4o
+    participant LLM as OpenAI LLM
     participant Scraper as ScrapingService
     participant DB as Database
     

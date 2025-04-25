@@ -11,7 +11,7 @@
 - **Error Tracking**: Sentry
 - **Email**: SparkPost
 - **Web Scraping**: Firecrawl API with action profiles
-- **LLM Integration**: OpenAI GPT-4o with llama-index
+- **LLM Integration**: OpenAI (configurable model) with llama-index
 - **Asynchronous Processing**: Django Q
 - **Geocoding**: Shared GeocodingService using Google Maps API
 

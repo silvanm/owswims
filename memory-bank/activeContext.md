@@ -86,7 +86,7 @@ The event crawling system with crawl profiles feature also remains an important 
 1. Automated Event Import Tool
    - Develop a tool for automatically importing swims from third-party websites
    - Implementation of an LLM-based agent system for crawling and processing event data
-   - Uses Firecrawl for web scraping and OpenAI's GPT-4o for data extraction
+   - Uses Firecrawl for web scraping and OpenAI's configurable model for data extraction
    - Structured as a Django management command with supporting services
    - Capable of both processing individual events and crawling multiple events from a website
    - Filters for future events only, using dynamically generated current date
