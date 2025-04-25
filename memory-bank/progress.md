@@ -76,7 +76,7 @@ OWSwims is a functional web application with core features implemented. The plat
 1. 📋 Automated Event Import Tool
    - ✅ Initial implementation of LLM-based agent system for event crawling
    - ✅ Integration with Firecrawl API for web scraping
-   - ✅ Implementation of event processor using OpenAI GPT-4o
+   - ✅ Implementation of event processor using OpenAI configurable model
    - ✅ Support for both single event processing and multi-event crawling
    - ✅ Filtering for future events only with dynamic date generation
    - ✅ Replacement of the experimental Agentic crawler approach
