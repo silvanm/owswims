@@ -11,6 +11,8 @@ from djmoney.models.fields import MoneyField
 from django_google_maps import fields as map_fields
 from model_clone import CloneMixin
 from django.utils.text import slugify
+from django.conf import settings
+import secrets
 
 
 class Location(models.Model):
@@ -304,3 +306,25 @@ class Review(CloneMixin, models.Model):
 
     def __str__(self):
         return repr(f"{self.rating}, {self.comment}")
+
+
+class ApiToken(models.Model):
+    """API Token for header-based authentication used by integrations like N8N"""
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="api_tokens"
+    )
+    token = models.CharField(max_length=64, unique=True)
+    name = models.CharField(
+        max_length=255, help_text="A name to identify what this token is used for"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    last_used_at = models.DateTimeField(null=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        if not self.token:
+            self.token = secrets.token_hex(32)  # Generate a secure random token
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.name} ({self.user.username})"
