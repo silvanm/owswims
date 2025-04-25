@@ -7,8 +7,9 @@ from graphene_django import DjangoObjectType
 from graphene_django.debug import DjangoDebug
 from graphene_django.filter import DjangoFilterConnectionField
 from graphql_auth.schema import UserQuery, MeQuery
+from graphql_jwt.decorators import login_required
 
-from app.models import Organizer, Location, Race, Event, Review
+from app.models import Organizer, Location, Race, Event, Review, ApiToken
 
 
 def get_organization_logo_url(obj, resolve_obj):
@@ -108,7 +109,7 @@ class EventNode(DjangoObjectType):
     class Meta:
         model = Event
         filter_fields = {
-            "name": ["exact"],
+            "name": ["exact", "icontains"],
             "website": ["exact"],
             "location": ["exact"],
             "location__country": ["exact"],
@@ -240,6 +241,16 @@ class ReviewNode(DjangoObjectType):
         interfaces = (Node,)
 
 
+class ApiTokenNode(DjangoObjectType):
+    class Meta:
+        model = ApiToken
+        interfaces = (Node,)
+        fields = ("id", "name", "created_at", "last_used_at")
+        filter_fields = {
+            "name": ["exact", "icontains"],
+        }
+
+
 class Query(
     UserQuery, MeQuery, LocationsFilteredQuery, StatisticsQuery, graphene.ObjectType
 ):
@@ -263,5 +274,13 @@ class Query(
             ids = [org.id for org in qs if org.number_of_events() > number_of_events_gt]
             qs = Organizer.objects.filter(id__in=ids)
         return qs
+
+    # API Token fields
+    my_api_tokens = graphene.List(ApiTokenNode)
+
+    @login_required
+    def resolve_my_api_tokens(self, info):
+        user = info.context.user
+        return ApiToken.objects.filter(user=user).order_by("-created_at")
 
     debug = graphene.Field(DjangoDebug, name="_debug")

@@ -3,14 +3,42 @@ schema {
   mutation: Mutation
 }
 
+type ApiTokenNode implements Node {
+  id: ID!
+  name: String!
+  createdAt: DateTime!
+  lastUsedAt: DateTime
+}
+
+type ApiTokenNodeConnection {
+  pageInfo: PageInfo!
+  edges: [ApiTokenNodeEdge]!
+}
+
+type ApiTokenNodeEdge {
+  node: ApiTokenNode
+  cursor: String!
+}
+
 type ContactMail {
   ok: Boolean
   id: String
 }
 
+type CreateApiToken {
+  success: Boolean
+  token: String
+  error: String
+}
+
 scalar Date
 
 scalar DateTime
+
+type DeleteApiToken {
+  success: Boolean
+  error: String
+}
 
 type DjangoDebug {
   sql: [DjangoDebugSQL]
@@ -74,7 +102,7 @@ type EventNode implements Node {
   editedAt: DateTime
   verifiedAt: DateTime
   previousYearEvent: EventNode
-  eventSet(offset: Int, before: String, after: String, first: Int, last: Int, name: String, website: String, location: ID, location_Country: String, location_City: String, location_City_Icontains: String, dateStart_Lte: Date, dateStart_Gte: Date, dateEnd_Lte: Date, dateEnd_Gte: Date): EventNodeConnection!
+  eventSet(offset: Int, before: String, after: String, first: Int, last: Int, name: String, name_Icontains: String, website: String, location: ID, location_Country: String, location_City: String, location_City_Icontains: String, dateStart_Lte: Date, dateStart_Gte: Date, dateEnd_Lte: Date, dateEnd_Gte: Date): EventNodeConnection!
   races(offset: Int, before: String, after: String, first: Int, last: Int, distance_Lte: Float, distance_Gte: Float): RaceNodeConnection!
   reviews(offset: Int, before: String, after: String, first: Int, last: Int, event: ID): ReviewNodeConnection!
 }
@@ -363,7 +391,7 @@ type LocationNode implements Node {
   lng: Float
   headerPhoto: String
   averageRating: Float
-  events(offset: Int, before: String, after: String, first: Int, last: Int, name: String, website: String, location: ID, location_Country: String, location_City: String, location_City_Icontains: String, dateStart_Lte: Date, dateStart_Gte: Date, dateEnd_Lte: Date, dateEnd_Gte: Date): EventNodeConnection!
+  events(offset: Int, before: String, after: String, first: Int, last: Int, name: String, name_Icontains: String, website: String, location: ID, location_Country: String, location_City: String, location_City_Icontains: String, dateStart_Lte: Date, dateStart_Gte: Date, dateEnd_Lte: Date, dateEnd_Gte: Date): EventNodeConnection!
   id: ID!
 }
 
@@ -393,6 +421,8 @@ type Mutation {
   updateRace(input: RaceMutationInput!): RaceMutationPayload
   sendContactmail(message: String!, sender: String!): ContactMail
   rateEvent(comment: String, country: String, eventId: ID!, name: String, rating: Int!): RateEvent
+  createApiToken(name: String!): CreateApiToken
+  deleteApiToken(tokenId: ID!): DeleteApiToken
 }
 
 interface Node {
@@ -447,12 +477,19 @@ type Query {
   race(id: ID!): RaceNode
   organizer(id: ID!): OrganizerNode
   allOrganizers(numberOfEventsGt: Int, offset: Int, before: String, after: String, first: Int, last: Int, name: String, slug: String): OrganizerNodeConnection
+  myApiTokens: [ApiTokenNode]
   _debug: DjangoDebug
 }
 
 input RaceMutationInput {
-  coordinates: [Float]!
-  id: ID
+  id: ID!
+  coordinates: [Float]
+  distance: Float
+  raceTime: Time
+  name: String
+  wetsuit: String
+  priceValue: Float
+  priceCurrency: String
   clientMutationId: String
 }
 
@@ -982,9 +1019,10 @@ type UserNode implements Node {
   isStaff: Boolean!
   isActive: Boolean!
   dateJoined: DateTime!
-  createdEvent(offset: Int, before: String, after: String, first: Int, last: Int, name: String, website: String, location: ID, location_Country: String, location_City: String, location_City_Icontains: String, dateStart_Lte: Date, dateStart_Gte: Date, dateEnd_Lte: Date, dateEnd_Gte: Date): EventNodeConnection!
-  editedEvent(offset: Int, before: String, after: String, first: Int, last: Int, name: String, website: String, location: ID, location_Country: String, location_City: String, location_City_Icontains: String, dateStart_Lte: Date, dateStart_Gte: Date, dateEnd_Lte: Date, dateEnd_Gte: Date): EventNodeConnection!
+  createdEvent(offset: Int, before: String, after: String, first: Int, last: Int, name: String, name_Icontains: String, website: String, location: ID, location_Country: String, location_City: String, location_City_Icontains: String, dateStart_Lte: Date, dateStart_Gte: Date, dateEnd_Lte: Date, dateEnd_Gte: Date): EventNodeConnection!
+  editedEvent(offset: Int, before: String, after: String, first: Int, last: Int, name: String, name_Icontains: String, website: String, location: ID, location_Country: String, location_City: String, location_City_Icontains: String, dateStart_Lte: Date, dateStart_Gte: Date, dateEnd_Lte: Date, dateEnd_Gte: Date): EventNodeConnection!
   reviews(offset: Int, before: String, after: String, first: Int, last: Int, event: ID): ReviewNodeConnection!
+  apiTokens(offset: Int, before: String, after: String, first: Int, last: Int, name: String, name_Icontains: String): ApiTokenNodeConnection!
   pk: Int
   archived: Boolean
   verified: Boolean

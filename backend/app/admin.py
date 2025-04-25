@@ -24,7 +24,7 @@ from ckeditor.widgets import CKEditorWidget
 from django_google_maps import widgets as map_widgets
 from django_google_maps import fields as map_fields
 from . import models
-from .models import Race, Event, Location, Review
+from .models import Race, Event, Location, Review, ApiToken
 from .services.email_service import EmailService
 
 admin.site.site_header = ugettext_lazy("Open-Water-Swims Admin")
@@ -586,4 +586,15 @@ class EmailComposeForm(forms.Form):
         widget=CKEditorWidget(config_name="default", attrs={"style": "width: 95%;"}),
         required=True,
         label="Email Content",
+    )
+
+
+@admin.register(ApiToken)
+class ApiTokenAdmin(admin.ModelAdmin):
+    list_display = ("name", "user", "created_at", "last_used_at")
+    search_fields = ("name", "user__username")
+    readonly_fields = ("token", "created_at", "last_used_at")
+    fieldsets = (
+        (None, {"fields": ("user", "name")}),
+        ("Token Information", {"fields": ("token", "created_at", "last_used_at")}),
     )
