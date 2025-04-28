@@ -15,6 +15,13 @@ from pathlib import Path
 import environ
 import os
 
+# GeoDjango Configuration - Moved to the top to ensure early loading
+# Direct environment variable approach for macOS Homebrew
+# os.environ["GDAL_LIBRARY_PATH"] = "/opt/homebrew/Cellar/gdal/3.10.3/lib/libgdal.dylib"
+# os.environ["GEOS_LIBRARY_PATH"] = "/opt/homebrew/Cellar/geos/3.13.1/lib/libgeos_c.dylib"
+# os.environ["GDAL_DATA"] = "/opt/homebrew/opt/gdal/share/gdal"
+# os.environ["PROJ_LIB"] = "/opt/homebrew/opt/proj/share/proj"
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -44,6 +51,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    # "django.contrib.gis",
     "graphql_auth",
     "graphql_jwt.refresh_token.apps.RefreshTokenConfig",
     "corsheaders",
@@ -262,7 +270,7 @@ CKEDITOR_CONFIGS = {
 
 # OpenAI Configuration
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-OPENAI_MODEL = os.getenv("OPENAI_MODEL", "o4-mini")
+OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4.1")
 
 # SparkPost Configuration
 SPARKPOST_API_KEY = os.getenv("SPARKPOST_API_KEY")

@@ -15,6 +15,7 @@ from django.core.management.base import OutputWrapper
 from llama_index.core.agent import ReActAgent
 from llama_index.llms.openai import OpenAI
 from llama_index.core.tools import FunctionTool
+from djmoney.money import Money
 
 from .scraping_service import ScrapingService
 from .geocoding_service import GeocodingService
@@ -91,6 +92,8 @@ class EventProcessor:
         )
         self.llm = OpenAI(model=settings.OPENAI_MODEL)
         self.dry_run = dry_run
+        self.stdout = stdout
+        self.stderr = stderr
 
         logger.info(f"EventProcessor initialized (dry_run={dry_run})")
 
@@ -142,6 +145,10 @@ To find out the price of the event, look for the registration page ("Anmeldung" 
 
 If the event is virtual or does not have a physical location, skip it.
 
+Pay attention to the distance of the race. On US sites it is often given in miles. You need to convert it to kilometers.
+
+Pay attention to the date of the event. On US sites it is often given in the format "15th of July 2024". You need to convert it to the format "2024-07-15".
+
 Return the information as JSON. The response should be in the following format:
 {{
     "event": {{
@@ -172,7 +179,7 @@ Return the information as JSON. The response should be in the following format:
         "name": "10 km Open Water Race",  // Name of the race (Race.name)
         "date": "2024-07-15",  // Date of the race (Race.date)
         "race_time": "09:00:00",  // Time when the race starts (Race.race_time)
-        "distance": 10.0,  // Distance of the race in kilometers (Race.distance)
+        "distance": 10.0,  // Distance of the race in KILOMETERS (Race.distance)
         "wetsuit": "optional",  // Wetsuit requirements: compulsory, optional, prohibited (Race.wetsuit)
         "price": {{
             "amount": 50.0,  // Price to participate in the race (Race.price)
@@ -318,15 +325,26 @@ For the water_type field, only use one of these values: 'river', 'sea', 'lake', 
                     )
                     logger.info(f"[DRY RUN] Race details: {race_data}")
                 else:
-                    race = Race.objects.create(
-                        event=event,
-                        name=race_data["name"],
-                        date=race_data["date"],
-                        race_time=race_data.get("race_time"),
-                        distance=race_data["distance"],
-                        wetsuit=race_data.get("wetsuit"),
-                        price=race_data.get("price", {}).get("amount"),
-                    )
+                    # Create proper Money object with both amount and currency
+                    price_amount = race_data.get("price", {}).get("amount")
+                    price_currency = race_data.get("price", {}).get("currency", "EUR")
+
+                    # Create race with proper Money object if price is available
+                    race_kwargs = {
+                        "event": event,
+                        "name": race_data["name"],
+                        "date": race_data["date"],
+                        "race_time": race_data.get("race_time"),
+                        "distance": race_data["distance"],
+                        "wetsuit": race_data.get("wetsuit"),
+                    }
+
+                    # Only set price if amount is provided
+                    if price_amount is not None:
+                        race_kwargs["price"] = Money(price_amount, price_currency)
+
+                    race = Race.objects.create(**race_kwargs)
+
                     logger.info(f"Created race: {race.name} for event: {event.name}")
             except Exception as e:
                 logger.error(f"Failed to create race: {str(e)}")
@@ -433,6 +451,9 @@ For the water_type field, only use one of these values: 'river', 'sea', 'lake', 
             success = geocoding_service.geocode_location(new_location)
 
             if success:
+                # Save the location with updated coordinates
+                new_location.save(update_fields=["lat", "lng", "address"])
+
                 # The geocode_location method will update the country code to the correct ISO code from Google Maps API
                 logger.info(
                     f"Geocoding successful. Country code set to: {new_location.country}"
