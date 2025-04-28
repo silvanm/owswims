@@ -1,5 +1,5 @@
 {
-  "name":"European Open-Water Swims",
+  "name":"Open-Water Swims",
   "short_name":"OW Swims",
   "icons":[
     {
@@ -14,6 +14,6 @@
     }
   ],
   "theme_color":"#36abff",
-  "description": "Map of open-water swim events in Europe",
+  "description": "Global map of open-water swim events",
   "display": "fullscreen"
 }
