@@ -1,5 +1,8 @@
 import django_filters
 import graphene
+import hashlib
+import json
+from django.core.cache import cache
 from django.db import connection
 from django.db.models import Q
 from graphene import Node, relay
@@ -211,6 +214,31 @@ class LocationsFilteredQuery(graphene.ObjectType):
         organizer_slug=None,
         organizer_id=None,
     ):
+        # Create a cache key from the query parameters
+        # Ensure all values are serializable
+        cache_key_data = {
+            "race_distance_gte": (
+                float(race_distance_gte) if race_distance_gte is not None else None
+            ),
+            "race_distance_lte": (
+                float(race_distance_lte) if race_distance_lte is not None else None
+            ),
+            "date_from": str(date_from) if date_from is not None else None,
+            "date_to": str(date_to) if date_to is not None else None,
+            "keyword": str(keyword) if keyword is not None else "",
+            "organizer_slug": (
+                str(organizer_slug) if organizer_slug is not None else None
+            ),
+            "organizer_id": str(organizer_id) if organizer_id is not None else None,
+        }
+        cache_key = f"locations_filtered:{hashlib.md5(json.dumps(cache_key_data, sort_keys=True).encode()).hexdigest()}"
+
+        # Try to get from cache first
+        cached_result = cache.get(cache_key)
+        if cached_result is not None:
+            return cached_result
+
+        # If not in cache, run the original query
         q = Q(
             events__races__distance__gte=race_distance_gte,
             events__races__distance__lte=race_distance_lte,
@@ -234,7 +262,15 @@ class LocationsFilteredQuery(graphene.ObjectType):
             model_name, pk = model_with_pk.split(":")
             q = q & Q(events__organizer__id=pk)
 
-        return Location.objects.filter(q).distinct().all()
+        # Get the result and store it in cache
+        queryset = Location.objects.filter(q).distinct().all()
+
+        # Django querysets are not directly serializable for caching
+        # Convert to a list before caching as that's what GraphQL expects anyway
+        result = list(queryset)
+        cache.set(cache_key, result, 3600)  # Cache for 1 hour
+
+        return result
 
 
 class ReviewNode(DjangoObjectType):
@@ -273,11 +309,36 @@ class Query(
     )
 
     def resolve_all_organizers(self, info, number_of_events_gt=None, **kwargs):
+        # Create a cache key from the query parameters
+        # Extract only serializable kwargs for the cache key
+        serializable_kwargs = {}
+        for key, value in kwargs.items():
+            # Include only primitive types that can be safely serialized
+            if isinstance(value, (str, int, float, bool, type(None))):
+                serializable_kwargs[key] = value
+
+        cache_key_data = {
+            "number_of_events_gt": number_of_events_gt,
+            "kwargs": serializable_kwargs,
+        }
+        cache_key = f"all_organizers:{hashlib.md5(json.dumps(cache_key_data, sort_keys=True).encode()).hexdigest()}"
+
+        # Try to get from cache first
+        cached_result = cache.get(cache_key)
+        if cached_result is not None:
+            return cached_result
+
+        # If not in cache, run the original query
         qs = Organizer.objects.all()
         if number_of_events_gt is not None:
             ids = [org.id for org in qs if org.number_of_events() > number_of_events_gt]
             qs = Organizer.objects.filter(id__in=ids)
-        return qs
+
+        # Convert QuerySet to list before caching
+        result = list(qs)
+        cache.set(cache_key, result, 3600)  # Cache for 1 hour
+
+        return result
 
     # API Token fields
     my_api_tokens = graphene.List(ApiTokenNode)
