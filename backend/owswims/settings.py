@@ -167,6 +167,15 @@ STATIC_ROOT = os.path.join(BASE_DIR, "static")
 # Vue assets directory (assetsDir)
 STATICFILES_DIRS = []
 
+# Cache settings
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "locations-filtered-cache",
+        "TIMEOUT": 3600,  # 1 hour cache timeout
+    }
+}
+
 GOOGLE_MAPS_API_KEY = env.str("GOOGLE_MAPS_API_KEY")
 
 GRAPHENE = {
