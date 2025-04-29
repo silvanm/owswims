@@ -75,15 +75,21 @@ export default {
         fmt = 'EEEE, d. MMMM yyyy'
       }
 
+      // Parse the date in a timezone-agnostic way by using UTC
+      const [year, month, day] = dt.split('-').map(Number)
+      const utcDate = new Date(Date.UTC(year, month - 1, day))
+
       return capitalize(
-        format(new Date(dt), fmt, { locale: localeMap[this.$i18n.locale] })
+        format(utcDate, fmt, { locale: localeMap[this.$i18n.locale] })
       )
     },
     formatRaceTime(tm) {
-      if (tm) {
+      if (!tm) {
         return ''
       } else {
-        return format(new Date('2020-01-01 ' + tm), 'kk:mm')
+        // Using a fixed date (2020-01-01) with the time to prevent timezone issues
+        // The date part doesn't matter, we just need to format the time
+        return format(new Date('2020-01-01T' + tm + 'Z'), 'kk:mm')
       }
     },
     humanizeDistance(d) {
