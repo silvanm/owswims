@@ -4,12 +4,31 @@ from django.conf import settings
 from app.models import Organizer, Event
 from app.services.organizer_contact_service import OrganizerContactService
 import logging
+from django.db.models import Q
 
 logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
-    help = "Uses AI to find contact information for organizers of future events"
+    help = """
+    Uses AI to find contact information for organizers of future events that lack contact details.
+    
+    This command:
+    1. Identifies all organizers that have events with start dates in the future
+    2. Filters to only process organizers WITHOUT existing contact information
+       (those with no email address and no contact form URL)
+    3. Attempts to find contact information (email, contact form URLs) using AI services
+    
+    By default, the command only processes organizers without contact information.
+    Use the --all flag to process all organizers regardless of their current contact status.
+    
+    Results are categorized as:
+    - Success: Contact information found with high confidence
+    - Needs review: Contact information found but with lower confidence
+    - Failed: No contact information could be found
+    
+    You can specify a particular organizer to process using the --organizer option.
+    """
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -20,11 +39,26 @@ class Command(BaseCommand):
         parser.add_argument(
             "--organizer", type=str, help="Process only a specific organizer by name"
         )
+        parser.add_argument(
+            "--all",
+            action="store_true",
+            help="Process all organizers including those with existing contact information",
+        )
 
     def handle(self, *args, **options):
         # Get organizers of future events
         future_events = Event.objects.filter(date_start__gte=timezone.now())
         organizers = Organizer.objects.filter(events__in=future_events).distinct()
+
+        # Filter out organizers that already have contact information unless --all is specified
+        if not options["all"]:
+            organizers = organizers.filter(
+                Q(contact_email__isnull=True) | Q(contact_email=""),
+                Q(contact_form_url__isnull=True) | Q(contact_form_url=""),
+            )
+            self.stdout.write(
+                "Filtering to process only organizers without contact information"
+            )
 
         # Filter for specific organizer if requested
         if options["organizer"]:

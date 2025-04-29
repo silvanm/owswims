@@ -95,10 +95,13 @@ class EmailService:
         - be aware that in Switzerland we don't use the letter "ß" and we use "ss" instead.
         - In Switzerland, use a informal tone.
         - If the organiser is a organisation, use the plural form.
-        - Sign off with 'Silvan Mühlemann'.
+        - Sign off with 'Silvan Mühlemann'. 
         - Use singular/plural forms appropriately based on event count.
         - Generate a short, personalized subject line.
         - Max 3 paragraphs.
+
+        Give an explanation about what open-water-swims.com: It is a not-for-profit project from 
+        open-water swimmers for open-water swimmers. We want to help swimmers find the perfect swim events.
         """
 
         if prompt_extension:

@@ -452,7 +452,12 @@ For the water_type field, only use one of these values: 'river', 'sea', 'lake', 
 
             if success:
                 # Save the location with updated coordinates
-                new_location.save(update_fields=["lat", "lng", "address"])
+                if new_location.pk:
+                    # Only use update_fields when the record already exists
+                    new_location.save(update_fields=["lat", "lng", "address"])
+                else:
+                    # For new records, just save without update_fields
+                    new_location.save()
 
                 # The geocode_location method will update the country code to the correct ISO code from Google Maps API
                 logger.info(
