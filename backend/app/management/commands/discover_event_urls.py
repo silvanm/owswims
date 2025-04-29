@@ -8,6 +8,7 @@ from django.core.management.base import BaseCommand
 from llama_index.llms.openai import OpenAI
 from django.conf import settings
 from pydantic import BaseModel
+import re
 
 from app.models import Event
 from app.services.scraping_service import ScrapingService
@@ -344,6 +345,7 @@ class Command(BaseCommand):
             {"country": "Morocco", "code": "MA", "languages": ["ar", "fr"]},
             {"country": "Tunisia", "code": "TN", "languages": ["ar", "fr"]},
             {"country": "Egypt", "code": "EG", "languages": ["ar", "en"]},
+            {"country": "United States", "code": "US", "languages": ["en"]},
         ]
 
         if country_codes:
@@ -502,14 +504,14 @@ class Command(BaseCommand):
             if not content:
                 return False, EventType.UNKNOWN, "Failed to scrape content"
 
-            # Create a system message with instructions
-            system_message = """
+            # Create the LLM client using llama_index
+            llm = OpenAI(model=settings.OPENAI_MODEL)
+
+            # Create the prompt
+            prompt = f"""
             You are an expert at analyzing websites related to open water swimming events.
             Your task is to determine if a webpage is related to open water swimming _events_ and classify it.
-            """
 
-            # Create a user message with the content to analyze
-            user_message = f"""
             Analyze this webpage content and determine if it's related to open water swimming events in 2025 or later.
             
             Content:
@@ -520,34 +522,61 @@ class Command(BaseCommand):
             2. Whether it's for a single event or contains multiple events 
             3. Provide a brief explanation for your decision
             
+            Format your response exactly as follows (JSON format):
+            {{
+                "is_valid": true/false,
+                "event_type": "single"/"multiple"/"unknown",
+                "explanation": "your brief explanation here"
+            }}
+            
             Only classify as valid if it's clearly related to open water swimming events (not pool swimming, not general sports).
             """
 
-            # Use Pydantic model for structured output
-            class EventValidation(BaseModel):
-                is_valid: bool
-                event_type: EventType
-                explanation: str
+            # Get completion from LLM
+            response = llm.complete(prompt)
 
-            client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
+            # Extract the JSON from the response
+            result_text = str(response)
 
-            completion = client.beta.chat.completions.parse(
-                model=settings.OPENAI_MODEL,
-                messages=[
-                    {"role": "system", "content": system_message},
-                    {"role": "user", "content": user_message},
-                ],
-                response_format=EventValidation,
-            )
+            # Try to parse the JSON
+            try:
+                # Find JSON-like content within the response
+                json_match = re.search(r"\{.*\}", result_text, re.DOTALL)
+                if json_match:
+                    result = json.loads(json_match.group(0))
+                else:
+                    raise ValueError("No JSON found in response")
 
-            result = completion.choices[0].message.parsed
+                # Extract the validation results
+                is_valid = result.get("is_valid", False)
 
-            # Extract the validation results
-            is_valid = result.is_valid
-            event_type = result.event_type
-            explanation = result.explanation
+                # Parse event_type string to Enum
+                event_type_str = result.get("event_type", "unknown")
+                event_type = EventType.UNKNOWN
+                if event_type_str == "single":
+                    event_type = EventType.SINGLE
+                elif event_type_str == "multiple":
+                    event_type = EventType.MULTIPLE
 
-            return is_valid, event_type, explanation
+                explanation = result.get("explanation", "No explanation provided")
+
+                return is_valid, event_type, explanation
+
+            except (json.JSONDecodeError, ValueError) as e:
+                # If response isn't valid JSON, try to extract meaningful information
+                if "true" in result_text.lower():
+                    is_valid = True
+                else:
+                    is_valid = False
+
+                if "single" in result_text.lower():
+                    event_type = EventType.SINGLE
+                elif "multiple" in result_text.lower():
+                    event_type = EventType.MULTIPLE
+                else:
+                    event_type = EventType.UNKNOWN
+
+                return is_valid, event_type, f"Parsed from text: {result_text[:100]}..."
 
         except Exception as e:
             return False, EventType.UNKNOWN, f"Error validating URL: {str(e)}"
