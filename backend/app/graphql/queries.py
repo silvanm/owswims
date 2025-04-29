@@ -136,6 +136,9 @@ class EventNodeFilter(django_filters.FilterSet):
     date_to = django_filters.DateFilter(
         field_name="date_end", lookup_expr="lte", distinct=True
     )
+    name_icontains = django_filters.CharFilter(
+        field_name="name", lookup_expr="icontains"
+    )
 
     class Meta:
         model = Event
@@ -143,6 +146,7 @@ class EventNodeFilter(django_filters.FilterSet):
             "date_from",
             "date_to",
             "name",
+            "name_icontains",
             "website",
             "location",
             "races",

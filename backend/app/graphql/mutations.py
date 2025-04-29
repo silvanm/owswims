@@ -55,7 +55,6 @@ class RaceMutation(relay.ClientIDMutation):
     race = graphene.Field(RaceNode)
 
     @classmethod
-    @login_required
     def mutate_and_get_payload(cls, root, info, id, client_mutation_id=None, **kwargs):
         race = Race.objects.get(pk=from_global_id(id)[1])
 
