@@ -1,4 +1,4 @@
-import { format, formatDistance } from 'date-fns'
+import * as dateFns from 'date-fns'
 import { localeMap } from '../constants'
 
 export default {
@@ -75,12 +75,23 @@ export default {
         fmt = 'EEEE, d. MMMM yyyy'
       }
 
-      // Parse the date in a timezone-agnostic way by using UTC
       const [year, month, day] = dt.split('-').map(Number)
-      const utcDate = new Date(Date.UTC(year, month - 1, day))
+      // Create the initial Date object using UTC
+      const dateObj = new Date(Date.UTC(year, month - 1, day))
+
+      // Use standard JS Date methods to get UTC components
+      const utcYear = dateObj.getUTCFullYear()
+      const utcMonth = dateObj.getUTCMonth() // 0-indexed
+      const utcDay = dateObj.getUTCDate()
+
+      // Create the Date object for formatting using the extracted UTC components
+      const dateForFormatting = new Date(utcYear, utcMonth, utcDay)
 
       return capitalize(
-        format(utcDate, fmt, { locale: localeMap[this.$i18n.locale] })
+        // Use date-fns just for formatting
+        dateFns.format(dateForFormatting, fmt, {
+          locale: localeMap[this.$i18n.locale],
+        })
       )
     },
     formatRaceTime(tm) {
@@ -89,7 +100,7 @@ export default {
       } else {
         // Using a fixed date (2020-01-01) with the time to prevent timezone issues
         // The date part doesn't matter, we just need to format the time
-        return format(new Date('2020-01-01T' + tm + 'Z'), 'kk:mm')
+        return dateFns.format(new Date('2020-01-01T' + tm + 'Z'), 'kk:mm')
       }
     },
     humanizeDistance(d) {
@@ -106,7 +117,7 @@ export default {
         this.$store.getters.travelTimes[k] !== null &&
         this.$store.getters.travelTimes[k].duration
       ) {
-        const formatDuration = (s) => formatDistance(0, s * 1000)
+        const formatDuration = (s) => dateFns.formatDistance(0, s * 1000)
 
         return `${formatDuration(this.$store.getters.travelTimes[k].duration, {
           locale: localeMap[this.$i18n.locale],
