@@ -14,7 +14,7 @@ import time
 from django.utils import timezone
 from .models import ApiToken
 
-logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
+logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
 
 class DebugMiddleware(object):

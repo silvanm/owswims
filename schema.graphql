@@ -473,7 +473,7 @@ type Query {
   location(id: ID!): LocationNode
   allLocations(offset: Int, before: String, after: String, first: Int, last: Int, city: String, waterType: String, waterName: String, country: String, lat: Float, lng: Float, events: [ID], raceDistanceGte: Float, raceDistanceLte: Float, dateFrom: Date, dateTo: Date): LocationNodeConnection
   event(id: ID!): EventNode
-  allEvents(offset: Int, before: String, after: String, first: Int, last: Int, dateFrom: Date, dateTo: Date, name: String, website: String, location: ID, races: [ID], slug: String, raceDistanceGte: Float, raceDistanceLte: Float): EventNodeConnection
+  allEvents(offset: Int, before: String, after: String, first: Int, last: Int, dateFrom: Date, dateTo: Date, name: String, nameIcontains: String, website: String, location: ID, races: [ID], slug: String, raceDistanceGte: Float, raceDistanceLte: Float): EventNodeConnection
   race(id: ID!): RaceNode
   organizer(id: ID!): OrganizerNode
   allOrganizers(numberOfEventsGt: Int, offset: Int, before: String, after: String, first: Int, last: Int, name: String, slug: String): OrganizerNodeConnection
