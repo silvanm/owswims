@@ -17,7 +17,7 @@ env:
     ALLOWED_HOSTS: localhost,hoenggerberg,owswims,open-water-swims.com,new.open-water-swims.com
     DB_USER: owswims
     DB_NAME: owswims
-    DB_HOST: 34.65.96.46
+    DB_HOST: 10.57.224.9
     GS_BUCKET_NAME: owswims-prod
     FRONTEND_URL: /
     USE_X_FORWARDED_HOST: true
