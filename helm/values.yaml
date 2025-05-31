@@ -3,7 +3,7 @@ name: owswims
 replicaCount: 1
 
 image:
-  repository: "eu.gcr.io/mpom-shared/owswims"
+  repository: "europe-docker.pkg.dev/mpom-shared/owswims-repo/owswims"
   tag: latest
   pullPolicy: Always
 
