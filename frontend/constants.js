@@ -1,4 +1,4 @@
-import { de, enUS, fr, it, ru, es } from 'date-fns/locale'
+import { de, enUS, fr, it, ru, es, ja } from 'date-fns/locale'
 
 export const localeMap = {
   en: enUS,
@@ -7,4 +7,5 @@ export const localeMap = {
   it,
   ru,
   es,
+  ja,
 }
