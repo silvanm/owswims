@@ -149,6 +149,14 @@ Pay attention to the distance of the race. On US sites it is often given in mile
 
 Pay attention to the date of the event. On US sites it is often given in the format "15th of July 2024". You need to convert it to the format "2024-07-15".
 
+IMPORTANT: For the country field, you MUST use ISO 3166-1 alpha-2 country codes in Latin letters only. Examples:
+- Japan = "JP" (not "日本")
+- Germany = "DE" (not "Deutschland") 
+- United Kingdom = "GB" (not "UK")
+- United States = "US" (not "USA")
+- Switzerland = "CH" (not "Schweiz")
+- Spain = "ES" (not "España")
+
 Return the information as JSON. The response should be in the following format:
 {{
     "event": {{
@@ -158,7 +166,7 @@ Return the information as JSON. The response should be in the following format:
         "date_end": "2024-07-15",  // End date of the event (Event.date_end)
         "location": {{
             "city": "Phuket",  // City where the event takes place (Location.city)
-            "country": "Thailand",  // Country where the event takes place (Location.country)
+            "country": "TH",  // Country ISO code (2 letters, Latin alphabet) where the event takes place (Location.country)
             "water_name": "Andaman Sea",  // Name of the water body (Location.water_name)
             "water_type": "sea",  // Type of water: river, sea, lake, pool (Location.water_type)
             "address": "123 Beach Road, Phuket"  // Address of the event or name of the beach (Location.address)
@@ -195,6 +203,7 @@ Please analyze all the URLs provided and combine the information to create the m
 If some data is not found in any of the URLs, return null in the field.
 For the wetsuit field, only use one of these values: 'compulsory', 'optional', 'prohibited'.
 For the water_type field, only use one of these values: 'river', 'sea', 'lake', 'pool'.
+For the country field, you MUST use 2-letter ISO 3166-1 alpha-2 codes in Latin letters (e.g., JP, DE, US, GB, FR, etc.).
 """
         response = agent.chat(prompt)
 
@@ -359,15 +368,27 @@ For the water_type field, only use one of these values: 'river', 'sea', 'lake', 
 
         country_name = location_data["country"]
 
-        # First check if the country is already a 2-letter code
+        # First check if the country is already a valid 2-letter ISO code
         if (
             isinstance(country_name, str)
             and len(country_name) == 2
             and country_name.upper() == country_name
         ):
-            country_code = country_name
-            logger.info(f"Using provided country code directly: {country_code}")
+            # Validate that it's actually a valid ISO code using pycountry
+            try:
+                pycountry.countries.get(alpha_2=country_name)
+                country_code = country_name
+                logger.info(f"Using provided country code directly: {country_code}")
+            except KeyError:
+                # Not a valid ISO code, fall through to mapping/lookup logic
+                logger.info(
+                    f"'{country_name}' is not a valid ISO country code, attempting to map or lookup"
+                )
+                country_code = None
         else:
+            country_code = None
+
+        if not country_code:
             # Country name to code mapping for special cases
             country_name_mappings = {
                 "Czech Republic": "CZ",
@@ -380,6 +401,7 @@ For the water_type field, only use one of these values: 'river', 'sea', 'lake', 
                 "USA": "US",
                 "United States": "US",
                 "United States of America": "US",
+                "日本": "JP",  # Japanese for Japan
             }
 
             # Check if we have a direct mapping for this country name
