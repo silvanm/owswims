@@ -21,7 +21,7 @@ def sitemap(request):
     )
 
     # needs to correspond to the frontend
-    other_languages = ["de", "fr", "it"]
+    other_languages = ["de", "fr", "it", "es", "ru", "ja"]
 
     # Homepage
     sitemap.add(
