@@ -4,7 +4,8 @@ export default {
 
   // Global page headers (https://go.nuxtjs.dev/config-head)
   head: {
-    title: 'open-water-swims.com - Global Map of Open-Water swim events',
+    title:
+      'open-water-swims.com - Map of Open-Water swim events for Europe, USA and Japan',
     meta: [
       { charset: 'utf-8' },
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
@@ -36,7 +37,7 @@ export default {
       },
       {
         property: 'og:description',
-        content: 'Global map of open-water swim events.',
+        content: 'Map of open-water swim events for Europe, USA and Japan.',
       },
       {
         property: 'og:image',

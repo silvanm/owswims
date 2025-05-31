@@ -2,7 +2,7 @@ version: "3.8"
 # not tested. Created after merging the two containers
 services:
   app:
-    image: eu.gcr.io/mpom-shared/owswims:latest
+    image: europe-docker.pkg.dev/mpom-shared/owswims-repo/owswims:latest
     environment:
       - DB_USER=postgres
       - DB_NAME=postgres

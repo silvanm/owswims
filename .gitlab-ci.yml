@@ -11,12 +11,12 @@ variables:
   GOOGLE_APPLICATION_CREDENTIALS: ""
   DEFAULT_HEADER_PHOTO_URL: https://storage.googleapis.com/owswims-prod/photos/default-image.jpg
   KUBE_NAMESPACE: mupo-shared
-  CONTAINER_IMAGE: eu.gcr.io/$GCP_PROJECT_ID/owswims
+  CONTAINER_IMAGE: europe-docker.pkg.dev/$GCP_PROJECT_ID/owswims-repo/owswims
 
 
 before_script:
     - echo $GCLOUD_SERVICE_KEY | base64 -d > ${HOME}/gcloud-service-key.json
-    - cat ${HOME}/gcloud-service-key.json | docker login -u _json_key --password-stdin https://eu.gcr.io
+    - cat ${HOME}/gcloud-service-key.json | docker login -u _json_key --password-stdin https://europe-docker.pkg.dev
 
 
 build:
