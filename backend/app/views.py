@@ -34,12 +34,14 @@ def sitemap(request):
     # Eventpages
     events = models.Event.objects.filter(date_start__gte=datetime.now())
     for event in events:
-        url = f"/event/{event.slug}"
+        url = f"/en/event/{event.slug}"
         sitemap.add(
             url,
             changefreq="monthly",
             priority=0.5,
-            alternates={code: f"/{code}{url}" for code in other_languages},
+            alternates={
+                code: f"/{code}/event/{event.slug}" for code in other_languages
+            },
             lastmod=event.edited_at,
         )
 
@@ -49,12 +51,15 @@ def sitemap(request):
     ).distinct()
     for organizer in organizers:
         if organizer.slug:  # Only add if organizer has a slug
-            url = f"/organizer/{organizer.slug}"
+            url = f"/en/organizer/{organizer.slug}"
             sitemap.add(
                 url,
                 changefreq="monthly",
                 priority=0.7,
-                alternates={code: f"/{code}{url}" for code in other_languages},
+                alternates={
+                    code: f"/{code}/organizer/{organizer.slug}"
+                    for code in other_languages
+                },
             )
 
     return sitemap.response(
