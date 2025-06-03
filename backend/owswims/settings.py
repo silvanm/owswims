@@ -231,6 +231,7 @@ if SENTRY_DSN:
         integrations=[DjangoIntegration()],
         traces_sample_rate=0.2,
         send_default_pii=True,
+        _experiments={"enable_logs": True},
     )
 
 # Django Q configuration
