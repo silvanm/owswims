@@ -6,7 +6,7 @@ services:
     environment:
       - DB_USER=postgres
       - DB_NAME=postgres
-      - DB_PASS=owswims
+      - DB_PASS=${DB_PASS:-your-database-password}
       - DB_HOST=db
     env_file:
       - backend/.env
@@ -15,16 +15,16 @@ services:
     build:
       context: .
       args:
-        - GOOGLE_MAPS_KEY=AIzaSyBJm1Vv5sZa0ZlRZ4-vxNSQQydMwXDPzZw
+        - GOOGLE_MAPS_KEY=${GOOGLE_MAPS_API_KEY:-your-google-maps-api-key}
         - GRAPHQL_ENDPOINT=http://localhost:8000/graphql
-        - SECRET_KEY=dfgim4p02mi2mg2eign2
+        - SECRET_KEY=${SECRET_KEY:-your-django-secret-key}
         - DEBUG=True
         - ALLOWED_HOSTS=localhost
         - DB_USER=postgres
         - DB_NAME=postgres
-        - DB_PASS=owswims
+        - DB_PASS=${DB_PASS:-your-database-password}
         - DB_HOST=db
-        - GMAPS_API_KEY=AIzaSyBJm1Vv5sZa0ZlRZ4-vxNSQQydMwXDPzZw
+        - GMAPS_API_KEY=${GOOGLE_MAPS_API_KEY:-your-google-maps-api-key}
     ports:
       - "8000:8000"
 
@@ -35,6 +35,6 @@ services:
     ports:
       - "25432:5432"
     environment:
-      POSTGRES_PASSWORD: owswims
+      POSTGRES_PASSWORD: ${DB_PASS:-your-database-password}
       POSTGRES_USER: postgres
 

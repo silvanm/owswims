@@ -7,6 +7,17 @@ geocode_test.py
 backend/static
 /tmp/
 backend/.env-*
+
+# Environment variables
+.env
+backend/.env
+
+# Google Cloud credentials
+*.json
+!package.json
+!package-lock.json
+!*.config.json
+!schema.json
 scrapy/
 .history
 .mypy_cache

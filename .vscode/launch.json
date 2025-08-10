@@ -13,8 +13,8 @@
             "env": {
                 "PYTHONUNBUFFERED": "1",
                 "DJANGO_SETTINGS_MODULE": "owswims.settings",
-                "GOOGLE_MAPS_KEY": "AIzaSyBJm1Vv5sZa0ZlRZ4-vxNSQQydMwXDPzZw",
-                "GOOGLE_APPLICATION_CREDENTIALS": "${workspaceFolder}/backend/owswims-cc29cfd6d273.json"
+                "GOOGLE_MAPS_KEY": "${env:GOOGLE_MAPS_API_KEY}",
+                "GOOGLE_APPLICATION_CREDENTIALS": "${env:GOOGLE_APPLICATION_CREDENTIALS}"
             },
             "justMyCode": false,
             "python": "/Users/silvan.muehlemann/Library/Caches/pypoetry/virtualenvs/owswims-AQWlaxwQ-py3.11/bin/python"
@@ -47,8 +47,8 @@
             "env": {
                 "PYTHONUNBUFFERED": "1",
                 "DJANGO_SETTINGS_MODULE": "owswims.settings",
-                "GOOGLE_MAPS_KEY": "AIzaSyBJm1Vv5sZa0ZlRZ4-vxNSQQydMwXDPzZw",
-                "GOOGLE_APPLICATION_CREDENTIALS": "${workspaceFolder}/backend/owswims-cc29cfd6d273.json"
+                "GOOGLE_MAPS_KEY": "${env:GOOGLE_MAPS_API_KEY}",
+                "GOOGLE_APPLICATION_CREDENTIALS": "${env:GOOGLE_APPLICATION_CREDENTIALS}"
             },
             "justMyCode": false,
             "python": "/Users/silvan.muehlemann/Library/Caches/pypoetry/virtualenvs/owswims-AQWlaxwQ-py3.11/bin/python"
@@ -65,8 +65,8 @@
             "env": {
                 "PYTHONUNBUFFERED": "1",
                 "DJANGO_SETTINGS_MODULE": "owswims.settings",
-                "GOOGLE_MAPS_KEY": "AIzaSyBJm1Vv5sZa0ZlRZ4-vxNSQQydMwXDPzZw",
-                "GOOGLE_APPLICATION_CREDENTIALS": "${workspaceFolder}/backend/owswims-cc29cfd6d273.json"
+                "GOOGLE_MAPS_KEY": "${env:GOOGLE_MAPS_API_KEY}",
+                "GOOGLE_APPLICATION_CREDENTIALS": "${env:GOOGLE_APPLICATION_CREDENTIALS}"
             },
             "justMyCode": false,
             "python": "/Users/silvan.muehlemann/Library/Caches/pypoetry/virtualenvs/owswims-AQWlaxwQ-py3.11/bin/python"
