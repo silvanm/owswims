@@ -88,3 +88,20 @@ The core innovation is the automated event import system:
 - **Testing**: pytest for backend, configured in `pytest.ini`
 - **Database**: PostgreSQL with standard Django migrations
 - **Deployment**: Docker + Kubernetes with Helm charts in `helm/`
+- **CI/CD**: GitHub Actions (migrated from GitLab CI)
+
+## Deployment
+
+### GitHub Actions
+The project uses GitHub Actions for CI/CD with automatic deployment to GCP:
+- **Workflow**: `.github/workflows/deploy.yml`
+- **Triggers**: Push to `main`/`master` branch
+- **Build**: Docker image pushed to Google Container Registry
+- **Deploy**: Helm deployment to Google Kubernetes Engine
+
+### Manual Deployment
+For manual deployments or local testing:
+```bash
+./deploy-github.sh    # Interactive GitHub-based deployment
+./deploy.sh          # Legacy GitLab-style deployment (still works)
+```
