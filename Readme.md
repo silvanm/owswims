@@ -8,6 +8,21 @@ Edit this application always in VS Code. Not in PyCharm anymore.
 
 ## Getting Started
 
+### Environment Setup
+
+1. **Copy the environment template:**
+   ```bash
+   cp .env.example .env
+   ```
+
+2. **Configure your API keys in `.env`:**
+   - **Google Maps API Key**: Get from [Google Cloud Console](https://console.cloud.google.com/apis/credentials)
+   - **Google Cloud Credentials**: Download service account JSON file from GCP Console
+   - **Django Secret Key**: Generate with `python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"`
+   - Set database password and other configuration
+
+3. **⚠️ Important**: Never commit the `.env` file or credential files to version control!
+
 ### Backend Setup
 
 1. Navigate to the backend directory:
