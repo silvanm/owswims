@@ -7,10 +7,6 @@ on:
     branches: [main, master]
 
 env:
-  GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
-  GCP_REGION: ${{ secrets.GCP_REGION }}
-  K8S_CLUSTER: ${{ secrets.K8S_CLUSTER }}
-  CONTAINER_IMAGE: europe-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/owswims-repo/owswims
   GRAPHQL_ENDPOINT: /graphql
   DEFAULT_HEADER_PHOTO_URL: https://storage.googleapis.com/owswims-prod/photos/default-image.jpg
   KUBE_NAMESPACE: mupo-shared
@@ -39,6 +35,7 @@ jobs:
       
     - name: Build and push Docker image
       run: |
+        CONTAINER_IMAGE="europe-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/owswims-repo/owswims"
         docker build \
           --build-arg RELEASE_ID=${{ github.sha }} \
           --build-arg CI_COMMIT_REF_SLUG=${{ github.ref_name }} \
@@ -50,11 +47,11 @@ jobs:
           --build-arg DEFAULT_HEADER_IMAGE="${{ env.DEFAULT_HEADER_PHOTO_URL }}" \
           --build-arg SECRET_KEY="${{ secrets.SECRET_KEY }}" \
           --build-arg SENTRY_DSN="${{ secrets.SENTRY_DSN }}" \
-          --tag ${{ env.CONTAINER_IMAGE }}:latest \
-          --tag ${{ env.CONTAINER_IMAGE }}:${{ github.sha }} \
+          --tag ${CONTAINER_IMAGE}:latest \
+          --tag ${CONTAINER_IMAGE}:${{ github.sha }} \
           .
-        docker push ${{ env.CONTAINER_IMAGE }}:${{ github.sha }}
-        docker push ${{ env.CONTAINER_IMAGE }}:latest
+        docker push ${CONTAINER_IMAGE}:${{ github.sha }}
+        docker push ${CONTAINER_IMAGE}:latest
 
   deploy:
     needs: build
@@ -80,9 +77,9 @@ jobs:
         
     - name: Get GKE credentials
       run: |
-        gcloud container clusters get-credentials ${{ env.K8S_CLUSTER }} \
-          --region ${{ env.GCP_REGION }} \
-          --project ${{ env.GCP_PROJECT_ID }}
+        gcloud container clusters get-credentials ${{ secrets.K8S_CLUSTER }} \
+          --region ${{ secrets.GCP_REGION }} \
+          --project ${{ secrets.GCP_PROJECT_ID }}
           
     - name: Deploy to Kubernetes with Helm
       run: |
