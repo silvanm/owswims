@@ -18,7 +18,7 @@ export default {
       client
         .mutate({
           mutation: gql`
-            mutation($username: String!, $password: String!) {
+            mutation ($username: String!, $password: String!) {
               tokenAuth(username: $username, password: $password) {
                 success
                 errors

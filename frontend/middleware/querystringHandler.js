@@ -16,7 +16,7 @@ export default async function ({ route, app, store }) {
     const client = app.apolloProvider.defaultClient
     const result = await client.query({
       query: gql`
-        query($slug: String!) {
+        query ($slug: String!) {
           allOrganizers(slug: $slug) {
             edges {
               node {
@@ -62,7 +62,7 @@ export default async function ({ route, app, store }) {
     const client = app.apolloProvider.defaultClient
     const result = await client.query({
       query: gql`
-        query($slug: String!) {
+        query ($slug: String!) {
           allEvents(slug: $slug) {
             edges {
               node {

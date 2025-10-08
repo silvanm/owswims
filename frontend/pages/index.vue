@@ -76,7 +76,7 @@ export default {
   apollo: {
     locationsFiltered: {
       query: gql`
-        query(
+        query (
           $keyword: String!
           $distanceFrom: Float!
           $distanceTo: Float!

@@ -8,7 +8,7 @@ export default ({ app }, inject) => {
       return client.query({
         fetchPolicy: 'no-cache', // allow to refetch when reviews are updated
         query: gql`
-          query($dateFrom: Date!, $dateTo: Date!, $locationId: ID!) {
+          query ($dateFrom: Date!, $dateTo: Date!, $locationId: ID!) {
             location(id: $locationId) {
               id
               country
