@@ -299,7 +299,7 @@ export default {
   apollo: {
     location: {
       query: gql`
-        query($locationId: ID!) {
+        query ($locationId: ID!) {
           location(id: $locationId) {
             country
             city

@@ -64,7 +64,7 @@ export default {
     async postRating() {
       await this.$apollo.mutate({
         mutation: gql`
-          mutation(
+          mutation (
             $eventId: ID!
             $rating: Int!
             $comment: String

@@ -102,6 +102,13 @@
             "justMyCode": true,
             "cwd": "${workspaceFolder}/backend",
             "python": "/Users/silvan.muehlemann/Library/Caches/pypoetry/virtualenvs/owswims-AQWlaxwQ-py3.11/bin/python"
+        },
+        {
+            "name": "Cloud SQL Proxy",
+            "type": "node-terminal",
+            "request": "launch",
+            "command": "cloud_sql_proxy --port 6432 mpom-shared:europe-west6:mpom-shared-postgres13",
+            "cwd": "${workspaceFolder}"
         }
     ],
     "compounds": [

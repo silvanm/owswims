@@ -104,7 +104,7 @@ export default {
       this.$store.commit('isLoading', true)
       await this.$apollo.mutate({
         mutation: gql`
-          mutation($id: ID!, $coordinates: [Float]!) {
+          mutation ($id: ID!, $coordinates: [Float]!) {
             updateRace(input: { id: $id, coordinates: $coordinates }) {
               race {
                 coordinates

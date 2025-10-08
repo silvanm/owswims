@@ -16,9 +16,13 @@ module.exports = {
   ],
   plugins: ['prettier'],
   // add your custom rules here
-  rules: {},
+  rules: {
+    'import/no-named-as-default': 'off',
+    'no-console': 'warn',
+  },
   globals: {
     google: true,
+    FB: true,
   },
-  ignorePatterns: ['cypress/'],
+  ignorePatterns: ['cypress/', 'static/'],
 }

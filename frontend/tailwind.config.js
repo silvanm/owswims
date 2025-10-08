@@ -1,5 +1,3 @@
-const defaultTheme = require('tailwindcss/defaultTheme')
-
 module.exports = {
   future: {
     // removeDeprecatedGapUtilities: true,
@@ -10,7 +8,13 @@ module.exports = {
     fontFamily: {
       sans: ['"Source Sans Pro"', 'BlinkMacSystemFont', 'sans-serif'],
     },
-    extend: {},
+    extend: {
+      colors: {
+        orange: {
+          300: '#fdba74',
+        },
+      },
+    },
   },
   variants: {},
   plugins: [require('@tailwindcss/custom-forms')],

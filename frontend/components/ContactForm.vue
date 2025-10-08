@@ -38,7 +38,7 @@ export default {
       client
         .mutate({
           mutation: gql`
-            mutation($sender: String!, $message: String!) {
+            mutation ($sender: String!, $message: String!) {
               sendContactmail(sender: $sender, message: $message) {
                 ok
                 id
