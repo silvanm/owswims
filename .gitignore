@@ -27,3 +27,5 @@ vue3-migration/
 backend/url_validation_cache.json
 backend/owswims-*.json
 graphql_client/
+.serena
+.claude
