@@ -21,8 +21,8 @@ This script expects:
 */
 
 function googleMapAdmin() {
-  var autocomplete;
-  var geocoder = new google.maps.Geocoder();
+  var placeAutocomplete;
+  var geocoder;
   var map;
   var marker;
 
@@ -34,6 +34,9 @@ function googleMapAdmin() {
 
   var self = {
     initialize: function () {
+      // Initialize geocoder
+      geocoder = new google.maps.Geocoder();
+
       var lat = 0;
       var lng = 0;
       var zoom = 2;
@@ -74,16 +77,34 @@ function googleMapAdmin() {
         self.setMarker(latlng);
       }
 
-      autocomplete = new google.maps.places.Autocomplete(
-        document.getElementById(addressId)
-      );
+      // Use the old but working Autocomplete API
+      // Note: This will show a deprecation warning but is functional
+      var autocomplete = new google.maps.places.Autocomplete(addressField);
 
-      // this only triggers on enter, or if a suggested location is chosen
-      // todo: if a user doesn't choose a suggestion and presses tab, the map doesn't update
-      autocomplete.addListener("place_changed", self.codeAddress);
+      // Set types to get all place types
+      autocomplete.setFields(['geometry', 'formatted_address', 'name', 'photos', 'place_id']);
 
-      // don't make enter submit the form, let it just trigger the place_changed event
-      // which triggers the map update & geocode
+      console.log("Autocomplete created for addressField");
+
+      // Listen for place_changed event (old API)
+      autocomplete.addListener('place_changed', function() {
+        console.log("place_changed event fired!");
+        var place = autocomplete.getPlace();
+        console.log("Place object:", place);
+
+        if (!place.geometry) {
+          console.log("No geometry found, using geocoder fallback");
+          // User entered a name that was not a suggestion
+          self.codeAddress(place);
+          return;
+        }
+
+        // Place has geometry
+        console.log("Place has geometry:", place.geometry.location);
+        self.codeAddress(place);
+      });
+
+      // don't make enter submit the form, let it just trigger the place selection
       $("#" + addressId).keydown(function (e) {
         if (e.keyCode == 13) {
           // enter key
@@ -99,23 +120,39 @@ function googleMapAdmin() {
       return [lat, lng];
     },
 
-    codeAddress: function () {
-      var place = autocomplete.getPlace();
-      self.displayPhotos(place.photos);
+    codeAddress: function (place) {
+      if (!place) {
+        console.log("No place provided to codeAddress");
+        return;
+      }
 
-      if (place.geometry !== undefined) {
+      console.log("Processing place in codeAddress:", place);
+
+      // Display photos if available
+      if (place.photos && place.photos.length > 0) {
+        self.displayPhotos(place.photos);
+      }
+
+      // Old Autocomplete API uses 'geometry.location'
+      if (place.geometry && place.geometry.location) {
+        console.log("Found location from geometry:", place.geometry.location);
         self.updateWithCoordinates(place.geometry.location);
       } else {
-        geocoder.geocode({ address: place.name }, function (results, status) {
-          if (status == google.maps.GeocoderStatus.OK) {
-            var latlng = results[0].geometry.location;
-            self.updateWithCoordinates(latlng);
-          } else {
-            alert(
-              "Geocode was not successful for the following reason: " + status
-            );
-          }
-        });
+        // Fallback to geocoding if no direct coordinates
+        const address = place.formatted_address || place.name;
+        console.log("No geometry found, geocoding address:", address);
+        if (address) {
+          geocoder.geocode({ address: address }, function (results, status) {
+            if (status == google.maps.GeocoderStatus.OK) {
+              var latlng = results[0].geometry.location;
+              self.updateWithCoordinates(latlng);
+            } else {
+              alert(
+                "Geocode was not successful for the following reason: " + status
+              );
+            }
+          });
+        }
       }
     },
 
@@ -165,9 +202,25 @@ function googleMapAdmin() {
 
     displayPhotos: function (photos) {
       document.getElementById("photos").innerHTML = "";
+      if (!photos || photos.length === 0) {
+        return;
+      }
+
       photos.forEach((photo) => {
         var div = document.createElement("div");
-        let src = photo.getUrl({ maxWidth: 600, maxHeight: 600 });
+        let src;
+
+        // Handle both old API (photo.getUrl) and new API (photo.getURI)
+        if (typeof photo.getUrl === 'function') {
+          src = photo.getUrl({ maxWidth: 600, maxHeight: 600 });
+        } else if (typeof photo.getURI === 'function') {
+          src = photo.getURI({ maxWidth: 600, maxHeight: 600 });
+        } else if (photo.url) {
+          src = photo.url;
+        } else {
+          return; // Skip if we can't get a URL
+        }
+
         div.style = `background-image: url(${src})`;
         div.className = "places-photo";
         document.getElementById("photos").appendChild(div);
@@ -182,7 +235,10 @@ function googleMapAdmin() {
   return self;
 }
 
-$(document).ready(function () {
-  var googlemap = googleMapAdmin();
-  googlemap.initialize();
-});
+// Global callback function for Google Maps API
+function initGoogleMapsAdmin() {
+  $(document).ready(function () {
+    var googlemap = googleMapAdmin();
+    googlemap.initialize();
+  });
+}
