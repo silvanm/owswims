@@ -465,6 +465,7 @@ class EventAdmin(CloneModelAdmin):
         "location__country",
     )
     search_fields = ["name", "location__city", "location__country", "organizer__name"]
+    autocomplete_fields = ["location", "organizer", "previous_year_event"]
     exclude = ["edited_by", "edited_at"]
     readonly_fields = ["public_url", "created_by"]
     inlines = [RaceInline, ReviewInline]
