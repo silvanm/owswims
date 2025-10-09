@@ -90,6 +90,13 @@ The core innovation is the automated event import system:
 - **Deployment**: Docker + Kubernetes with Helm charts in `helm/`
 - **CI/CD**: GitHub Actions (migrated from GitLab CI)
 
+## Known Issues & Planned Improvements
+
+### Performance Issues
+- **allOrganizers Query**: The `allOrganizers(numberOfEventsGt: 1)` GraphQL query is very slow because it loads all organizers upfront and filters them in Python (calling `number_of_events()` method on each). This causes timeouts.
+  - **Current Status**: Query fixed to return QuerySet properly, but performance is still poor
+  - **TODO**: Disable organizer selector in frontend temporarily, replace with more efficient approach later (e.g., search/autocomplete, database-level filtering)
+
 ## Deployment
 
 ### GitHub Actions
