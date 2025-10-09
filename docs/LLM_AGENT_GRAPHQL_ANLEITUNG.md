@@ -239,7 +239,7 @@ Die GraphQL-API unterstützt verschiedene Filter:
 ```graphql
 query {
   # Nach Name filtern (exakt oder enthält)
-  allEvents(name_Icontains: "Zurich") {
+  allEvents(nameIcontains: "Zurich") {
     edges {
       node {
         id
@@ -248,8 +248,8 @@ query {
     }
   }
 
-  # Nach Land filtern
-  allEvents(location_Country: "CH") {
+  # Nach Land filtern (über location__country)
+  allEvents(locationCountry: "CH") {
     edges {
       node {
         id
@@ -263,7 +263,7 @@ query {
   }
 
   # Nach Datum filtern (Events ab bestimmtem Datum)
-  allEvents(dateStart_Gte: "2025-06-01") {
+  allEvents(dateFrom: "2025-06-01") {
     edges {
       node {
         id
@@ -273,19 +273,51 @@ query {
     }
   }
 
+  # Nach Datum filtern (Events bis bestimmtem Datum)
+  allEvents(dateTo: "2025-12-31") {
+    edges {
+      node {
+        id
+        name
+        dateEnd
+      }
+    }
+  }
+
   # Kombinierte Filter
   allEvents(
-    location_Country: "CH",
-    dateStart_Gte: "2025-06-01",
-    dateStart_Lte: "2025-12-31"
+    locationCountry: "CH",
+    dateFrom: "2025-06-01",
+    dateTo: "2025-12-31"
   ) {
     edges {
       node {
         id
         name
         dateStart
+        dateEnd
         location {
           city
+        }
+      }
+    }
+  }
+
+  # Nach Race-Distanz filtern
+  allEvents(
+    raceDistanceGte: 5.0,
+    raceDistanceLte: 10.0
+  ) {
+    edges {
+      node {
+        id
+        name
+        races {
+          edges {
+            node {
+              distance
+            }
+          }
         }
       }
     }
@@ -294,13 +326,24 @@ query {
 ```
 
 **Verfügbare Filter für Events:**
-- `name` - exakt oder icontains (enthält, case-insensitive)
-- `website` - exakt
-- `location` - exakt (Location ID)
-- `location__country` - exakt (Ländercode)
-- `location__city` - exakt oder icontains
-- `date_start` - lte (kleiner/gleich), gte (größer/gleich)
-- `date_end` - lte, gte
+- `name` - Exakte Übereinstimmung
+- `nameIcontains` - Name enthält (case-insensitive)
+- `website` - Exakte Website-URL
+- `location` - Exakte Location ID
+- `locationCountry` - Ländercode über `location__country` (z.B. "CH", "DE")
+- `locationCity` - Exakte Stadt über `location__city`
+- `locationCityIcontains` - Stadt enthält über `location__city__icontains`
+- `dateFrom` - Events die an oder nach diesem Datum starten (`date_start >= dateFrom`)
+- `dateTo` - Events die an oder vor diesem Datum enden (`date_end <= dateTo`)
+- `raceDistanceGte` - Events mit Races >= dieser Distanz
+- `raceDistanceLte` - Events mit Races <= dieser Distanz
+- `slug` - Exakter Slug
+- `races` - Exakte Race ID
+
+**Wichtig:**
+- Datums-Filter verwenden `dateFrom` und `dateTo` (nicht `dateStartGte`/`dateEndLte`)
+- `dateFrom` filtert nach `date_start >= dateFrom`
+- `dateTo` filtert nach `date_end <= dateTo`
 
 ### Locations abfragen
 
@@ -868,15 +911,16 @@ mutation {
 ```graphql
 query {
   allEvents(
-    location_Country: "CH",
-    dateStart_Gte: "2025-06-01",
-    dateStart_Lte: "2025-08-31"
+    locationCountry: "CH",
+    dateFrom: "2025-06-01",
+    dateTo: "2025-08-31"
   ) {
     edges {
       node {
         id
         name
         dateStart
+        dateEnd
         location {
           city
           waterName
