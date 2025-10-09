@@ -85,10 +85,11 @@
               class="form-input block border p-2 w-full"
             />
           </label>
-          <label class="block font-semibold pb-2 pt-4">
+          <!-- Temporarily disabled due to performance issues -->
+          <!-- <label class="block font-semibold pb-2 pt-4">
             <div class="pb-2">{{ $t('organizerSerie') }}</div>
             <OrganizerSelector></OrganizerSelector>
-          </label>
+          </label> -->
         </div>
         <!-- Contact -->
         <div

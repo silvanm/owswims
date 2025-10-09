@@ -17,7 +17,10 @@ from app.models import Organizer, Location, Race, Event, Review, ApiToken
 
 def get_organization_logo_url(obj, resolve_obj):
     if obj.logo:
-        return obj.logo.url
+        try:
+            return obj.logo.url
+        except (ValueError, FileNotFoundError):
+            return None
     else:
         return None
 
@@ -142,6 +145,9 @@ class EventNodeFilter(django_filters.FilterSet):
     name_icontains = django_filters.CharFilter(
         field_name="name", lookup_expr="icontains"
     )
+    organizer_slug = django_filters.CharFilter(
+        field_name="organizer__slug", lookup_expr="exact"
+    )
 
     class Meta:
         model = Event
@@ -154,6 +160,8 @@ class EventNodeFilter(django_filters.FilterSet):
             "location",
             "races",
             "slug",
+            "organizer",
+            "organizer_slug",
         )
 
 
@@ -334,11 +342,10 @@ class Query(
             ids = [org.id for org in qs if org.number_of_events() > number_of_events_gt]
             qs = Organizer.objects.filter(id__in=ids)
 
-        # Convert QuerySet to list before caching
-        result = list(qs)
-        cache.set(cache_key, result, 3600)  # Cache for 1 hour
+        # Cache the QuerySet and return it (don't convert to list)
+        cache.set(cache_key, qs, 3600)  # Cache for 1 hour
 
-        return result
+        return qs
 
     # API Token fields
     my_api_tokens = graphene.List(ApiTokenNode)
