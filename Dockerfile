@@ -1,6 +1,6 @@
 #### STAGE 1 ####
 
-FROM node:14   as frontend
+FROM node:18   as frontend
 
 WORKDIR /code
 
