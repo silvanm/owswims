@@ -121,7 +121,6 @@ jobs:
         
         helm upgrade --install owswims -f helm/values.yaml helm/ \
           --namespace ${{ vars.KUBE_NAMESPACE }} \
-          --create-namespace \
           --set-string image.tag="${{ needs.build.outputs.short_sha }}"
           
         echo "## ✅ Deployment Complete" >> $GITHUB_STEP_SUMMARY
