@@ -1,12 +1,11 @@
 #### STAGE 1 ####
 
-FROM node:18   as frontend
+FROM node:18 AS frontend
 
 WORKDIR /code
 
 COPY ./frontend/package.json ./frontend/yarn.lock ./
 RUN yarn install
-RUN yarn build
 
 ENV PATH="./node_modules/.bin:$PATH"
 
@@ -40,7 +39,7 @@ RUN chmod +x /bin/entrypoint.sh
 
 RUN apk add --no-cache bash gettext gcc musl-dev zlib-dev jpeg-dev freetype-dev lcms2-dev openjpeg-dev tiff-dev rust cargo
 RUN pip install poetry
-RUN pip install --only-binary=:all: gunicorn>=20.1.0 uvicorn>=0.14.0 uvloop httptools
+RUN pip install --only-binary=:all: gunicorn>=20.1.0 uvicorn>=0.22.0
 COPY backend/pyproject.toml backend/poetry.lock ./
 RUN poetry config virtualenvs.create false
 RUN poetry install --no-interaction --no-root

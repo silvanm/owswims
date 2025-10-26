@@ -119,9 +119,9 @@ jobs:
         echo "- **Namespace**: ${{ vars.KUBE_NAMESPACE }}" >> $GITHUB_STEP_SUMMARY
         echo "- **Image Tag**: \`${{ needs.build.outputs.short_sha }}\`" >> $GITHUB_STEP_SUMMARY
         
-        helm upgrade owswims -f helm/values.yaml helm/ \
+        helm upgrade --install owswims -f helm/values.yaml helm/ \
           --namespace ${{ vars.KUBE_NAMESPACE }} \
-          --reuse-values \
+          --create-namespace \
           --set-string image.tag="${{ needs.build.outputs.short_sha }}"
           
         echo "## ✅ Deployment Complete" >> $GITHUB_STEP_SUMMARY

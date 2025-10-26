@@ -10,4 +10,6 @@ export default {
   },
 }
 </script>
-<style></style>
+<style>
+@import '@fortawesome/fontawesome-svg-core/styles.css';
+</style>

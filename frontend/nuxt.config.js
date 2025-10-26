@@ -1,4 +1,6 @@
 export default {
+  // Target for static generation (https://go.nuxtjs.dev/config-target)
+  target: 'static',
   // Disable server-side rendering (https://go.nuxtjs.dev/ssr-mode)
   ssr: false,
 
@@ -69,7 +71,10 @@ export default {
   },
 
   // Global CSS (https://go.nuxtjs.dev/config-css)
-  css: [],
+  css: [
+    '~/assets/css/tailwind.css',
+    '@fortawesome/fontawesome-svg-core/styles.css',
+  ],
 
   env: {
     googleMapsKey: process.env.GOOGLE_MAPS_API_KEY,
@@ -83,6 +88,7 @@ export default {
 
   // Plugins to run before rendering page (https://go.nuxtjs.dev/config-plugins)
   plugins: [
+    '~plugins/fontawesome.js',
     {
       src: '~plugins/logging.js',
       ssr: false,
