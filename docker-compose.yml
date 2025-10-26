@@ -1,40 +1,36 @@
-version: "3.8"
-# not tested. Created after merging the two containers
 services:
   app:
-    image: europe-docker.pkg.dev/mpom-shared/owswims-repo/owswims:latest
-    environment:
-      - DB_USER=postgres
-      - DB_NAME=postgres
-      - DB_PASS=${DB_PASS:-your-database-password}
-      - DB_HOST=db
-    env_file:
-      - backend/.env
-    depends_on:
-      - db
     build:
       context: .
       args:
-        - GOOGLE_MAPS_KEY=${GOOGLE_MAPS_API_KEY:-your-google-maps-api-key}
-        - GRAPHQL_ENDPOINT=http://localhost:8000/graphql
+        # only used at build time -> for the frontend
+        - GOOGLE_MAPS_API_KEY=${GOOGLE_MAPS_API_KEY:-}
+        - RAPIDAPI_KEY=${RAPIDAPI_KEY:-}
+        - GRAPHQL_ENDPOINT=
+        - DEFAULT_HEADER_PHOTO_URL=${DEFAULT_HEADER_PHOTO_URL:-https://storage.googleapis.com/owswims-prod/photos/default-image.jpg}
         - SECRET_KEY=${SECRET_KEY:-your-django-secret-key}
-        - DEBUG=True
-        - ALLOWED_HOSTS=localhost
-        - DB_USER=postgres
-        - DB_NAME=postgres
-        - DB_PASS=${DB_PASS:-your-database-password}
-        - DB_HOST=db
-        - GMAPS_API_KEY=${GOOGLE_MAPS_API_KEY:-your-google-maps-api-key}
+        - SENTRY_DSN=${SENTRY_DSN:-}
+        - RELEASE_ID=local-dev
+        - CI_COMMIT_REF_SLUG=local
+        - CI_COMMIT_SHA=local
+        - CI_BUILD_DATE=local
+
+    environment:
+      - SECRET_KEY=${SECRET_KEY}
+      - DEBUG=${DEBUG}
+      - ALLOWED_HOSTS=${ALLOWED_HOSTS}
+      - DB_USER=${DB_USER}
+      - DB_NAME=${DB_NAME}
+      - DB_PASS=${DB_PASS}
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - GOOGLE_MAPS_API_KEY=${GOOGLE_MAPS_API_KEY}
+      - GS_BUCKET_NAME=${GS_BUCKET_NAME}
+      - FRONTEND_URL=${FRONTEND_URL}
+      - SPARKPOST_API_KEY=${SPARKPOST_API_KEY}
+      - SENTRY_DSN=${SENTRY_DSN}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     ports:
       - "8000:8000"
-
-
-  db:
-    image: postgres
-    restart: always
-    ports:
-      - "25432:5432"
-    environment:
-      POSTGRES_PASSWORD: ${DB_PASS:-your-database-password}
-      POSTGRES_USER: postgres
 
