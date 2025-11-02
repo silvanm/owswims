@@ -7,7 +7,7 @@ on:
     branches: [master]
 
 env:
-  KUBE_NAMESPACE: production
+  KUBE_NAMESPACE: owswims
 
 jobs:
   build:
