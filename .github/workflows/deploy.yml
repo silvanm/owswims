@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: [master]
 
+env:
+  KUBE_NAMESPACE: production
+
 jobs:
   build:
     runs-on: ubuntu-24.04
@@ -116,11 +119,11 @@ jobs:
       run: |
         echo "## 🚀 Deploying to Production" >> $GITHUB_STEP_SUMMARY
         echo "- **Environment**: production" >> $GITHUB_STEP_SUMMARY
-        echo "- **Namespace**: ${{ vars.KUBE_NAMESPACE }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Namespace**: ${{ env.KUBE_NAMESPACE }}" >> $GITHUB_STEP_SUMMARY
         echo "- **Image Tag**: \`${{ needs.build.outputs.short_sha }}\`" >> $GITHUB_STEP_SUMMARY
-        
+
         helm upgrade --install owswims -f helm/values.yaml helm/ \
-          --namespace ${{ vars.KUBE_NAMESPACE }} \
+          --namespace ${{ env.KUBE_NAMESPACE }} \
           --set-string image.tag="${{ needs.build.outputs.short_sha }}"
           
         echo "## ✅ Deployment Complete" >> $GITHUB_STEP_SUMMARY
