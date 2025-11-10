@@ -10,6 +10,7 @@
 	"directions": "Cómo llegar",
 	"dismiss": "Rechazar",
 	"infoboxPara1": "Se trata de un proyecto sin ánimo de lucro promovido por nadadores de aguas abiertas para nadadores de aguas abiertas. Queremos ayudarte a encontrar los eventos de natación más adecuados para ti, en toda Europa.",
+	"infobox2026Notice": "Los eventos de 2026 se actualizarán en las próximas semanas. Si conoces otros eventos, envíalos a {0}",
 	"infoboxPara2": "Si planeas tus vacaciones en función de las pruebas de natación en aguas abiertas, esta aplicación es para ti. Seleccionando la distancia y las fechas deseadas aparecerán todos los eventos que coincidan con tus criterios de búsqueda, elegidos entre {raceCount} carreras en {countriesCount} países diferentes. Active la opción \"Mostrar el tiempo de viaje\" para que la aplicación pueda calcular el tiempo de viaje en coche.",
 	"infoboxPara3": "Cada {0} representa un evento. {1} son un grupo de eventos. Haga clic en él para ampliarlos. Haga clic en el icono {3} para ampliar el evento. Para la mayoría de los eventos generados por la búsqueda podrás ver el recorrido de la carrera. ",
 	"infoboxPara3a": "Contribuya a la comunidad calificando el evento o escribiendo una reseña.",

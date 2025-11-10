@@ -10,6 +10,7 @@
 	"directions": "Itinéraire",
 	"dismiss": "Fermer",
 	"infoboxPara1": "Il s'agit d'un projet à but non lucratif de nageurs en eau libre pour les nageurs en eau libre. Nous voulons t'aider à trouver les épreuves de natation qui te conviennent le mieux.",
+	"infobox2026Notice": "Les événements de 2026 seront mis à jour dans les prochaines semaines. Si tu connais d'autres événements, envoie-les à {0}",
 	"infoboxPara2": "Si tu planifie tes vacances autour de compétitions de natation en eau libre, alors cette application est pour toi. Sélectionne la distance et la date souhaitée, et parmi les {courseCount} courses  dans {paysCount} pays, nous te montrons tous les événements correspondants. Active le bouton \"durée du voyage\" pour que l'application calcule le temps nécessaire pour se rendre sur place en voiture.",
 	"infoboxPara3": "Chaque {0} représente un lieu d'événement. Les {1} représentent un groupe d'événements. Clique dessus pour les . Clique sur l'icône {2} pour zoomer sur l'événement. Les parcours de nombreuses courses seront affichés. ",
 	"infoboxPara3a": "Contribuez à la communauté en notant l'événement ou en écrivant une critique.",

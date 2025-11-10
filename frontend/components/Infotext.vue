@@ -24,6 +24,21 @@
         />
         {{ $t('infoboxPara1') }}
       </p>
+      <div
+        v-if="extended"
+        class="bg-blue-100 border-l-4 border-blue-500 p-4 my-4"
+      >
+        <p class="font-semibold m-0">
+          <font-awesome-icon icon="info-circle" class="mr-2" />
+          <i18n path="infobox2026Notice">
+            <a
+              href="mailto:info@open-water-swims.com"
+              class="text-blue-700 underline"
+              >info@open-water-swims.com</a
+            >
+          </i18n>
+        </p>
+      </div>
       <p v-if="statistics">
         {{
           $t('infoboxPara2', {
