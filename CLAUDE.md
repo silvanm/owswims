@@ -112,3 +112,7 @@ For manual deployments or local testing:
 ./deploy-github.sh    # Interactive GitHub-based deployment
 ./deploy.sh          # Legacy GitLab-style deployment (still works)
 ```
+
+The venv is in
+
+/Users/silvan.muehlemann/Library/Caches/pypoetry/virtualenvs/owswims-AQWlaxwQ-py3.11/

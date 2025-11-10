@@ -58,6 +58,7 @@
             "name": "migrate",
             "type": "python",
             "request": "launch",
+            "cwd": "${workspaceFolder}/backend/",
             "program": "${workspaceFolder}/backend/manage.py",
             "args": [
                 "migrate"

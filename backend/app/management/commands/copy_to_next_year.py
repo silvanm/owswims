@@ -13,10 +13,12 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         # find all events of this year which are visible and approved
-        target_year = int(options['target_year'])
-        events = Event.objects.filter(date_start__gte=date(target_year - 2, 1, 1),
-                                      date_start__lt=date(target_year, 1, 1),
-                                      verified_at__isnull=False, invisible__isnull=False)
+        target_year = int(options["target_year"])
+        events = Event.objects.filter(
+            date_start__gte=date(target_year - 1, 1, 1),
+            date_start__lt=date(target_year, 1, 1),
+            invisible__isnull=False,
+        )
         self.stdout.write(f"Copying {len(events)} events")
 
         for event in events:
@@ -36,7 +38,7 @@ class Command(BaseCommand):
             # link with previous year
             event_copy.previous_year_event = event
 
-            event_copy.source = 'Copied from past year'
+            event_copy.source = "Copied from past year"
 
             # copy comments from past year
             for review in event.reviews.all():

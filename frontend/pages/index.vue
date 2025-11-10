@@ -71,6 +71,15 @@ import { formatISO } from 'date-fns'
 
 const apiKey = process.env.googleMapsKey
 
+// Initialize Google Maps callback handler
+if (process.client) {
+  window.googleMapsReady = false
+  window.initGoogleMaps = function () {
+    window.googleMapsReady = true
+    window.dispatchEvent(new Event('google-maps-ready'))
+  }
+}
+
 export default {
   components: { FilterBox, EventPane, Spinner },
   apollo: {
@@ -209,7 +218,9 @@ export default {
       title: this.$store.getters.pageTitle ?? this.$t('pageTitle'),
       script: [
         {
-          src: `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=drawing&v=beta`,
+          src: `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=drawing&v=beta&loading=async&callback=initGoogleMaps`,
+          async: true,
+          defer: true,
         },
       ],
     }
