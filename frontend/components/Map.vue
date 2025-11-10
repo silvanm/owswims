@@ -247,81 +247,108 @@ export default {
     },
   },
   mounted() {
-    let center
-    if (
-      this.$router.currentRoute.query.lat &&
-      this.$router.currentRoute.query.lng
-    ) {
-      center = this.mylocation.latlng = {
-        lat: parseFloat(this.$router.currentRoute.query.lat),
-        lng: parseFloat(this.$router.currentRoute.query.lng),
-      }
-    } else if (this.mylocation.latlng.lat && this.mylocation.latlng.lng) {
-      center = this.mylocation.latlng
-    } else {
-      // fallback to switzerland
-      center = { lat: 47.3474476, lng: 8.6733976 }
-    }
-    this.map = new google.maps.Map(document.getElementById('map'), {
-      center,
-      zoom: this.$router.currentRoute.query.zoom
-        ? parseInt(this.$router.currentRoute.query.zoom)
-        : 5,
-      disableDefaultUI: false,
-      mapTypeId: this.$store.getters.mapType
-        ? this.$store.getters.mapType
-        : google.maps.MapTypeId.HYBRID,
-      gestureHandling: 'greedy',
-      mapTypeControlOptions: {
-        style: google.maps.MapTypeControlStyle.HORIZONTAL_BAR,
-        position: google.maps.ControlPosition.TOP_RIGHT,
-      },
-    })
-    this.map.controls[google.maps.ControlPosition.RIGHT].push(
-      this.$refs.centerButton
-    )
-    this.map.controls[google.maps.ControlPosition.RIGHT].push(
-      this.$refs.seeAllButton
-    )
-    this.map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(
-      this.$refs.sponsor
-    )
-    this.updateMarker()
-    if (this.$route.query.location) {
-      this.openLocation(this.$route.query.location)
-    }
-
-    this.map.addListener('zoom_changed', () => {
-      this.zoomChanged()
-    })
-
-    this.map.addListener('center_changed', () => {
-      this.centerChanged()
-    })
-
-    // this is set by the query string "event"
-    const zoomedInLocation = this.$store.getters.pickedLocationZoomedIn
-    if (zoomedInLocation) {
-      // This makes sure that the map is not recentered or rezoomed on every
-      // click of a location
-      if (!this.$router.currentRoute.query.zoom) {
-        this.map.panTo(this.locationIdToMarker[zoomedInLocation].position)
-        this.map.setZoom(12)
-      }
-      this.openLocation(zoomedInLocation)
-    }
-
-    // filter by organization --> pan so that all markers are seen
-    if (this.organizerData) {
-      this.drawRaceTrackOverlaysForEachVisibleLocation()
-      if (!this.$router.currentRoute.query.zoom) {
-        this.seeAll()
-      }
-    }
-    // see https://forum.vuejs.org/t/lodash-debounce-not-working-when-placed-inside-a-method/86334/3
-    this.centerChanged = _.debounce(this.centerChanged, 2000)
+    this.initMap()
   },
   methods: {
+    async initMap() {
+      // Wait for Google Maps to be ready
+      if (typeof window !== 'undefined' && !window.googleMapsReady) {
+        try {
+          await new Promise((resolve, reject) => {
+            const timeout = setTimeout(
+              () => reject(new Error('Google Maps load timeout')),
+              10000
+            )
+            window.addEventListener(
+              'google-maps-ready',
+              () => {
+                clearTimeout(timeout)
+                resolve()
+              },
+              { once: true }
+            )
+          })
+        } catch (err) {
+          console.error('Failed to load Google Maps:', err)
+          return
+        }
+      }
+
+      // Now safe to use google.maps
+      let center
+      if (
+        this.$router.currentRoute.query.lat &&
+        this.$router.currentRoute.query.lng
+      ) {
+        center = this.mylocation.latlng = {
+          lat: parseFloat(this.$router.currentRoute.query.lat),
+          lng: parseFloat(this.$router.currentRoute.query.lng),
+        }
+      } else if (this.mylocation.latlng.lat && this.mylocation.latlng.lng) {
+        center = this.mylocation.latlng
+      } else {
+        // fallback to switzerland
+        center = { lat: 47.3474476, lng: 8.6733976 }
+      }
+      this.map = new google.maps.Map(document.getElementById('map'), {
+        center,
+        zoom: this.$router.currentRoute.query.zoom
+          ? parseInt(this.$router.currentRoute.query.zoom)
+          : 5,
+        disableDefaultUI: false,
+        mapTypeId: this.$store.getters.mapType
+          ? this.$store.getters.mapType
+          : google.maps.MapTypeId.HYBRID,
+        gestureHandling: 'greedy',
+        mapTypeControlOptions: {
+          style: google.maps.MapTypeControlStyle.HORIZONTAL_BAR,
+          position: google.maps.ControlPosition.TOP_RIGHT,
+        },
+      })
+      this.map.controls[google.maps.ControlPosition.RIGHT].push(
+        this.$refs.centerButton
+      )
+      this.map.controls[google.maps.ControlPosition.RIGHT].push(
+        this.$refs.seeAllButton
+      )
+      this.map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(
+        this.$refs.sponsor
+      )
+      this.updateMarker()
+      if (this.$route.query.location) {
+        this.openLocation(this.$route.query.location)
+      }
+
+      this.map.addListener('zoom_changed', () => {
+        this.zoomChanged()
+      })
+
+      this.map.addListener('center_changed', () => {
+        this.centerChanged()
+      })
+
+      // this is set by the query string "event"
+      const zoomedInLocation = this.$store.getters.pickedLocationZoomedIn
+      if (zoomedInLocation) {
+        // This makes sure that the map is not recentered or rezoomed on every
+        // click of a location
+        if (!this.$router.currentRoute.query.zoom) {
+          this.map.panTo(this.locationIdToMarker[zoomedInLocation].position)
+          this.map.setZoom(12)
+        }
+        this.openLocation(zoomedInLocation)
+      }
+
+      // filter by organization --> pan so that all markers are seen
+      if (this.organizerData) {
+        this.drawRaceTrackOverlaysForEachVisibleLocation()
+        if (!this.$router.currentRoute.query.zoom) {
+          this.seeAll()
+        }
+      }
+      // see https://forum.vuejs.org/t/lodash-debounce-not-working-when-placed-inside-a-method/86334/3
+      this.centerChanged = _.debounce(this.centerChanged, 2000)
+    },
     countVisibleMarkers() {
       const bounds = this.map.getBounds()
       let count = 0

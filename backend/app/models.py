@@ -192,6 +192,11 @@ class Event(CloneMixin, models.Model):
         blank=True,
         help_text="set if the event has been verified by the admin",
     )
+    last_auto_check_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text="Last time this event was automatically checked for updates",
+    )
     previous_year_event = models.ForeignKey(
         "Event",
         null=True,
