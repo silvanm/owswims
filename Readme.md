@@ -62,50 +62,38 @@ Edit this application always in VS Code. Not in PyCharm anymore.
    npm run dev
    ```
 
-## Importing Events
+## Management Commands
 
-OWSwims uses an LLM-based agent system to automatically import swimming events from websites. There are two main ways to import events:
+OWSwims includes a comprehensive set of Django management commands for event import, data maintenance, and administration.
 
-### 1. Process a Single Event
+For detailed documentation of all available commands, see:
+**[backend/app/management/commands/README.md](backend/app/management/commands/README.md)**
 
-To process a single event from one or more URLs (e.g., event page and registration page):
-
-```bash
-cd backend
-python manage.py crawl_events --event https://example.com/event1 https://example.com/event2
-```
-
-This command will:
-- Scrape the provided URLs
-- Use an LLM agent to extract structured data about the event
-- Create or update the event in the database with all relevant information
-
-### 2. Crawl Multiple Events
-
-To crawl and process multiple events from a website that lists many events:
+### Quick Examples
 
 ```bash
 cd backend
-python manage.py crawl_events --crawl https://example.com/events
+
+# Import a single event
+python manage.py crawl_events --event https://example.com/event
+
+# Crawl multiple events from a website
+python manage.py crawl_events --crawl https://example.com/events --limit 5
+
+# Discover new event URLs via Google Search
+python manage.py discover_event_urls --countries CH DE FR
+
+# Update next year's events automatically
+python manage.py update_next_year_events 2026
+
+# Geocode locations
+python manage.py geocode
 ```
 
-This command will:
-- Scrape the provided URL
-- Use an LLM agent to identify all individual event URLs
-- Process each event URL to extract structured data
-- Create or update multiple events in the database
+### Required Environment Variables
 
-### Optional Parameters
-
-- `--limit <number>`: Limit the number of events to process (useful for testing)
-  ```bash
-  python manage.py crawl_events --crawl https://example.com/events --limit 5
-  ```
-
-### Requirements
-
-The event import system requires the following environment variables to be set:
-- `FIRECRAWL_API_KEY`: API key for the Firecrawl web scraping service
-- `OPENAI_API_KEY`: API key for OpenAI (used by the LLM agent)
-
-These can be set in the `backend/.env` file.
+Set these in `backend/.env`:
+- `FIRECRAWL_API_KEY`: Web scraping service
+- `OPENAI_API_KEY`: LLM processing
+- `SERPER_API_KEY`: Google Search (for `discover_event_urls`)
+- `GOOGLE_MAPS_API_KEY`: Geocoding and place images
