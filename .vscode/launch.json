@@ -18,7 +18,7 @@
                 "GOOGLE_APPLICATION_CREDENTIALS": "${env:GOOGLE_APPLICATION_CREDENTIALS}"
             },
             "justMyCode": false,
-            "python": "/Users/silvan.muehlemann/Library/Caches/pypoetry/virtualenvs/owswims-AQWlaxwQ-py3.11/bin/python"
+            "python": "${workspaceFolder}/.venv/bin/python"
         },
         {
             "name": "Node 18 + Yarn Dev",
@@ -52,7 +52,7 @@
                 "GOOGLE_APPLICATION_CREDENTIALS": "${env:GOOGLE_APPLICATION_CREDENTIALS}"
             },
             "justMyCode": false,
-            "python": "/Users/silvan.muehlemann/Library/Caches/pypoetry/virtualenvs/owswims-AQWlaxwQ-py3.11/bin/python"
+            "python": "${workspaceFolder}/.venv/bin/python"
         },
         {
             "name": "migrate",
@@ -71,7 +71,7 @@
                 "GOOGLE_APPLICATION_CREDENTIALS": "${env:GOOGLE_APPLICATION_CREDENTIALS}"
             },
             "justMyCode": false,
-            "python": "/Users/silvan.muehlemann/Library/Caches/pypoetry/virtualenvs/owswims-AQWlaxwQ-py3.11/bin/python"
+            "python": "${workspaceFolder}/.venv/bin/python"
         },
         {
             "name": "Crawl single event",
@@ -86,7 +86,7 @@
             "django": true,
             "justMyCode": true,
             "cwd": "${workspaceFolder}/backend",
-            "python": "/Users/silvan.muehlemann/Library/Caches/pypoetry/virtualenvs/owswims-AQWlaxwQ-py3.11/bin/python"
+            "python": "${workspaceFolder}/.venv/bin/python"
         },
         {
             "name": "Crawl a list",
@@ -103,7 +103,7 @@
             "django": true,
             "justMyCode": true,
             "cwd": "${workspaceFolder}/backend",
-            "python": "/Users/silvan.muehlemann/Library/Caches/pypoetry/virtualenvs/owswims-AQWlaxwQ-py3.11/bin/python"
+            "python": "${workspaceFolder}/.venv/bin/python"
         },
         {
             "name": "Cloud SQL Proxy",
