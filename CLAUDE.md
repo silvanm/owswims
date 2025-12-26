@@ -27,13 +27,21 @@ npm run lint                        # Lint JavaScript/Vue files
 ```
 
 ### Event Management Commands
+
+For comprehensive documentation of all management commands, see:
+**[backend/app/management/commands/README.md](backend/app/management/commands/README.md)**
+
+Common commands:
 ```bash
 cd backend
 python manage.py crawl_events --event <url>                    # Process single event
 python manage.py crawl_events --crawl <url> --limit <n>        # Crawl multiple events
-python manage.py list_crawl_profiles                           # List available crawl profiles
-python manage.py process_unverified_locations                  # Process location data
+python manage.py discover_event_urls --countries CH DE          # Discover new event URLs
+python manage.py update_next_year_events 2026                  # Update next year's events
 python manage.py geocode                                       # Geocode locations
+python manage.py process_unverified_locations                  # Process location data
+python manage.py merge_locations                               # Merge duplicate locations
+python manage.py find_organizer_contacts                       # Find organizer contacts
 ```
 
 ## Architecture Overview
