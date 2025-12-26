@@ -121,6 +121,17 @@ For manual deployments or local testing:
 ./deploy.sh          # Legacy GitLab-style deployment (still works)
 ```
 
-The venv is in
+## Package Management
 
-/Users/silvan.muehlemann/Library/Caches/pypoetry/virtualenvs/owswims-AQWlaxwQ-py3.11/
+The project uses **uv** for Python package management (migrated from Poetry).
+
+**Virtual environment**: `.venv` in project root
+
+Common uv commands:
+```bash
+uv sync                    # Install/sync dependencies
+uv sync --dev              # Install with dev dependencies
+uv add <package>           # Add a new dependency
+uv add --dev <package>     # Add a dev dependency
+uv run python manage.py    # Run commands in the venv
+```
