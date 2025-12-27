@@ -5,8 +5,9 @@ from typing import Optional, Dict, Any, List
 from django.conf import settings
 from django.utils import timezone
 from llama_index.core.agent import ReActAgent
-from llama_index.llms.openai import OpenAI
+from llama_index.llms.openai import OpenAIResponses
 from llama_index.core.tools import FunctionTool
+from openai import NOT_GIVEN
 
 from .scraping_service import ScrapingService
 from app.models import Organizer, Event
@@ -22,7 +23,11 @@ class OrganizerContactService:
 
     def __init__(self, firecrawl_api_key: str):
         self.scraping_service = ScrapingService(api_key=firecrawl_api_key)
-        self.llm = OpenAI(model=settings.OPENAI_MODEL)
+        self.llm = OpenAIResponses(
+            model=settings.OPENAI_MODEL,
+            reasoning_options={"effort": settings.OPENAI_REASONING_EFFORT},
+            additional_kwargs={"temperature": NOT_GIVEN, "top_p": NOT_GIVEN},
+        )
 
     def get_organizer_urls(self, organizer: Organizer) -> List[Dict[str, Any]]:
         """Get all relevant URLs for an organizer, including their events"""
@@ -53,6 +58,8 @@ class OrganizerContactService:
 
     def process_organizer(self, organizer: Organizer) -> Optional[Dict[str, Any]]:
         """Process an organizer and their events to find contact information"""
+        import asyncio
+
         urls = self.get_organizer_urls(organizer)
 
         if not urls:
@@ -63,8 +70,8 @@ class OrganizerContactService:
 
         # Create tools for the LLM
         scrape_tool = FunctionTool.from_defaults(fn=self.scraping_service.scrape)
-        agent = ReActAgent.from_tools(
-            [scrape_tool], max_iterations=20, llm=self.llm, verbose=True
+        agent = ReActAgent(
+            tools=[scrape_tool], llm=self.llm, verbose=True
         )
 
         # Create the prompt for contact information extraction
@@ -126,10 +133,16 @@ class OrganizerContactService:
         """
 
         try:
-            response = agent.chat(prompt)
+            # Run the agent asynchronously
+            async def run_agent():
+                handler = agent.run(prompt)
+                return await handler
+
+            result = asyncio.run(run_agent())
+            response_text = result.response.content
 
             # Extract JSON from the response
-            json_text = response.response
+            json_text = response_text
             # Find the JSON content between triple backticks if present
             json_match = re.search(r"```json\s*(.*?)\s*```", json_text, re.DOTALL)
             if json_match:

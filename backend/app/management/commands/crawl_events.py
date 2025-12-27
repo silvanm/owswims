@@ -58,10 +58,17 @@ class Command(BaseCommand):
             help="Provide a custom prompt for the ReactAgent (only works with --profile)",
         )
 
+        parser.add_argument(
+            "--update-existing",
+            action="store_true",
+            help="Update existing events instead of skipping them when a duplicate is found (same location and date)",
+        )
+
     def handle(self, *args, **options):
         dotenv.load_dotenv()
         api_key = os.environ["FIRECRAWL_API_KEY"]
         dry_run = options.get("dry_run", False)
+        update_existing = options.get("update_existing", False)
 
         if dry_run:
             self.stdout.write(
@@ -70,11 +77,19 @@ class Command(BaseCommand):
                 )
             )
 
+        if update_existing:
+            self.stdout.write(
+                self.style.WARNING(
+                    "UPDATE EXISTING mode - existing events will be updated instead of skipped"
+                )
+            )
+
         processor = EventProcessor(
             firecrawl_api_key=api_key,
             stdout=self.stdout,
             stderr=self.stderr,
             dry_run=dry_run,
+            update_existing=update_existing,
         )
 
         if options["event"]:

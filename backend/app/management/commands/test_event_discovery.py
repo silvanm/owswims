@@ -2,7 +2,8 @@ import os
 import json
 from django.core.management.base import BaseCommand, CommandError
 from django.conf import settings
-from llama_index.llms.openai import OpenAI
+from llama_index.llms.openai import OpenAIResponses
+from openai import NOT_GIVEN
 from app.services.scraping_service import ScrapingService
 
 from .discover_event_urls import serper
@@ -111,7 +112,11 @@ class Command(BaseCommand):
                 if "-mini" not in settings.OPENAI_MODEL
                 else settings.OPENAI_MODEL
             )
-            llm = OpenAI(model=mini_model)
+            llm = OpenAIResponses(
+                model=mini_model,
+                reasoning_options={"effort": settings.OPENAI_REASONING_EFFORT},
+                additional_kwargs={"temperature": NOT_GIVEN, "top_p": NOT_GIVEN},
+            )
             response = llm.complete(prompt)
 
             # Convert the response to a string

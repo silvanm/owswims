@@ -15,10 +15,11 @@ class LLMService:
         self.model = settings.OPENAI_MODEL
 
     def get_completion(self, prompt: str) -> str:
-        """Get completion from GPT-4"""
+        """Get completion from GPT-4/GPT-5"""
         try:
             response = self.client.chat.completions.create(
                 model=self.model,
+                reasoning_effort=settings.OPENAI_REASONING_EFFORT,
                 messages=[
                     {
                         "role": "system",
@@ -26,8 +27,6 @@ class LLMService:
                     },
                     {"role": "user", "content": prompt},
                 ],
-                temperature=0.7,
-                max_tokens=1000,
             )
             return response.choices[0].message.content.strip()
         except Exception as e:
@@ -37,7 +36,7 @@ class LLMService:
     def parse_completion(
         self, prompt: str, response_model: Type[T], system_prompt: str = None
     ) -> T:
-        """Get structured completion from GPT-4 using the parse API"""
+        """Get structured completion from GPT-4/GPT-5 using the parse API"""
         try:
             system_content = (
                 system_prompt
@@ -46,6 +45,7 @@ class LLMService:
 
             response = self.client.beta.chat.completions.parse(
                 model=self.model,
+                reasoning_effort=settings.OPENAI_REASONING_EFFORT,
                 messages=[
                     {
                         "role": "system",
