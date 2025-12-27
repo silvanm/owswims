@@ -19,7 +19,8 @@ def get_organization_logo_url(obj, resolve_obj):
     if obj.logo:
         try:
             return obj.logo.url
-        except (ValueError, FileNotFoundError):
+        except Exception:
+            # Catch all exceptions including Google Cloud auth errors
             return None
     else:
         return None
@@ -38,7 +39,11 @@ class OrganizerNode(DjangoObjectType):
 
 def get_header_photo_url(obj, resolve_obj):
     if obj.header_photo:
-        return obj.header_photo.url
+        try:
+            return obj.header_photo.url
+        except Exception:
+            # Catch all exceptions including Google Cloud auth errors
+            return None
     else:
         return None
 
@@ -106,7 +111,11 @@ class RaceNode(DjangoObjectType):
 
 def get_flyer_image_url(obj, resolve_obj):
     if obj.flyer_image:
-        return obj.flyer_image.url
+        try:
+            return obj.flyer_image.url
+        except Exception:
+            # Catch all exceptions including Google Cloud auth errors
+            return None
     else:
         return None
 

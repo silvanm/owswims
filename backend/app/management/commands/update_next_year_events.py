@@ -412,9 +412,19 @@ class Command(BaseCommand):
             if target_year:
                 year_instruction = f"""
 IMPORTANT: You are specifically looking for the {target_year} edition of this event.
-If the page shows multiple years (e.g., {target_year-1} and {target_year}), extract information for {target_year} only.
-If you only find information for a different year (like {target_year-1}), extract that data anyway - we will validate the year later.
-Look for links or navigation to the {target_year} edition if available.
+
+SEARCH STRATEGY - Follow these steps in order:
+1. Check if the current page already shows {target_year} dates. If yes, extract that data.
+2. If the page shows {target_year-1} data, DO NOT extract it. Instead, search for {target_year}:
+   - Look for year selectors in navigation (dropdowns, tabs like "2025 | 2026")
+   - Look for links containing "{target_year}" in the URL or link text
+   - Check for "upcoming events", "next edition", "Termine {target_year}", or "{target_year} schedule" sections
+   - Follow the registration/Anmeldung link - it often shows the next edition first
+   - Look for news/announcements about the {target_year} edition
+3. If you find a link to {target_year} content, USE THE SCRAPE TOOL to visit that page and extract the data.
+4. If you cannot find ANY {target_year} information, return an empty JSON: {{"event": null, "races": []}}
+
+Do NOT extract {target_year-1} data - we already have it. Only return data if it's for {target_year}.
 """
 
             # Use the same prompt as EventProcessor
