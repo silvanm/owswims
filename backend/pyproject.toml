@@ -53,6 +53,8 @@ dependencies = [
     "django-ckeditor>=6.7.0",
     "llama-index-llms-openai>=0.6.12",
     "llama-index-core>=0.14.10",
+    "langfuse>=3.11.2",
+    "openinference-instrumentation-llama-index>=4.3.9",
 ]
 
 [project.optional-dependencies]

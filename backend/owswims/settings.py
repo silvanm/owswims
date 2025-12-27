@@ -280,8 +280,10 @@ CKEDITOR_CONFIGS = {
 
 # OpenAI Configuration
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-5.2")
-OPENAI_REASONING_EFFORT = os.getenv("OPENAI_REASONING_EFFORT", "low")
+OPENAI_MODEL = os.getenv(
+    "OPENAI_MODEL", "gpt-4.1"
+)  # 5.2 always tries to crawl on its own.
+OPENAI_REASONING_EFFORT = os.getenv("OPENAI_REASONING_EFFORT", "none")
 
 # SparkPost Configuration
 SPARKPOST_API_KEY = os.getenv("SPARKPOST_API_KEY")
