@@ -1,5 +1,14 @@
 <template>
   <div>
+    <!-- Bottom-left corner ribbon for event submission -->
+    <div
+      v-if="!isEmbedded && !$store.getters.pickedLocationId"
+      class="submit-ribbon"
+      @click="submitEventBoxShown = true"
+    >
+      <span>{{ $t('submitYourEvent') }}</span>
+    </div>
+
     <WelcomeBox
       v-if="
         welcomeboxShown &&
@@ -13,6 +22,10 @@
       v-if="$store.getters['reviewBoxShown']"
       @hide="$store.commit('reviewBoxShown', false)"
     ></ReviewBox>
+    <SubmitEventBox
+      v-if="submitEventBoxShown"
+      @hide="submitEventBoxShown = false"
+    ></SubmitEventBox>
     <div
       v-if="
         organizerData &&
@@ -139,6 +152,7 @@ export default {
       filterCollapsed: false,
       loginboxShown: false,
       welcomeboxShown: false,
+      submitEventBoxShown: false,
     }
   },
   computed: {
@@ -249,5 +263,39 @@ a {
 
 a:hover {
   @apply underline;
+}
+
+.submit-ribbon {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  z-index: 100;
+  overflow: hidden;
+  width: 150px;
+  height: 150px;
+  cursor: pointer;
+
+  span {
+    position: absolute;
+    display: block;
+    width: 225px;
+    padding: 10px 0;
+    background-color: #dc2626;
+    color: white;
+    font-weight: 600;
+    font-size: 13px;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+    transform: rotate(45deg);
+    bottom: 30px;
+    left: -55px;
+    transition: background-color 0.2s;
+  }
+
+  &:hover span {
+    background-color: #b91c1c;
+  }
 }
 </style>

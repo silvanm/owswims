@@ -6,7 +6,7 @@ from graphql_auth import mutations
 from graphql_jwt.decorators import login_required
 from graphql_relay import from_global_id
 
-from app.models import Event, Location, Race, Review, ApiToken
+from app.models import Event, Location, Race, Review, ApiToken, EventSubmission
 from .queries import LocationNode, RaceNode, EventNode
 
 
@@ -655,6 +655,30 @@ class RateEvent(graphene.Mutation):
         return RateEvent(success=success, id=rating.id)
 
 
+class SubmitEventUrl(graphene.Mutation):
+    """Submit an event URL for review - public, no login required"""
+
+    class Arguments:
+        url = graphene.String(required=True)
+        email = graphene.String(required=False)
+        comment = graphene.String(required=False)
+
+    success = graphene.Boolean()
+    message = graphene.String()
+
+    def mutate(root, info, url, email=None, comment=None):
+        logging.info(f"Event URL submitted: {url}")
+        EventSubmission.objects.create(
+            url=url,
+            email=email,
+            comment=comment,
+        )
+        return SubmitEventUrl(
+            success=True,
+            message="Thank you for your submission!"
+        )
+
+
 class CreateApiToken(graphene.Mutation):
     class Arguments:
         name = graphene.String(required=True)
@@ -727,5 +751,6 @@ class Mutation(AuthMutation, graphene.ObjectType):
     # Other mutations
     send_contactmail = ContactMail.Field()
     rate_event = RateEvent.Field()
+    submit_event_url = SubmitEventUrl.Field()
     create_api_token = CreateApiToken.Field()
     delete_api_token = DeleteApiToken.Field()

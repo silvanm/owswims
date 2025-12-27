@@ -62,5 +62,18 @@
 	"wetsuit": "ウェットスーツ",
 	"wetsuitcompulsory": "必須",
 	"wetsuitoptional": "任意",
-	"wetsuitprohibited": "禁止"
+	"wetsuitprohibited": "禁止",
+	"submitYourEvent": "イベントを登録",
+	"submitEventTitle": "イベントを登録",
+	"submitEventIntro": "オープンウォータースイミングイベントを主催していますか？イベントのURLを送信していただければ、地図に追加します！",
+	"eventUrl": "イベントURL",
+	"eventUrlPlaceholder": "https://your-event-website.com",
+	"yourEmail": "メールアドレス（任意）",
+	"yourEmailPlaceholder": "organizer@example.com",
+	"commentLabel": "コメント（任意）",
+	"commentPlaceholder": "イベントに関する追加情報",
+	"submit": "送信",
+	"thankYouSubmission": "イベントを送信いただきありがとうございます！確認後、地図に追加いたします。",
+	"urlRequired": "URLを入力してください",
+	"invalidUrl": "有効なURLを入力してください"
 } 

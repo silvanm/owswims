@@ -333,3 +333,28 @@ class ApiToken(models.Model):
 
     def __str__(self):
         return f"{self.name} ({self.user.username})"
+
+
+class EventSubmission(models.Model):
+    """
+    Stores event URLs submitted by organizers for review and processing.
+    """
+
+    STATUS_CHOICES = [
+        ("pending", "Pending"),
+        ("processed", "Processed"),
+        ("rejected", "Rejected"),
+    ]
+
+    url = models.URLField(max_length=500)
+    email = models.EmailField(blank=True, null=True)
+    comment = models.TextField(blank=True, null=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="pending")
+    created_at = models.DateTimeField(auto_now_add=True)
+    processed_at = models.DateTimeField(blank=True, null=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.url} ({self.status})"

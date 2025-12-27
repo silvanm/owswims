@@ -62,5 +62,18 @@
 	"wetsuit": "Combinaison",
 	"wetsuitcompulsory": "obligatoire",
 	"wetsuitoptional": "facultatif",
-	"wetsuitprohibited": "interdit"
+	"wetsuitprohibited": "interdit",
+	"submitYourEvent": "Proposer un événement",
+	"submitEventTitle": "Proposer un événement",
+	"submitEventIntro": "Tu organises un événement de natation en eau libre ? Envoie l'URL de ton événement et nous l'ajouterons à notre carte !",
+	"eventUrl": "URL de l'événement",
+	"eventUrlPlaceholder": "https://ton-site-evenement.com",
+	"yourEmail": "Ton email (facultatif)",
+	"yourEmailPlaceholder": "organisateur@exemple.com",
+	"commentLabel": "Commentaire (facultatif)",
+	"commentPlaceholder": "Toute information supplémentaire sur ton événement",
+	"submit": "Envoyer",
+	"thankYouSubmission": "Merci d'avoir soumis ton événement ! Nous examinerons ta proposition et l'ajouterons bientôt à notre carte.",
+	"urlRequired": "Veuillez entrer une URL",
+	"invalidUrl": "Veuillez entrer une URL valide"
 }

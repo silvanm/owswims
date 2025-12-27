@@ -62,5 +62,18 @@
 	"wetsuit": "Neoprenanzug",
 	"wetsuitcompulsory": "obligatorisch",
 	"wetsuitoptional": "optional",
-	"wetsuitprohibited": "verboten"
+	"wetsuitprohibited": "verboten",
+	"submitYourEvent": "Event einreichen",
+	"submitEventTitle": "Event einreichen",
+	"submitEventIntro": "Organisierst du ein Freiwasserschwimmen? Reiche die URL deiner Veranstaltung ein und wir fügen sie unserer Karte hinzu!",
+	"eventUrl": "Event-URL",
+	"eventUrlPlaceholder": "https://deine-event-website.com",
+	"yourEmail": "Deine E-Mail (optional)",
+	"yourEmailPlaceholder": "veranstalter@beispiel.com",
+	"commentLabel": "Kommentar (optional)",
+	"commentPlaceholder": "Zusätzliche Informationen zu deinem Event",
+	"submit": "Einreichen",
+	"thankYouSubmission": "Vielen Dank für deine Einreichung! Wir werden deinen Vorschlag prüfen und bald auf unserer Karte hinzufügen.",
+	"urlRequired": "Bitte gib eine URL ein",
+	"invalidUrl": "Bitte gib eine gültige URL ein"
 }
