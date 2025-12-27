@@ -62,5 +62,18 @@
 	"wetsuit": "Muta",
 	"wetsuitcompulsory": "obbligatorio",
 	"wetsuitoptional": "opzionale",
-	"wetsuitprohibited": "vietato"
+	"wetsuitprohibited": "vietato",
+	"submitYourEvent": "Proponi il tuo evento",
+	"submitEventTitle": "Proponi il tuo evento",
+	"submitEventIntro": "Organizzi un evento di nuoto in acque libere? Invia l'URL del tuo evento e lo aggiungeremo alla nostra mappa!",
+	"eventUrl": "URL dell'evento",
+	"eventUrlPlaceholder": "https://il-tuo-sito-evento.com",
+	"yourEmail": "La tua email (facoltativo)",
+	"yourEmailPlaceholder": "organizzatore@esempio.com",
+	"commentLabel": "Commento (facoltativo)",
+	"commentPlaceholder": "Qualsiasi informazione aggiuntiva sul tuo evento",
+	"submit": "Invia",
+	"thankYouSubmission": "Grazie per aver inviato il tuo evento! Esamineremo la tua proposta e la aggiungeremo presto alla nostra mappa.",
+	"urlRequired": "Inserisci un URL",
+	"invalidUrl": "Inserisci un URL valido"
 }

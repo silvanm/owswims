@@ -62,5 +62,18 @@
 	"wetsuit": "Wetsuit",
 	"wetsuitcompulsory": "compulsory",
 	"wetsuitoptional": "optional",
-	"wetsuitprohibited": "prohibited"
+	"wetsuitprohibited": "prohibited",
+	"submitYourEvent": "Submit your event",
+	"submitEventTitle": "Submit Your Event",
+	"submitEventIntro": "Are you organizing an open water swimming event? Submit your event URL and we'll add it to our map!",
+	"eventUrl": "Event URL",
+	"eventUrlPlaceholder": "https://your-event-website.com",
+	"yourEmail": "Your email (optional)",
+	"yourEmailPlaceholder": "organizer@example.com",
+	"commentLabel": "Comment (optional)",
+	"commentPlaceholder": "Any additional information about your event",
+	"submit": "Submit",
+	"thankYouSubmission": "Thank you for submitting your event! We'll review your submission and add it to our map soon.",
+	"urlRequired": "Please enter a URL",
+	"invalidUrl": "Please enter a valid URL"
 }

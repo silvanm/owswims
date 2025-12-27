@@ -62,5 +62,18 @@
 	"wetsuit": "Гидрокостюм",
 	"wetsuitcompulsory": "oбязательный",
 	"wetsuitoptional": "Факультативный",
-	"wetsuitprohibited": "запрещенный"
+	"wetsuitprohibited": "запрещенный",
+	"submitYourEvent": "Предложить событие",
+	"submitEventTitle": "Предложить событие",
+	"submitEventIntro": "Организуете заплыв на открытой воде? Отправьте URL вашего события, и мы добавим его на нашу карту!",
+	"eventUrl": "URL события",
+	"eventUrlPlaceholder": "https://ваш-сайт-события.com",
+	"yourEmail": "Ваш email (необязательно)",
+	"yourEmailPlaceholder": "organizer@example.com",
+	"commentLabel": "Комментарий (необязательно)",
+	"commentPlaceholder": "Любая дополнительная информация о вашем событии",
+	"submit": "Отправить",
+	"thankYouSubmission": "Спасибо за отправку вашего события! Мы рассмотрим ваше предложение и скоро добавим его на нашу карту.",
+	"urlRequired": "Пожалуйста, введите URL",
+	"invalidUrl": "Пожалуйста, введите корректный URL"
 }

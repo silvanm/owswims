@@ -24,7 +24,7 @@ from ckeditor.widgets import CKEditorWidget
 from django_google_maps import widgets as map_widgets
 from django_google_maps import fields as map_fields
 from . import models
-from .models import Race, Event, Location, Review, ApiToken
+from .models import Race, Event, Location, Review, ApiToken, EventSubmission
 from .services.email_service import EmailService
 
 admin.site.site_header = ugettext_lazy("Open-Water-Swims Admin")
@@ -599,3 +599,27 @@ class ApiTokenAdmin(admin.ModelAdmin):
         (None, {"fields": ("user", "name")}),
         ("Token Information", {"fields": ("token", "created_at", "last_used_at")}),
     )
+
+
+@admin.register(EventSubmission)
+class EventSubmissionAdmin(admin.ModelAdmin):
+    list_display = ("url", "email", "status", "created_at", "processed_at")
+    list_filter = ("status", "created_at")
+    search_fields = ("url", "email", "comment")
+    readonly_fields = ("created_at",)
+    list_editable = ("status",)
+    date_hierarchy = "created_at"
+    ordering = ("-created_at",)
+    actions = ["mark_as_processed", "mark_as_rejected"]
+
+    def mark_as_processed(self, request, queryset):
+        updated = queryset.update(status="processed", processed_at=timezone.now())
+        self.message_user(request, f"{updated} submission(s) marked as processed.")
+
+    mark_as_processed.short_description = "Mark selected as processed"
+
+    def mark_as_rejected(self, request, queryset):
+        updated = queryset.update(status="rejected", processed_at=timezone.now())
+        self.message_user(request, f"{updated} submission(s) marked as rejected.")
+
+    mark_as_rejected.short_description = "Mark selected as rejected"

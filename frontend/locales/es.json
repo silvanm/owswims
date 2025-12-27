@@ -62,5 +62,18 @@
 	"wetsuit": "Neopreno",
 	"wetsuitcompulsory": "obligatorio",
 	"wetsuitoptional": "opcional",
-	"wetsuitprohibited": "prohibido"
+	"wetsuitprohibited": "prohibido",
+	"submitYourEvent": "Envía tu evento",
+	"submitEventTitle": "Envía tu evento",
+	"submitEventIntro": "¿Organizas un evento de natación en aguas abiertas? ¡Envía la URL de tu evento y lo añadiremos a nuestro mapa!",
+	"eventUrl": "URL del evento",
+	"eventUrlPlaceholder": "https://tu-sitio-web-del-evento.com",
+	"yourEmail": "Tu correo electrónico (opcional)",
+	"yourEmailPlaceholder": "organizador@ejemplo.com",
+	"commentLabel": "Comentario (opcional)",
+	"commentPlaceholder": "Cualquier información adicional sobre tu evento",
+	"submit": "Enviar",
+	"thankYouSubmission": "¡Gracias por enviar tu evento! Revisaremos tu propuesta y la añadiremos a nuestro mapa pronto.",
+	"urlRequired": "Por favor, introduce una URL",
+	"invalidUrl": "Por favor, introduce una URL válida"
 }
