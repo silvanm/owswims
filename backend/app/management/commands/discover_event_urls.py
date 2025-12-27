@@ -5,8 +5,9 @@ import http.client
 from typing import List, Dict, Any
 import dotenv
 from django.core.management.base import BaseCommand
-from llama_index.llms.openai import OpenAI
+from llama_index.llms.openai import OpenAIResponses
 from django.conf import settings
+from openai import NOT_GIVEN
 from pydantic import BaseModel
 import re
 
@@ -369,7 +370,11 @@ class Command(BaseCommand):
             languages.remove("en")
 
         translated_keywords = {}
-        llm = OpenAI(model=settings.OPENAI_MODEL)
+        llm = OpenAIResponses(
+            model=settings.OPENAI_MODEL,
+            reasoning_options={"effort": settings.OPENAI_REASONING_EFFORT},
+            additional_kwargs={"temperature": NOT_GIVEN, "top_p": NOT_GIVEN},
+        )
 
         for language in languages:
             self.stdout.write(f"Translating keywords to {language}...")
@@ -505,7 +510,11 @@ class Command(BaseCommand):
                 return False, EventType.UNKNOWN, "Failed to scrape content"
 
             # Create the LLM client using llama_index
-            llm = OpenAI(model=settings.OPENAI_MODEL)
+            llm = OpenAIResponses(
+                model=settings.OPENAI_MODEL,
+                reasoning_options={"effort": settings.OPENAI_REASONING_EFFORT},
+                additional_kwargs={"temperature": NOT_GIVEN, "top_p": NOT_GIVEN},
+            )
 
             # Create the prompt
             prompt = f"""

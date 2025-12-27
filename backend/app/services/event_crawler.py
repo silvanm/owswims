@@ -4,9 +4,10 @@ import urllib.parse
 from typing import List, Dict, Any, Set, Tuple, Optional
 from django.core.management.base import OutputWrapper
 from llama_index.core.agent import ReActAgent
-from llama_index.llms.openai import OpenAI
+from llama_index.llms.openai import OpenAIResponses
 from llama_index.core.tools import FunctionTool
 from django.conf import settings
+from openai import NOT_GIVEN
 
 from .scraping_service import ScrapingService
 
@@ -35,7 +36,11 @@ class EventCrawler:
         self.scraping_service = ScrapingService(
             api_key=firecrawl_api_key, stdout=stdout, stderr=stderr
         )
-        self.llm = OpenAI(model=settings.OPENAI_MODEL, response_format="json")
+        self.llm = OpenAIResponses(
+            model=settings.OPENAI_MODEL,
+            reasoning_options={"effort": settings.OPENAI_REASONING_EFFORT},
+            additional_kwargs={"temperature": NOT_GIVEN, "top_p": NOT_GIVEN},
+        )
         self.profile = profile
 
         # Cache for scraped pages to avoid re-scraping
@@ -47,6 +52,7 @@ class EventCrawler:
         Returns a list of URL lists, where each inner list contains URLs for the same event
         (e.g. registration page and event info page)
         """
+        import asyncio
 
         # Create a tool for the LLM to scrape additional pages if needed
         # If a profile is available, use it for scraping
@@ -54,8 +60,8 @@ class EventCrawler:
             return self.scraping_service.scrape(url, profile=self.profile)
 
         scrape_tool = FunctionTool.from_defaults(fn=scrape_with_profile)
-        agent = ReActAgent.from_tools(
-            [scrape_tool], max_iterations=10, llm=self.llm, verbose=True
+        agent = ReActAgent(
+            tools=[scrape_tool], llm=self.llm, verbose=True
         )
 
         # Get current date for filtering future events
@@ -113,13 +119,20 @@ Make sure to:
 
 """
 
-        response = agent.chat(prompt)
+        # Run the agent asynchronously
+        async def run_agent():
+            handler = agent.run(prompt)
+            return await handler
+
+        result = asyncio.run(run_agent())
+        response_text = result.response.content
+
         try:
             # Extract JSON from the response
             import json
             import re
 
-            json_match = re.search(r"\{[\s\S]*\}", response.response)
+            json_match = re.search(r"\{[\s\S]*\}", response_text)
             if not json_match:
                 logger.error("No JSON found in LLM response")
                 return []
@@ -154,9 +167,9 @@ Make sure to:
 
         except json.JSONDecodeError as e:
             logger.error(f"Failed to parse JSON from LLM response: {str(e)}")
-            logger.debug(f"Response was: {response.response}")
+            logger.debug(f"Response was: {response_text}")
             return []
         except Exception as e:
             logger.error(f"Unexpected error processing LLM response: {str(e)}")
-            logger.debug(f"Response was: {response.response}")
+            logger.debug(f"Response was: {response_text}")
             return []

@@ -13,8 +13,9 @@ from thefuzz import fuzz, process
 from typing import Optional, Dict, Any, List, Tuple
 from django.core.management.base import OutputWrapper
 from llama_index.core.agent import ReActAgent
-from llama_index.llms.openai import OpenAI
+from llama_index.llms.openai import OpenAIResponses
 from llama_index.core.tools import FunctionTool
+from openai import NOT_GIVEN
 from djmoney.money import Money
 
 from .scraping_service import ScrapingService
@@ -86,19 +87,27 @@ class EventProcessor:
         stdout: OutputWrapper = None,
         stderr: OutputWrapper = None,
         dry_run: bool = False,
+        update_existing: bool = False,
     ):
         self.scraping_service = ScrapingService(
             api_key=firecrawl_api_key, stdout=stdout, stderr=stderr
         )
-        self.llm = OpenAI(model=settings.OPENAI_MODEL)
+        self.llm = OpenAIResponses(
+            model=settings.OPENAI_MODEL,
+            reasoning_options={"effort": settings.OPENAI_REASONING_EFFORT},
+            additional_kwargs={"temperature": NOT_GIVEN, "top_p": NOT_GIVEN},
+        )
         self.dry_run = dry_run
+        self.update_existing = update_existing
         self.stdout = stdout
         self.stderr = stderr
 
-        logger.info(f"EventProcessor initialized (dry_run={dry_run})")
+        logger.info(f"EventProcessor initialized (dry_run={dry_run}, update_existing={update_existing})")
 
     def process_event_urls(self, urls: List[str]) -> Optional[Event]:
         """Process a list of URLs that belong to the same event"""
+        import asyncio
+
         # Log the URLs being processed
         logger.info(f"Processing event URLs: {', '.join(urls)}")
 
@@ -119,8 +128,8 @@ class EventProcessor:
 
         # Create a tool for the LLM to scrape additional pages if needed
         scrape_tool = FunctionTool.from_defaults(fn=self.scraping_service.scrape)
-        agent = ReActAgent.from_tools(
-            [scrape_tool], max_iterations=20, llm=self.llm, verbose=True
+        agent = ReActAgent(
+            tools=[scrape_tool], llm=self.llm, verbose=True
         )
 
         # Get current date for filtering future events
@@ -205,11 +214,18 @@ For the wetsuit field, only use one of these values: 'compulsory', 'optional', '
 For the water_type field, only use one of these values: 'river', 'sea', 'lake', 'pool'.
 For the country field, you MUST use 2-letter ISO 3166-1 alpha-2 codes in Latin letters (e.g., JP, DE, US, GB, FR, etc.).
 """
-        response = agent.chat(prompt)
+
+        # Run the agent asynchronously
+        async def run_agent():
+            handler = agent.run(prompt)
+            return await handler
+
+        result = asyncio.run(run_agent())
+        response_text = result.response.content
 
         try:
             # Extract JSON from the response
-            json_text = response.response
+            json_text = response_text
             # Find the JSON content between triple backticks if present
             json_match = re.search(r"```json\s*(.*?)\s*```", json_text, re.DOTALL)
             if json_match:
@@ -260,16 +276,23 @@ For the country field, you MUST use 2-letter ISO 3166-1 alpha-2 codes in Latin l
             return None
 
         # Check if there's already an event at the same location on the same date
+        existing_event = None
         if not self.dry_run:
             existing_events = Event.objects.filter(
                 location=location, date_start=data["event"]["date_start"]
             )
 
             if existing_events.exists():
-                logger.info(
-                    f"Skipping event '{data['event']['name']}' as there's already an event at {location.city}, {location.country} on {data['event']['date_start']}"
-                )
-                return None
+                if self.update_existing:
+                    existing_event = existing_events.first()
+                    logger.info(
+                        f"Found existing event '{existing_event.name}' (ID: {existing_event.id}) - will update it"
+                    )
+                else:
+                    logger.info(
+                        f"Skipping event '{data['event']['name']}' as there's already an event at {location.city}, {location.country} on {data['event']['date_start']}"
+                    )
+                    return None
 
         # Get or create organizer
         organizer_name = data["event"].get("organizer", {}).get("name", "")
@@ -285,7 +308,7 @@ For the country field, you MUST use 2-letter ISO 3166-1 alpha-2 codes in Latin l
         else:
             organizer = self._get_or_create_organizer(organizer_name)
 
-        # Create Event
+        # Create or update Event
         event_data = data["event"]
         try:
             if self.dry_run:
@@ -294,8 +317,39 @@ For the country field, you MUST use 2-letter ISO 3166-1 alpha-2 codes in Latin l
 
                 DummyEvent = namedtuple("DummyEvent", ["id", "name"])
                 event = DummyEvent(id=0, name=event_data["name"])
-                logger.info(f"[DRY RUN] Would create event: {event.name}")
+                if self.update_existing:
+                    logger.info(f"[DRY RUN] Would update existing event: {event.name}")
+                else:
+                    logger.info(f"[DRY RUN] Would create event: {event.name}")
                 logger.info(f"[DRY RUN] Event details: {event_data}")
+            elif existing_event:
+                # Update existing event
+                existing_event.name = event_data["name"]
+                existing_event.website = event_data.get("website", urls[0])
+                existing_event.slug = slugify(event_data["name"])
+                existing_event.location = location
+                existing_event.organizer = organizer
+                existing_event.needs_medical_certificate = event_data.get(
+                    "needs_medical_certificate"
+                )
+                existing_event.needs_license = event_data.get("needs_license")
+                existing_event.sold_out = event_data.get("sold_out")
+                existing_event.cancelled = event_data.get("cancelled")
+                existing_event.with_ranking = event_data.get("with_ranking")
+                existing_event.date_start = event_data["date_start"]
+                existing_event.date_end = event_data["date_end"]
+                existing_event.water_temp = event_data.get("water_temp")
+                existing_event.description = event_data.get("description") or ""
+                existing_event.source = f"agentic crawling (updated), source urls: {', '.join(urls)}"
+                existing_event.save()
+                event = existing_event
+                logger.info(
+                    f"Successfully updated event: {event.name} (ID: {event.id})"
+                )
+
+                # Delete existing races before creating new ones
+                event.races.all().delete()
+                logger.info(f"Deleted existing races for event: {event.name}")
             else:
                 event = Event.objects.create(
                     name=event_data["name"],
@@ -322,7 +376,7 @@ For the country field, you MUST use 2-letter ISO 3166-1 alpha-2 codes in Latin l
                     f"Successfully created event: {event.name} (ID: {event.id})"
                 )
         except Exception as e:
-            logger.error(f"Failed to create event: {str(e)}")
+            logger.error(f"Failed to create/update event: {str(e)}")
             return None
 
         # Create Races

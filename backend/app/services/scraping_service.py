@@ -42,24 +42,24 @@ class ScrapingService:
             profile: Optional crawl profile with actions to perform before scraping
         """
         try:
-            params = {
+            scrape_kwargs = {
                 "formats": ["markdown"],
-                "excludeTags": ["script", "style", "svg", "iframe", "footer"],
-                "onlyMainContent": False,
-                "waitFor": 1000,
+                "exclude_tags": ["script", "style", "svg", "iframe", "footer"],
+                "only_main_content": False,
+                "wait_for": 1000,
             }
 
             # Add actions from profile if available
             if profile and "actions" in profile:
-                params["actions"] = profile["actions"]
+                scrape_kwargs["actions"] = profile["actions"]
                 self._log(
                     f"Using crawl profile '{profile.get('name', 'unnamed')}' for {url}"
                 )
 
             self._log(f"Scraping {url}...", "info")
 
-            scrape_result = self.firecrawl_app.scrape_url(url, params=params)
-            return scrape_result["markdown"]
+            scrape_result = self.firecrawl_app.scrape(url, **scrape_kwargs)
+            return scrape_result.markdown or ""
         except Exception as e:
             self._log(f"Failed to scrape {url}: {str(e)}", "error")
             return ""
