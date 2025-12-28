@@ -11,14 +11,13 @@
                 "qcluster"
             ],
             "django": true,
+            "envFile": "${workspaceFolder}/backend/.env",
             "env": {
                 "PYTHONUNBUFFERED": "1",
-                "DJANGO_SETTINGS_MODULE": "owswims.settings",
-                "GOOGLE_MAPS_KEY": "${env:GOOGLE_MAPS_API_KEY}",
-                "GOOGLE_APPLICATION_CREDENTIALS": "${env:GOOGLE_APPLICATION_CREDENTIALS}"
+                "DJANGO_SETTINGS_MODULE": "owswims.settings"
             },
             "justMyCode": false,
-            "python": "${workspaceFolder}/.venv/bin/python"
+            "python": "${workspaceFolder}/backend/.venv/bin/python"
         },
         {
             "name": "Node 18 + Yarn Dev",
@@ -45,14 +44,13 @@
                 "0.0.0.0:8000"
             ],
             "django": true,
+            "envFile": "${workspaceFolder}/backend/.env",
             "env": {
                 "PYTHONUNBUFFERED": "1",
-                "DJANGO_SETTINGS_MODULE": "owswims.settings",
-                "GOOGLE_MAPS_KEY": "${env:GOOGLE_MAPS_API_KEY}",
-                "GOOGLE_APPLICATION_CREDENTIALS": "${env:GOOGLE_APPLICATION_CREDENTIALS}"
+                "DJANGO_SETTINGS_MODULE": "owswims.settings"
             },
             "justMyCode": false,
-            "python": "${workspaceFolder}/.venv/bin/python"
+            "python": "${workspaceFolder}/backend/.venv/bin/python"
         },
         {
             "name": "migrate",
@@ -64,14 +62,13 @@
                 "migrate"
             ],
             "django": true,
+            "envFile": "${workspaceFolder}/backend/.env",
             "env": {
                 "PYTHONUNBUFFERED": "1",
-                "DJANGO_SETTINGS_MODULE": "owswims.settings",
-                "GOOGLE_MAPS_KEY": "${env:GOOGLE_MAPS_API_KEY}",
-                "GOOGLE_APPLICATION_CREDENTIALS": "${env:GOOGLE_APPLICATION_CREDENTIALS}"
+                "DJANGO_SETTINGS_MODULE": "owswims.settings"
             },
             "justMyCode": false,
-            "python": "${workspaceFolder}/.venv/bin/python"
+            "python": "${workspaceFolder}/backend/.venv/bin/python"
         },
         {
             "name": "Crawl single event",
@@ -84,9 +81,10 @@
                 "https://www.tegernsee-langstreckenschwimmen.de"
             ],
             "django": true,
+            "envFile": "${workspaceFolder}/backend/.env",
             "justMyCode": true,
             "cwd": "${workspaceFolder}/backend",
-            "python": "${workspaceFolder}/.venv/bin/python"
+            "python": "${workspaceFolder}/backend/.venv/bin/python"
         },
         {
             "name": "Crawl a list",
@@ -101,9 +99,10 @@
                 "2"
             ],
             "django": true,
+            "envFile": "${workspaceFolder}/backend/.env",
             "justMyCode": true,
             "cwd": "${workspaceFolder}/backend",
-            "python": "${workspaceFolder}/.venv/bin/python"
+            "python": "${workspaceFolder}/backend/.venv/bin/python"
         },
         {
             "name": "Cloud SQL Proxy",

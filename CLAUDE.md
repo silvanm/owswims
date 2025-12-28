@@ -125,7 +125,7 @@ For manual deployments or local testing:
 
 The project uses **uv** for Python package management (migrated from Poetry).
 
-**Virtual environment**: `.venv` in project root
+**Virtual environment**: `.venv` is not in project root. It's in backend/.venv
 
 Common uv commands:
 ```bash
