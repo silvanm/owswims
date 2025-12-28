@@ -412,8 +412,8 @@ class Command(BaseCommand):
 
             # Create agent to extract data
             scrape_tool = FunctionTool.from_defaults(fn=processor.scraping_service.scrape)
-            agent = ReActAgent.from_tools(
-                [scrape_tool], max_iterations=20, llm=processor.llm, verbose=True
+            agent = ReActAgent(
+                tools=[scrape_tool], llm=processor.llm, verbose=True
             )
 
             current_date = datetime.now().strftime("%Y-%m-%d")
