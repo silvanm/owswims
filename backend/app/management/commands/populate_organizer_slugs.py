@@ -8,6 +8,11 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         organizers = Organizer.objects.filter(slug__isnull=True)
+
+        # Pre-fetch all existing slugs to avoid N+1 queries
+        existing_slugs = set(
+            Organizer.objects.exclude(slug__isnull=True).values_list('slug', flat=True)
+        )
         count = 0
 
         for organizer in organizers:
@@ -16,12 +21,13 @@ class Command(BaseCommand):
             slug = base_slug
             counter = 1
 
-            # Check if slug already exists and append a number if it does
-            while Organizer.objects.filter(slug=slug).exists():
+            # Check against cached set instead of database
+            while slug in existing_slugs:
                 slug = f"{base_slug}-{counter}"
                 counter += 1
 
             organizer.slug = slug
+            existing_slugs.add(slug)  # Add to set to avoid duplicates in this run
             organizer.save()
             count += 1
 
