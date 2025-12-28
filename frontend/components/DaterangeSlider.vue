@@ -64,7 +64,7 @@ export default {
   methods: {
     tooltipFormatter(val) {
       const d = addMonths(new Date(), val)
-      return format(d, 'LLL yy', { locale: localeMap[this.$i18n.locale] })
+      return format(d, 'LLL yyyy', { locale: localeMap[this.$i18n.locale] })
     },
     marksFormatter(val) {
       if (val % 3 === 0) {
