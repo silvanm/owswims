@@ -155,22 +155,6 @@ class Command(BaseCommand):
                 )
             )
 
-    def _load_prompt_template(self, urls: str, current_date: str, year_instruction: str) -> str:
-        """Load and format the event extraction prompt template"""
-        template_path = os.path.join(
-            os.path.dirname(__file__),
-            "..",
-            "templates",
-            "event_extraction_prompt.txt"
-        )
-        with open(template_path, "r") as f:
-            template = f.read()
-        return template.format(
-            urls=urls,
-            current_date=current_date,
-            year_instruction=year_instruction
-        )
-
     def _setup_logging(self):
         """Set up file logging"""
         log_dir = os.path.join(
@@ -389,80 +373,19 @@ class Command(BaseCommand):
         self, processor: EventProcessor, urls: List[str], target_year: int = None
     ) -> Optional[Dict]:
         """
-        Extract event data from URLs without saving to database
+        Extract event data from URLs without saving to database.
+
+        Delegates to EventProcessor.extract_event_data() which contains the
+        shared extraction logic.
 
         Returns: Dictionary with event and races data, or None if extraction failed
         """
         try:
-            import json
-            import re
-            from llama_index.core.tools import FunctionTool
-            from llama_index.core.agent import ReActAgent
-
-            # Scrape the content
-            contents = []
-            for url in urls:
-                self.logger.info(f"Scraping URL: {url}")
-                content = processor.scraping_service.scrape(url)
-                if content:
-                    contents.append({"url": url, "content": content})
-
-            if not contents:
-                return None
-
-            # Create agent to extract data
-            scrape_tool = FunctionTool.from_defaults(fn=processor.scraping_service.scrape)
-            agent = ReActAgent(
-                tools=[scrape_tool], llm=processor.llm, verbose=True
+            return processor.extract_event_data(
+                urls=urls,
+                target_year=target_year,
+                filter_future_only=False,  # We handle date filtering differently for updates
             )
-
-            current_date = datetime.now().strftime("%Y-%m-%d")
-
-            # Build year-specific instruction
-            year_instruction = ""
-            if target_year:
-                year_instruction = f"""
-IMPORTANT: You are specifically looking for the {target_year} edition of this event.
-
-SEARCH STRATEGY - Follow these steps in order:
-1. Check if the current page already shows {target_year} dates. If yes, extract that data.
-2. If the page shows {target_year-1} data, DO NOT extract it. Instead, search for {target_year}:
-   - Look for year selectors in navigation (dropdowns, tabs like "2025 | 2026")
-   - Look for links containing "{target_year}" in the URL or link text
-   - Check for "upcoming events", "next edition", "Termine {target_year}", or "{target_year} schedule" sections
-   - Follow the registration/Anmeldung link - it often shows the next edition first
-   - Look for news/announcements about the {target_year} edition
-3. If you find a link to {target_year} content, USE THE SCRAPE TOOL to visit that page and extract the data.
-4. If you cannot find ANY {target_year} information, return an empty JSON: {{"event": null, "races": []}}
-
-Do NOT extract {target_year-1} data - we already have it. Only return data if it's for {target_year}.
-"""
-
-            # Load prompt template from file
-            prompt = self._load_prompt_template(
-                urls=', '.join(urls),
-                current_date=current_date,
-                year_instruction=year_instruction
-            )
-
-            # Run the agent asynchronously
-            import asyncio
-
-            async def run_agent():
-                handler = agent.run(prompt)
-                return await handler
-
-            result = asyncio.run(run_agent())
-
-            # Extract JSON from response
-            json_text = result.response.content
-            json_match = re.search(r"```json\s*(.*?)\s*```", json_text, re.DOTALL)
-            if json_match:
-                json_text = json_match.group(1)
-
-            data = json.loads(json_text)
-            return data
-
         except Exception as e:
             self.logger.error(f"Error extracting event data: {str(e)}")
             return None
