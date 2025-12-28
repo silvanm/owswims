@@ -5,6 +5,7 @@ from typing import List, Optional, Dict
 from django.core.management.base import BaseCommand
 from django.utils.text import slugify
 import dotenv
+from tqdm import tqdm
 
 from app.models import Event, Race
 from app.services.event_crawler import EventCrawler
@@ -110,10 +111,15 @@ class Command(BaseCommand):
         failed = 0
         not_found = 0
 
-        for i, event in enumerate(events, 1):
-            self.stdout.write(
-                f"\nProcessing event {i}/{len(events)}: {event.name} (ID: {event.id})"
-            )
+        progress_bar = tqdm(
+            events,
+            desc="Processing events",
+            unit="event",
+            ncols=100,
+        )
+
+        for event in progress_bar:
+            progress_bar.set_postfix_str(f"{event.name[:30]}...")
             self.logger.info(f"Processing event: {event.name} (ID: {event.id})")
 
             try:
@@ -127,14 +133,17 @@ class Command(BaseCommand):
                 else:
                     failed += 1
             except Exception as e:
-                self.stderr.write(
-                    self.style.ERROR(f"Failed to process event: {str(e)}")
-                )
+                tqdm.write(self.style.ERROR(f"Failed to process event: {str(e)}"))
                 self.logger.error(f"Failed to process event {event.id}: {str(e)}")
                 self._append_internal_comment(
                     event, f"ERROR: Failed to process: {str(e)}", dry_run
                 )
                 failed += 1
+
+            # Update progress bar with current stats
+            progress_bar.set_description(
+                f"✓{successful} ✗{failed} ?{not_found}"
+            )
 
         # Summary
         dry_run_prefix = "[DRY RUN] " if dry_run else ""
