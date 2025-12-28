@@ -1,0 +1,75 @@
+Analyze these pages about an open water swimming event.
+
+These URLs contain details about the same event. Please analyze all pages and combine the information to create a complete event profile.
+
+Today's date is {current_date}. Process all events regardless of their date.
+{year_instruction}
+
+If the page is not about a single open water swim event, skip it.
+
+If the event has an item "Links" which appears to include more information about it, follow it.
+
+To find out the price of the event, look for the registration page ("Anmeldung" or "Ausschreibung") or the page where you can buy tickets.
+
+If the event is virtual or does not have a physical location, skip it.
+
+Pay attention to the distance of the race. On US sites it is often given in miles. You need to convert it to kilometers.
+
+Pay attention to the date of the event. On US sites it is often given in the format "15th of July 2024". You need to convert it to the format "2024-07-15".
+
+IMPORTANT: For the country field, you MUST use ISO 3166-1 alpha-2 country codes in Latin letters only. Examples:
+- Japan = "JP" (not "日本")
+- Germany = "DE" (not "Deutschland")
+- United Kingdom = "GB" (not "UK")
+- United States = "US" (not "USA")
+- Switzerland = "CH" (not "Schweiz")
+- Spain = "ES" (not "España")
+
+Return the information as JSON. The response should be in the following format:
+{{
+    "event": {{
+        "name": "OCEANMAN Phuket 2024",
+        "website": "https://oceanmanswim.com/phuket-thailand/",
+        "date_start": "2024-07-15",
+        "date_end": "2024-07-15",
+        "location": {{
+            "city": "Phuket",
+            "country": "TH",
+            "water_name": "Andaman Sea",
+            "water_type": "sea",
+            "address": "123 Beach Road, Phuket"
+        }},
+        "organizer": {{
+            "name": "OCEANMAN"
+        }},
+        "needs_medical_certificate": true,
+        "needs_license": false,
+        "sold_out": false,
+        "cancelled": false,
+        "with_ranking": true,
+        "water_temp": 28.5,
+        "description": "This is a public description of the event."
+    }},
+    "races": [ {{
+        "name": "10 km Open Water Race",
+        "date": "2024-07-15",
+        "race_time": "09:00:00",
+        "distance": 10.0,
+        "wetsuit": "optional",
+        "price": {{
+            "amount": 50.0,
+            "currency": "EUR"
+        }}
+    }}]
+}}
+
+Do not return any comments in the JSON file! Return plain JSON.
+
+Note: There are multiple races per swim event.
+Please analyze all the URLs provided and combine the information to create the most complete event profile possible.
+If some data is not found in any of the URLs, return null in the field.
+For the wetsuit field, only use one of these values: 'compulsory', 'optional', 'prohibited'.
+For the water_type field, only use one of these values: 'river', 'sea', 'lake', 'pool'.
+For the country field, you MUST use 2-letter ISO 3166-1 alpha-2 codes in Latin letters (e.g., JP, DE, US, GB, FR, etc.).
+
+Visit the following URLs to gather information about a swim event: {urls}

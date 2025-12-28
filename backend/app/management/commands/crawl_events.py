@@ -121,6 +121,58 @@ class Command(BaseCommand):
                 processor, api_key, options["crawl"], limit=options.get("limit")
             )
 
+    def _process_event_url_sets(
+        self,
+        processor: EventProcessor,
+        event_url_sets: List[List[str]],
+        source_description: str = "event",
+    ) -> tuple:
+        """Process a list of event URL sets and return (successful, failed) counts."""
+        successful = 0
+        failed = 0
+        for i, urls in enumerate(event_url_sets, 1):
+            self.stdout.write(
+                f"Processing {source_description} {i}/{len(event_url_sets)}"
+            )
+            try:
+                if self._process_single_event(processor, urls):
+                    successful += 1
+                else:
+                    failed += 1
+            except Exception as e:
+                self.stderr.write(
+                    self.style.ERROR(f"Failed to process event: {str(e)}")
+                )
+                failed += 1
+        return successful, failed
+
+    def _print_summary(
+        self,
+        processor: EventProcessor,
+        successful: int,
+        failed: int,
+        total: int,
+        extra_lines: str = "",
+    ):
+        """Print processing summary."""
+        dry_run_prefix = "[DRY RUN] " if processor.dry_run else ""
+        summary = (
+            f"\n{dry_run_prefix}Finished processing events:\n"
+            f"- Successful: {successful}\n"
+            f"- Failed: {failed}"
+        )
+        if extra_lines:
+            summary += f"\n{extra_lines}"
+        summary += f"\n- Total: {total}"
+        self.stdout.write(self.style.SUCCESS(summary))
+
+        if processor.dry_run:
+            self.stdout.write(
+                self.style.WARNING(
+                    "No database changes were made. Run without --dry-run to save events to the database."
+                )
+            )
+
     def _process_single_event(self, processor: EventProcessor, urls: List[str]):
         """Process a single event from provided URLs"""
         self.stdout.write(f"Processing event URLs: {', '.join(urls)}")
@@ -191,39 +243,13 @@ class Command(BaseCommand):
             self.style.SUCCESS(f"Processing {len(event_url_sets)} events")
         )
 
-        # Process each event
-        successful = 0
-        failed = 0
-        for i, urls in enumerate(event_url_sets, 1):
-            self.stdout.write(f"Processing event {i}/{len(event_url_sets)}")
-            try:
-                if self._process_single_event(processor, urls):
-                    successful += 1
-                else:
-                    failed += 1
-            except Exception as e:
-                self.stderr.write(
-                    self.style.ERROR(f"Failed to process event: {str(e)}")
-                )
-                failed += 1
-
-        # Summary
-        dry_run_prefix = "[DRY RUN] " if processor.dry_run else ""
-        self.stdout.write(
-            self.style.SUCCESS(
-                f"\n{dry_run_prefix}Finished processing events:\n"
-                f"- Successful: {successful}\n"
-                f"- Failed: {failed}\n"
-                f"- Total: {len(event_url_sets)}"
-            )
+        # Process events using helper
+        successful, failed = self._process_event_url_sets(
+            processor, event_url_sets, "event"
         )
 
-        if processor.dry_run:
-            self.stdout.write(
-                self.style.WARNING(
-                    "No database changes were made. Run without --dry-run to save events to the database."
-                )
-            )
+        # Print summary using helper
+        self._print_summary(processor, successful, failed, len(event_url_sets))
 
     def _process_discovered_events(
         self, processor: EventProcessor, json_file: str, limit: int = None
@@ -505,39 +531,13 @@ class Command(BaseCommand):
             self.style.SUCCESS(f"Processing {len(event_url_sets)} events")
         )
 
-        # Process each event
-        successful = 0
-        failed = 0
-        for i, urls in enumerate(event_url_sets, 1):
-            self.stdout.write(f"Processing event {i}/{len(event_url_sets)}")
-            try:
-                if self._process_single_event(processor, urls):
-                    successful += 1
-                else:
-                    failed += 1
-            except Exception as e:
-                self.stderr.write(
-                    self.style.ERROR(f"Failed to process event: {str(e)}")
-                )
-                failed += 1
-
-        # Summary
-        dry_run_prefix = "[DRY RUN] " if processor.dry_run else ""
-        self.stdout.write(
-            self.style.SUCCESS(
-                f"\n{dry_run_prefix}Finished processing events:\n"
-                f"- Successful: {successful}\n"
-                f"- Failed: {failed}\n"
-                f"- Total: {len(event_url_sets)}"
-            )
+        # Process events using helper
+        successful, failed = self._process_event_url_sets(
+            processor, event_url_sets, "event"
         )
 
-        if processor.dry_run:
-            self.stdout.write(
-                self.style.WARNING(
-                    "No database changes were made. Run without --dry-run to save events to the database."
-                )
-            )
+        # Print summary using helper
+        self._print_summary(processor, successful, failed, len(event_url_sets))
 
     def _process_file_events(self, processor: EventProcessor, file_path: str):
         """Process events from a text file, one URL per line. Each URL will be processed as a separate event."""
@@ -555,36 +555,13 @@ class Command(BaseCommand):
 
         self.stdout.write(self.style.SUCCESS(f"Found {len(urls)} event URLs"))
 
-        # Process each event
-        successful = 0
-        failed = 0
-        for i, url in enumerate(urls, 1):
-            self.stdout.write(f"Processing event {i}/{len(urls)}: {url}")
-            try:
-                if self._process_single_event(processor, [url]):
-                    successful += 1
-                else:
-                    failed += 1
-            except Exception as e:
-                self.stderr.write(
-                    self.style.ERROR(f"Failed to process event: {str(e)}")
-                )
-                failed += 1
+        # Convert single URLs to URL sets (each URL is its own event)
+        event_url_sets = [[url] for url in urls]
 
-        # Summary
-        dry_run_prefix = "[DRY RUN] " if processor.dry_run else ""
-        self.stdout.write(
-            self.style.SUCCESS(
-                f"\n{dry_run_prefix}Finished processing events:\n"
-                f"- Successful: {successful}\n"
-                f"- Failed: {failed}\n"
-                f"- Total: {len(urls)}"
-            )
+        # Process events using helper
+        successful, failed = self._process_event_url_sets(
+            processor, event_url_sets, "event"
         )
 
-        if processor.dry_run:
-            self.stdout.write(
-                self.style.WARNING(
-                    "No database changes were made. Run without --dry-run to save events to the database."
-                )
-            )
+        # Print summary using helper
+        self._print_summary(processor, successful, failed, len(urls))
