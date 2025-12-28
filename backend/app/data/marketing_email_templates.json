@@ -1,38 +1,14 @@
 {
   "high_views": {
     "en": {
-      "subject": "Your events attracted {total_users} swimmers in 2025!",
+      "subject": "Your events attracted {total_users} swimmers on open-water-swims.com!",
       "body": "<p>Dear {organizer_name},</p>\n\n<p><a href=\"https://open-water-swims.com\">Open Water Swims</a> is a not-for-profit platform that helps swimmers discover open water swimming events worldwide.</p>\n\n<p>Your events on our platform attracted <strong>{total_users}</strong> interested swimmers in 2025!</p>\n\n<p>The \"Interested Swimmers\" column shows how many users viewed each event page:</p>\n\n{event_table}\n\n<p>Planning events for 2026? Submit them now to reach even more swimmers:</p>\n<p><a href=\"https://open-water-swims.com/submit\">Submit Your Event</a></p>\n\n<p>Best regards,<br>Silvan M&uuml;hlemann<br>Open Water Swims</p>"
-    },
-    "de": {
-      "subject": "Ihre Veranstaltungen zogen 2025 {total_users} Schwimmer an!",
-      "body": "<p>Lieber {organizer_name},</p>\n\n<p><a href=\"https://open-water-swims.com\">Open Water Swims</a> ist eine gemeinnützige Plattform, die Schwimmern hilft, weltweit Freiwasserschwimmen-Veranstaltungen zu entdecken.</p>\n\n<p>Ihre Veranstaltungen auf unserer Plattform haben <strong>{total_users}</strong> interessierte Schwimmer im Jahr 2025 angezogen!</p>\n\n<p>Die Spalte 'Interessierte Schwimmer' zeigt, wie viele Nutzer die jeweilige Veranstaltungsseite angesehen haben:</p>\n\n{event_table}\n\n<p>Planen Sie Veranstaltungen für 2026? Reichen Sie diese jetzt ein, um noch mehr Schwimmer zu erreichen:</p>\n<p><a href=\"https://open-water-swims.com/submit\">Veranstaltung einreichen</a></p>\n\n<p>Mit freundlichen Grüßen,<br>Silvan M&uuml;hlemann<br>Open Water Swims</p>"
-    },
-    "nl": {
-      "subject": "Uw evenementen trokken in 2025 {total_users} zwemmers aan!",
-      "body": "<p>Beste {organizer_name},</p>\n\n<p><a href=\"https://open-water-swims.com\">Open Water Swims</a> is een non-profitplatform dat zwemmers helpt om openwaterzwemevenementen wereldwijd te ontdekken.</p>\n\n<p>Uw evenementen op ons platform trokken in 2025 <strong>{total_users}</strong> geïnteresseerde zwemmers aan!</p>\n\n<p>De kolom \"Geïnteresseerde zwemmers\" toont hoeveel gebruikers elke evenementpagina hebben bekeken:</p>\n\n{event_table}\n\n<p>Evenementen plannen voor 2026? Dien ze nu in om nog meer zwemmers te bereiken:</p>\n<p><a href=\"https://open-water-swims.com/submit\">Dien uw evenement in</a></p>\n\n<p>Met vriendelijke groet,<br>Silvan M&uuml;hlemann<br>Open Water Swims</p>"
-    }
+    }    
   },
   "low_views": {
     "en": {
       "subject": "Reach 11,000 swimmers with your 2026 events",
       "body": "<p>Dear {organizer_name},</p>\n\n<p><a href=\"https://open-water-swims.com\">Open Water Swims</a> is a not-for-profit platform that helps swimmers discover open water swimming events worldwide.</p>\n\n<p>In 2025, <strong>11,000 swimmers</strong> used our platform to discover events from our database of <strong>{total_event_count} events</strong> - including yours:</p>\n\n{event_table}\n\n<p>Planning events for 2026? Submit them now to reach even more swimmers:</p>\n<p><a href=\"https://open-water-swims.com/submit\">Submit Your Event</a></p>\n\n<p>Best regards,<br>Silvan M&uuml;hlemann<br>Open Water Swims</p>"
-    },
-    "nl": {
-      "subject": "Bereik 11.000 zwemmers met uw evenementen in 2026",
-      "body": "<p>Beste {organizer_name},</p>\n\n<p><a href=\"https://open-water-swims.com\">Open Water Swims</a> is een non-profitplatform dat zwemmers helpt om openwaterzwemevenementen wereldwijd te ontdekken.</p>\n\n<p>In 2025 maakten <strong>11.000 zwemmers</strong> gebruik van ons platform om evenementen uit onze database van <strong>{total_event_count} evenementen</strong> te ontdekken – waaronder de uwe:</p>\n\n{event_table}\n\n<p>Evenementen plannen voor 2026? Dien ze nu in om nog meer zwemmers te bereiken:</p>\n<p><a href=\"https://open-water-swims.com/submit\">Dien uw evenement in</a></p>\n\n<p>Met vriendelijke groet,<br>Silvan M&uuml;hlemann<br>Open Water Swims</p>\n"
-    },
-    "ca": {
-      "subject": "Arriba a 11.000 nedadors amb els teus esdeveniments del 2026",
-      "body": "<p>Benvolgut/da {organizer_name},</p>\n\n<p><a href=\"https://open-water-swims.com\">Open Water Swims</a> és una plataforma sense ànim de lucre que ajuda els nedadors a descobrir esdeveniments de natació en aigües obertes arreu del món.</p>\n\n<p>El 2025, <strong>11.000 nedadors</strong> van utilitzar la nostra plataforma per descobrir esdeveniments de la nostra base de dades de <strong>{total_event_count} esdeveniments</strong> — incloent-hi els teus:</p>\n\n{event_table}\n\n<p>Estàs planejant esdeveniments per al 2026? Envia'ls ara per arribar encara a més nedadors:</p>\n<p><a href=\"https://open-water-swims.com/submit\">Envia el teu esdeveniment</a></p>\n\n<p>Cordialment,<br>Silvan M&uuml;hlemann<br>Open Water Swims</p>"
-    },
-    "fr": {
-      "subject": "Touchez 11 000 nageurs avec vos événements 2026",
-      "body": "<p>Cher/Chère {organizer_name},</p>\n\n<p><a href=\"https://open-water-swims.com\">Open Water Swims</a> est une plateforme à but non lucratif qui aide les nageurs à découvrir des événements de nage en eau libre dans le monde entier.</p>\n\n<p>En 2025, <strong>11 000 nageurs</strong> ont utilisé notre plateforme pour découvrir des événements dans notre base de données de <strong>{total_event_count} événements</strong> - y compris le vôtre&nbsp;:</p>\n\n{event_table}\n\n<p>Vous organisez des événements pour 2026&nbsp;? Soumettez-les dès maintenant pour toucher encore plus de nageurs&nbsp;:</p>\n<p><a href=\"https://open-water-swims.com/submit\">Soumettre votre événement</a></p>\n\n<p>Cordialement,<br>Silvan M&uuml;hlemann<br>Open Water Swims</p>\n"
-    },
-    "el": {
-      "subject": "Προσεγγίστε 11.000 κολυμβητές με τις εκδηλώσεις σας το 2026",
-      "body": "<p>Αγαπητέ/ή {organizer_name},</p>\n\n<p>Η πλατφόρμα <a href=\"https://open-water-swims.com\">Open Water Swims</a> είναι ένας μη κερδοσκοπικός οργανισμός που βοηθάει κολυμβητές να ανακαλύψουν εκδηλώσεις ανοιχτής θάλασσας σε όλο τον κόσμο.</p>\n\n<p>Το 2025, <strong>11.000 κολυμβητές</strong> χρησιμοποίησαν την πλατφόρμα μας για να ανακαλύψουν εκδηλώσεις από τη βάση δεδομένων μας με <strong>{total_event_count} εκδηλώσεις</strong> - συμπεριλαμβανομένων και των δικών σας:</p>\n\n{event_table}\n\n<p>Σχεδιάζετε εκδηλώσεις για το 2026; Υποβάλετέ τις τώρα για να προσεγγίσετε ακόμα περισσότερους κολυμβητές:</p>\n<p><a href=\"https://open-water-swims.com/submit\">Υποβολή Εκδήλωσης</a></p>\n\n<p>Με εκτίμηση,<br>Silvan M&uuml;hlemann<br>Open Water Swims</p>\n"
-    }
+    }  
   }
 }
