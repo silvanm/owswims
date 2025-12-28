@@ -102,7 +102,9 @@ class EventProcessor:
         self.stdout = stdout
         self.stderr = stderr
 
-        logger.info(f"EventProcessor initialized (dry_run={dry_run}, update_existing={update_existing})")
+        logger.info(
+            f"EventProcessor initialized (dry_run={dry_run}, update_existing={update_existing})"
+        )
 
     def process_event_urls(self, urls: List[str]) -> Optional[Event]:
         """Process a list of URLs that belong to the same event"""
@@ -128,9 +130,7 @@ class EventProcessor:
 
         # Create a tool for the LLM to scrape additional pages if needed
         scrape_tool = FunctionTool.from_defaults(fn=self.scraping_service.scrape)
-        agent = ReActAgent(
-            tools=[scrape_tool], llm=self.llm, verbose=True
-        )
+        agent = ReActAgent(tools=[scrape_tool], llm=self.llm, verbose=True)
 
         # Get current date for filtering future events
         from datetime import datetime
@@ -138,8 +138,9 @@ class EventProcessor:
         current_date = datetime.now().strftime("%Y-%m-%d")
 
         # Extract event information using LLM
-        prompt = f"""Analyze these pages about an open water swimming event.
-Visit the following URLs to gather information about a swim event: {', '.join(urls)}
+        prompt = f"""Analyze these pages about an open water swimming event. You can find the URL at the end of 
+        the document.
+
 These URLs contain details about the same event. Please analyze all pages and combine the information to create a complete event profile.
 
 Today's date is {current_date}. Only process events that will take place in the future (after today's date).
@@ -213,6 +214,8 @@ If some data is not found in any of the URLs, return null in the field.
 For the wetsuit field, only use one of these values: 'compulsory', 'optional', 'prohibited'.
 For the water_type field, only use one of these values: 'river', 'sea', 'lake', 'pool'.
 For the country field, you MUST use 2-letter ISO 3166-1 alpha-2 codes in Latin letters (e.g., JP, DE, US, GB, FR, etc.).
+
+Visit now the following URLs to gather information about a swim event: {', '.join(urls)}
 """
 
         # Run the agent asynchronously
@@ -340,7 +343,9 @@ For the country field, you MUST use 2-letter ISO 3166-1 alpha-2 codes in Latin l
                 existing_event.date_end = event_data["date_end"]
                 existing_event.water_temp = event_data.get("water_temp")
                 existing_event.description = event_data.get("description") or ""
-                existing_event.source = f"agentic crawling (updated), source urls: {', '.join(urls)}"
+                existing_event.source = (
+                    f"agentic crawling (updated), source urls: {', '.join(urls)}"
+                )
                 existing_event.save()
                 event = existing_event
                 logger.info(
