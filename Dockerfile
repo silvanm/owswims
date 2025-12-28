@@ -38,11 +38,11 @@ COPY backend/_docker/* /bin/
 RUN chmod +x /bin/entrypoint.sh
 
 RUN apk add --no-cache bash gettext gcc musl-dev zlib-dev jpeg-dev freetype-dev lcms2-dev openjpeg-dev tiff-dev rust cargo
-RUN pip install poetry
+RUN pip install uv
 RUN pip install --only-binary=:all: gunicorn>=20.1.0 uvicorn>=0.22.0
-COPY backend/pyproject.toml backend/poetry.lock ./
-RUN poetry config virtualenvs.create false
-RUN poetry install --no-interaction --no-root
+COPY backend/pyproject.toml backend/uv.lock ./
+RUN uv sync --frozen --no-dev --no-install-project
+ENV PATH="/code/.venv/bin:$PATH"
 COPY backend/ ./
 
 ARG SECRET_KEY
