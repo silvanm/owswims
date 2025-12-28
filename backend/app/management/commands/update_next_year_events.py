@@ -291,6 +291,23 @@ class Command(BaseCommand):
                 event.save(update_fields=['last_auto_check_at'])
             return "failed"
 
+        # Check if the agent found event data (it returns {"event": null} when not found)
+        if not event_data.get("event"):
+            self.stdout.write(
+                self.style.WARNING(
+                    f"No {target_year} information found for {event.name}"
+                )
+            )
+            self.logger.info(f"No {target_year} information found for event {event.id}")
+            self._append_internal_comment(
+                event, f"No {target_year} information found on website", dry_run
+            )
+            # Update last check timestamp
+            if not dry_run:
+                event.last_auto_check_at = datetime.now()
+                event.save(update_fields=['last_auto_check_at'])
+            return "not_found"
+
         # Check if the extracted event is for the target year
         extracted_date = datetime.strptime(
             event_data["event"]["date_start"], "%Y-%m-%d"
