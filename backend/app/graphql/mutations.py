@@ -667,12 +667,22 @@ class SubmitEventUrl(graphene.Mutation):
     message = graphene.String()
 
     def mutate(root, info, url, email=None, comment=None):
+        from app.services.email_service import EmailService
+
         logging.info(f"Event URL submitted: {url}")
-        EventSubmission.objects.create(
+        submission = EventSubmission.objects.create(
             url=url,
             email=email,
             comment=comment,
         )
+
+        # Send notification email
+        try:
+            email_service = EmailService()
+            email_service.send_submission_notification(submission)
+        except Exception as e:
+            logging.error(f"Failed to send submission notification: {e}")
+
         return SubmitEventUrl(
             success=True,
             message="Thank you for your submission!"

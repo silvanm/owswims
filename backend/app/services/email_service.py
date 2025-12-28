@@ -3,7 +3,7 @@ from typing import Optional, Dict, Any
 from django.conf import settings
 from django.utils import timezone
 from sparkpost import SparkPost
-from app.models import Organizer, Event
+from app.models import Organizer, Event, EventSubmission
 from app.services.llm_service import LLMService
 from pydantic import BaseModel, Field
 
@@ -153,4 +153,35 @@ class EmailService:
 
         except Exception as e:
             logger.error(f"Failed to send email to {organizer.name}: {str(e)}")
+            return False
+
+    def send_submission_notification(self, submission: EventSubmission) -> bool:
+        """Send notification email when a new event URL is submitted"""
+        try:
+            admin_email = "silvan@open-water-swims.com"
+            subject = f"New Event Submission: {submission.url}"
+
+            content = f"""
+            <p>A new event URL has been submitted:</p>
+            <ul>
+                <li><strong>URL:</strong> <a href="{submission.url}">{submission.url}</a></li>
+                <li><strong>Email:</strong> {submission.email or 'Not provided'}</li>
+                <li><strong>Comment:</strong> {submission.comment or 'None'}</li>
+                <li><strong>Submitted at:</strong> {submission.created_at}</li>
+            </ul>
+            <p><a href="https://open-water-swims.com/admin/app/eventsubmission/{submission.id}/change/">View in Admin</a></p>
+            """
+
+            response = self.sparkpost.transmissions.send(
+                recipients=[admin_email],
+                template="owswims-default",
+                subject=subject,
+                substitution_data={"email_content": content, "subject": subject},
+            )
+
+            logger.info(f"Submission notification sent: {response}")
+            return True
+
+        except Exception as e:
+            logger.error(f"Failed to send submission notification: {str(e)}")
             return False
