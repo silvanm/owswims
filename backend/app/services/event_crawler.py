@@ -60,9 +60,7 @@ class EventCrawler:
             return self.scraping_service.scrape(url, profile=self.profile)
 
         scrape_tool = FunctionTool.from_defaults(fn=scrape_with_profile)
-        agent = ReActAgent(
-            tools=[scrape_tool], llm=self.llm, verbose=True
-        )
+        agent = ReActAgent(tools=[scrape_tool], llm=self.llm, verbose=True)
 
         # Get current date for filtering future events
         from datetime import datetime
@@ -83,7 +81,7 @@ class EventCrawler:
             )
         else:
             # Use the default prompt
-            prompt = f"""Visit this URL and find all open water swimming events: {start_url}
+            prompt = f"""Visit the URL given at the end of the file. 
 Please analyze the page and find URLs for all swimming events. Some events might have multiple URLs 
 (e.g. a registration page and an info page).
 
@@ -116,6 +114,8 @@ Make sure to:
 5. Make URLs absolute, not relative
 6. Only include URLs from the same domain or known registration platforms
 8. Only include future events (after {current_date})
+
+Visit this URL: {start_url}
 
 """
 
