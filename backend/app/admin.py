@@ -57,12 +57,13 @@ class OrganizerAdmin(admin.ModelAdmin):
         "events_link",
         "contact_email",
         "contact_status",
+        "language",
         "last_contact_attempt",
         "email_actions",
     ]
     readonly_fields = ["public_url", "website_link", "events_link"]
     search_fields = ["name", "website", "internal_comment", "contact_email"]
-    list_filter = ("contact_status", HasFutureEventsFilter)
+    list_filter = ("contact_status", "language", HasFutureEventsFilter)
 
     def public_url(self, obj):
         if obj.slug:

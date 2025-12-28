@@ -101,6 +101,12 @@ class Organizer(models.Model):
         blank=True,
         help_text="Last time a marketing email was sent to this organizer",
     )
+    language = models.CharField(
+        max_length=5,
+        null=True,
+        blank=True,
+        help_text="ISO language code (e.g., 'en', 'de', 'fr'). Auto-detected if empty.",
+    )
 
     class Meta:
         ordering = ["name"]
