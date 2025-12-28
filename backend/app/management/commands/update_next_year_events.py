@@ -445,10 +445,17 @@ Do NOT extract {target_year-1} data - we already have it. Only return data if it
                 year_instruction=year_instruction
             )
 
-            response = agent.chat(prompt)
+            # Run the agent asynchronously
+            import asyncio
+
+            async def run_agent():
+                handler = agent.run(prompt)
+                return await handler
+
+            result = asyncio.run(run_agent())
 
             # Extract JSON from response
-            json_text = response.response
+            json_text = result.response.content
             json_match = re.search(r"```json\s*(.*?)\s*```", json_text, re.DOTALL)
             if json_match:
                 json_text = json_match.group(1)
