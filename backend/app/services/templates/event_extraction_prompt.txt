@@ -6,7 +6,7 @@ Today's date is {current_date}.
 {date_filter_instruction}
 {year_instruction}
 
-If the page is not about a single open water swim event, skip it.
+If the page is not about a single *open water* swim event, skip it.
 
 If the event has an item "Links" which appears to include more information about it, follow it.
 

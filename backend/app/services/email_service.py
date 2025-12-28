@@ -373,21 +373,42 @@ class EmailService:
         # Build event table HTML
         event_table_html = ""
         if variant == "high_views" and events:
-            # High views: show table with "Interested Swimmers" column
+            # Calculate percentile ranks based on all events with stats in this year
+            all_events_with_stats = list(
+                Event.objects.filter(
+                    date_start__year=year,
+                    active_user_count__isnull=False,
+                ).values_list("active_user_count", flat=True)
+            )
+            total_events_with_stats = len(all_events_with_stats)
+
+            def get_percentile(user_count):
+                """Calculate percentile: % of events with fewer users"""
+                if total_events_with_stats == 0:
+                    return 0
+                events_below = sum(1 for c in all_events_with_stats if c < user_count)
+                return int((events_below / total_events_with_stats) * 100)
+
+            # High views: show table with "Interested Swimmers" and "Global Rank" columns
             event_table_html = """
 <table border="1" cellpadding="8" cellspacing="0" style="border-collapse: collapse; width: 100%;">
   <tr style="background-color: #f2f2f2;">
     <th style="text-align: left;">Event</th>
     <th style="text-align: left;">Date</th>
     <th style="text-align: right;">Interested Swimmers</th>
+    <th style="text-align: right;">Global Rank</th>
   </tr>
 """
             for event in events:
                 event_date = event.date_start.strftime("%d.%m.%Y") if event.date_start else "TBD"
+                user_count = event.active_user_count or 0
+                percentile = get_percentile(user_count)
+                rank_text = f"Top {100 - percentile}%"
                 event_table_html += f"""  <tr>
     <td>{event.name}</td>
     <td>{event_date}</td>
-    <td style="text-align: right;">{event.active_user_count or 0}</td>
+    <td style="text-align: right;">{user_count}</td>
+    <td style="text-align: right;">{rank_text}</td>
   </tr>
 """
             event_table_html += "</table>"
