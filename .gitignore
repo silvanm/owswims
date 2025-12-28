@@ -13,7 +13,6 @@ backend/.env-*
 backend/.env
 
 # Google Cloud credentials
-*.json
 !package.json
 !package-lock.json
 !*.config.json
@@ -29,3 +28,7 @@ backend/owswims-*.json
 graphql_client/
 .serena
 .claude
+backend/backups
+.channels_cache_v2.json
+.channels_cache.json
+.users_cache.json
