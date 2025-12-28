@@ -106,14 +106,95 @@ class EventProcessor:
             f"EventProcessor initialized (dry_run={dry_run}, update_existing={update_existing})"
         )
 
-    def process_event_urls(self, urls: List[str]) -> Optional[Event]:
-        """Process a list of URLs that belong to the same event"""
+    def _load_prompt_template(
+        self,
+        urls: List[str],
+        target_year: int = None,
+        filter_future_only: bool = True,
+    ) -> str:
+        """
+        Load and format the event extraction prompt template.
+
+        Args:
+            urls: List of URLs to include in the prompt
+            target_year: Optional target year to search for (e.g., 2026)
+            filter_future_only: If True, only process future events (default for new event crawling)
+        """
+        template_path = os.path.join(
+            os.path.dirname(__file__),
+            "templates",
+            "event_extraction_prompt.txt",
+        )
+
+        with open(template_path, "r") as f:
+            template = f.read()
+
+        current_date = datetime.now().strftime("%Y-%m-%d")
+
+        # Build date filter instruction
+        if filter_future_only and not target_year:
+            date_filter_instruction = (
+                "Only process events that will take place in the future (after today's date). "
+                "If the event has already occurred (before today's date), do not process it. "
+                "If the event is at no specific date, skip it."
+            )
+        else:
+            date_filter_instruction = "Process all events regardless of their date."
+
+        # Build year-specific instruction
+        year_instruction = ""
+        if target_year:
+            year_instruction = f"""
+IMPORTANT: You are specifically looking for the {target_year} edition of this event.
+
+SEARCH STRATEGY - Follow these steps in order:
+1. Check if the current page already shows {target_year} dates. If yes, extract that data.
+2. If the page shows {target_year-1} data, DO NOT extract it. Instead, search for {target_year}:
+   - Look for year selectors in navigation (dropdowns, tabs like "2025 | 2026")
+   - Look for links containing "{target_year}" in the URL or link text
+   - Check for "upcoming events", "next edition", "Termine {target_year}", or "{target_year} schedule" sections
+   - Follow the registration/Anmeldung link - it often shows the next edition first
+   - Look for news/announcements about the {target_year} edition
+3. If you find a link to {target_year} content, USE THE SCRAPE TOOL to visit that page and extract the data.
+4. If you cannot find ANY {target_year} information, return an empty JSON: {{"event": null, "races": []}}
+
+Do NOT extract {target_year-1} data - we already have it. Only return data if it's for {target_year}.
+"""
+
+        return template.format(
+            urls=", ".join(urls),
+            current_date=current_date,
+            date_filter_instruction=date_filter_instruction,
+            year_instruction=year_instruction,
+        )
+
+    def extract_event_data(
+        self,
+        urls: List[str],
+        target_year: int = None,
+        filter_future_only: bool = True,
+    ) -> Optional[Dict]:
+        """
+        Extract event data from URLs without saving to database.
+
+        This is the core extraction logic shared between:
+        - process_event_urls() for new event crawling
+        - update_next_year_events command for updating existing events
+
+        Args:
+            urls: List of URLs belonging to the same event
+            target_year: Optional target year to search for (e.g., 2026)
+            filter_future_only: If True, only process future events
+
+        Returns:
+            Dictionary with 'event' and 'races' data, or None if extraction failed
+        """
         import asyncio
 
         # Log the URLs being processed
-        logger.info(f"Processing event URLs: {', '.join(urls)}")
+        logger.info(f"Extracting event data from URLs: {', '.join(urls)}")
 
-        # Standard scraping
+        # Scrape the URLs
         contents = []
         for url in urls:
             logger.info(f"Scraping URL: {url}")
@@ -132,91 +213,12 @@ class EventProcessor:
         scrape_tool = FunctionTool.from_defaults(fn=self.scraping_service.scrape)
         agent = ReActAgent(tools=[scrape_tool], llm=self.llm, verbose=True)
 
-        # Get current date for filtering future events
-        from datetime import datetime
-
-        current_date = datetime.now().strftime("%Y-%m-%d")
-
-        # Extract event information using LLM
-        prompt = f"""Analyze these pages about an open water swimming event. You can find the URL at the end of 
-        the document.
-
-These URLs contain details about the same event. Please analyze all pages and combine the information to create a complete event profile.
-
-Today's date is {current_date}. Only process events that will take place in the future (after today's date).
-If the event has already occurred (before today's date), do not process it.
-If the event is at no specific date, skip it.
-
-If the page is not about a single open water swim event, skip it.
-
-If the event has an item "Links" which appears to include more information about it, follow it.
-
-To find out the price of the event, look for the registration page ("Anmeldung" or "Ausschreibung") or the page where you can buy tickets.
-
-If the event is virtual or does not have a physical location, skip it.
-
-Pay attention to the distance of the race. On US sites it is often given in miles. You need to convert it to kilometers.
-
-Pay attention to the date of the event. On US sites it is often given in the format "15th of July 2024". You need to convert it to the format "2024-07-15".
-
-IMPORTANT: For the country field, you MUST use ISO 3166-1 alpha-2 country codes in Latin letters only. Examples:
-- Japan = "JP" (not "日本")
-- Germany = "DE" (not "Deutschland") 
-- United Kingdom = "GB" (not "UK")
-- United States = "US" (not "USA")
-- Switzerland = "CH" (not "Schweiz")
-- Spain = "ES" (not "España")
-
-Return the information as JSON. The response should be in the following format:
-{{
-    "event": {{
-        "name": "OCEANMAN Phuket 2024",  // Name of the event (Event.name)
-        "website": "https://oceanmanswim.com/phuket-thailand/",  // Website of the event (Event.website)
-        "date_start": "2024-07-15",  // Start date of the event (Event.date_start)
-        "date_end": "2024-07-15",  // End date of the event (Event.date_end)
-        "location": {{
-            "city": "Phuket",  // City where the event takes place (Location.city)
-            "country": "TH",  // Country ISO code (2 letters, Latin alphabet) where the event takes place (Location.country)
-            "water_name": "Andaman Sea",  // Name of the water body (Location.water_name)
-            "water_type": "sea",  // Type of water: river, sea, lake, pool (Location.water_type)
-            "address": "123 Beach Road, Phuket"  // Address of the event or name of the beach (Location.address)
-        }},
-        "organizer": {{
-            "name": "OCEANMAN"  // Name of the organizer (Organizer.name)
-        }},
-        "needs_medical_certificate": true,  // Whether a medical certificate is required (Event.needs_medical_certificate)
-        "needs_license": false,  // Whether a license is required (Event.needs_license)
-        "sold_out": false,  // Whether the event is sold out (Event.sold_out)
-        "cancelled": false,  // Whether the event is cancelled (Event.cancelled)
-        "with_ranking": true,  // Whether there is a ranking (Event.with_ranking)
-        "water_temp": 28.5,  // Water temperature in Celsius (Event.water_temp)
-        "description": "This is a public description of the event." // Public description of the event. Leave
-        empty if you don't find one. (Event.description)
-    }},
-    "races": [ {{
-        "name": "10 km Open Water Race",  // Name of the race (Race.name)
-        "date": "2024-07-15",  // Date of the race (Race.date)
-        "race_time": "09:00:00",  // Time when the race starts (Race.race_time)
-        "distance": 10.0,  // Distance of the race in KILOMETERS (Race.distance)
-        "wetsuit": "optional",  // Wetsuit requirements: compulsory, optional, prohibited (Race.wetsuit)
-        "price": {{
-            "amount": 50.0,  // Price to participate in the race (Race.price)
-            "currency": "EUR"  // Currency used for the price (Race.price)
-        }}
-    }}]
-}}   
-
-Do not return any comments in the JSON file! Return plain JSON.
-
-Note: There are multiple races per swim event.
-Please analyze all the URLs provided and combine the information to create the most complete event profile possible.
-If some data is not found in any of the URLs, return null in the field.
-For the wetsuit field, only use one of these values: 'compulsory', 'optional', 'prohibited'.
-For the water_type field, only use one of these values: 'river', 'sea', 'lake', 'pool'.
-For the country field, you MUST use 2-letter ISO 3166-1 alpha-2 codes in Latin letters (e.g., JP, DE, US, GB, FR, etc.).
-
-Visit now the following URLs to gather information about a swim event: {', '.join(urls)}
-"""
+        # Load and format the prompt template
+        prompt = self._load_prompt_template(
+            urls=urls,
+            target_year=target_year,
+            filter_future_only=filter_future_only,
+        )
 
         # Run the agent asynchronously
         async def run_agent():
@@ -235,13 +237,36 @@ Visit now the following URLs to gather information about a swim event: {', '.joi
                 json_text = json_match.group(1)
 
             data = json.loads(json_text)
-            return self._save_event_data(data, urls)
+            return data
         except json.JSONDecodeError as e:
-            print(f"Failed to parse JSON response: {str(e)}")
-            print(json_text)  # Print the text that failed to parse for debugging
+            logger.error(f"Failed to parse JSON response: {str(e)}")
+            logger.error(f"Response text: {response_text[:500]}...")
             return None
         except Exception as e:
-            print(f"Error saving to database: {str(e)}")
+            logger.error(f"Error extracting event data: {str(e)}")
+            return None
+
+    def process_event_urls(self, urls: List[str]) -> Optional[Event]:
+        """
+        Process a list of URLs that belong to the same event.
+
+        This method extracts event data from the URLs and saves it to the database.
+        It uses extract_event_data() for the extraction logic.
+        """
+        logger.info(f"Processing event URLs: {', '.join(urls)}")
+
+        # Extract event data (filter for future events only)
+        data = self.extract_event_data(urls, filter_future_only=True)
+
+        if not data:
+            logger.error("Failed to extract event data")
+            return None
+
+        # Save to database
+        try:
+            return self._save_event_data(data, urls)
+        except Exception as e:
+            logger.error(f"Error saving to database: {str(e)}")
             return None
 
     def _save_event_data(self, data: Dict, urls: List[str]) -> Optional[Event]:

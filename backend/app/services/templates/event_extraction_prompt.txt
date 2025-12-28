@@ -2,7 +2,8 @@ Analyze these pages about an open water swimming event.
 
 These URLs contain details about the same event. Please analyze all pages and combine the information to create a complete event profile.
 
-Today's date is {current_date}. Process all events regardless of their date.
+Today's date is {current_date}.
+{date_filter_instruction}
 {year_instruction}
 
 If the page is not about a single open water swim event, skip it.
@@ -50,7 +51,7 @@ Return the information as JSON. The response should be in the following format:
         "water_temp": 28.5,
         "description": "This is a public description of the event."
     }},
-    "races": [ {{
+    "races": [{{
         "name": "10 km Open Water Race",
         "date": "2024-07-15",
         "race_time": "09:00:00",
