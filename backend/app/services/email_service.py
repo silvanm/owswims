@@ -412,6 +412,23 @@ class EmailService:
         # Get total event count for low-views variant
         total_event_count = Event.objects.filter(date_start__year=year).count()
 
+        # Check for next year events (e.g., 2026) - only visible ones
+        next_year = year + 1
+        next_year_events = organizer.events.filter(
+            date_start__year=next_year,
+            invisible=False,
+        ).order_by("date_start")
+
+        next_year_events_html = ""
+        if next_year_events.exists():
+            log(f"  {next_year} events: {next_year_events.count()}")
+            next_year_events_html = f"<p>Great news! Your {next_year} events are already published on our platform:</p>\n<ul>\n"
+            for event in next_year_events:
+                event_url = f"https://open-water-swims.com/event/{event.slug}"
+                event_date = event.date_start.strftime("%d.%m.%Y") if event.date_start else "TBD"
+                next_year_events_html += f'  <li><a href="{event_url}">{event.name}</a> ({event_date})</li>\n'
+            next_year_events_html += "</ul>\n<p>Please check that all information is correct.</p>\n\n"
+
         # Fill in template placeholders
         subject = template["subject"].format(
             organizer_name=organizer_name,
@@ -423,6 +440,7 @@ class EmailService:
             total_users=total_users,
             event_table=event_table_html,
             total_event_count=total_event_count,
+            next_year_events=next_year_events_html,
         )
 
         # Determine recipient
