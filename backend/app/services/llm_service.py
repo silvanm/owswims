@@ -14,20 +14,27 @@ class LLMService:
         self.client = OpenAI(api_key=settings.OPENAI_API_KEY)
         self.model = settings.OPENAI_MODEL
 
+    def _supports_reasoning_effort(self) -> bool:
+        """Check if the current model supports reasoning_effort parameter."""
+        return self.model.startswith("gpt-5")
+
     def get_completion(self, prompt: str) -> str:
         """Get completion from GPT-4/GPT-5"""
         try:
-            response = self.client.chat.completions.create(
-                model=self.model,
-                reasoning_effort=settings.OPENAI_REASONING_EFFORT,
-                messages=[
+            kwargs = {
+                "model": self.model,
+                "messages": [
                     {
                         "role": "system",
                         "content": "You are a helpful assistant that generates professional email content.",
                     },
                     {"role": "user", "content": prompt},
                 ],
-            )
+            }
+            if self._supports_reasoning_effort():
+                kwargs["reasoning_effort"] = settings.OPENAI_REASONING_EFFORT
+
+            response = self.client.chat.completions.create(**kwargs)
             return response.choices[0].message.content.strip()
         except Exception as e:
             logger.error(f"Error getting completion from OpenAI: {str(e)}")
@@ -43,18 +50,21 @@ class LLMService:
                 or "You are a helpful assistant that extracts structured information."
             )
 
-            response = self.client.beta.chat.completions.parse(
-                model=self.model,
-                reasoning_effort=settings.OPENAI_REASONING_EFFORT,
-                messages=[
+            kwargs = {
+                "model": self.model,
+                "messages": [
                     {
                         "role": "system",
                         "content": system_content,
                     },
                     {"role": "user", "content": prompt},
                 ],
-                response_format=response_model,
-            )
+                "response_format": response_model,
+            }
+            if self._supports_reasoning_effort():
+                kwargs["reasoning_effort"] = settings.OPENAI_REASONING_EFFORT
+
+            response = self.client.beta.chat.completions.parse(**kwargs)
             return response.choices[0].message.parsed
         except Exception as e:
             logger.error(f"Error parsing completion from OpenAI: {str(e)}")
