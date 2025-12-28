@@ -445,8 +445,9 @@ class Command(BaseCommand):
             event.cancelled = new_event_data.get("cancelled", event.cancelled)
             event.with_ranking = new_event_data.get("with_ranking", event.with_ranking)
 
-            # Update source
-            event.source = f"Auto-updated from: {', '.join(urls)}"
+            # Update source (truncate to fit max_length=200)
+            source_text = f"Auto-updated from: {', '.join(urls)}"
+            event.source = source_text[:200] if len(source_text) > 200 else source_text
 
             # Make visible but keep unverified
             event.invisible = False
@@ -498,4 +499,4 @@ class Command(BaseCommand):
         if len(event.internal_comment) > 2000:
             event.internal_comment = event.internal_comment[-2000:]
 
-        event.save()
+        event.save(update_fields=['internal_comment'])
