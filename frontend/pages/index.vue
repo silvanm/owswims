@@ -4,7 +4,7 @@
     <div
       v-if="!isEmbedded && !$store.getters.pickedLocationId"
       class="submit-ribbon"
-      @click="submitEventBoxShown = true"
+      @click="$store.commit('submitEventBoxShown', true)"
     >
       <span>{{ $t('submitYourEvent') }}</span>
     </div>
@@ -24,7 +24,7 @@
     ></ReviewBox>
     <SubmitEventBox
       v-if="submitEventBoxShown"
-      @hide="submitEventBoxShown = false"
+      @hide="$store.commit('submitEventBoxShown', false)"
     ></SubmitEventBox>
     <div
       v-if="
@@ -152,7 +152,6 @@ export default {
       filterCollapsed: false,
       loginboxShown: false,
       welcomeboxShown: false,
-      submitEventBoxShown: false,
     }
   },
   computed: {
@@ -165,6 +164,7 @@ export default {
       'pickedLocationId',
       'organizerData',
       'isEmbedded',
+      'submitEventBoxShown',
     ]),
   },
   async mounted() {

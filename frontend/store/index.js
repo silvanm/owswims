@@ -25,6 +25,7 @@ export const state = () => ({
   raceTrackDeletedId: null,
   pageTitle: null,
   reviewBoxShown: false,
+  submitEventBoxShown: false,
 })
 
 export const mutations = {
@@ -113,6 +114,9 @@ export const mutations = {
   reviewBoxShown(s, reviewBoxShown) {
     s.reviewBoxShown = reviewBoxShown
   },
+  submitEventBoxShown(s, submitEventBoxShown) {
+    s.submitEventBoxShown = submitEventBoxShown
+  },
 }
 
 export const getters = {
@@ -187,6 +191,9 @@ export const getters = {
   },
   reviewBoxShown(s) {
     return s.reviewBoxShown
+  },
+  submitEventBoxShown(s) {
+    return s.submitEventBoxShown
   },
 }
 

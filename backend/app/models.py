@@ -96,6 +96,11 @@ class Organizer(models.Model):
     )
     last_contact_attempt = models.DateTimeField(null=True, blank=True)
     contact_notes = models.TextField(max_length=1000, blank=True, default="")
+    marketing_email_sent_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text="Last time a marketing email was sent to this organizer",
+    )
 
     class Meta:
         ordering = ["name"]
@@ -203,6 +208,18 @@ class Event(CloneMixin, models.Model):
         blank=True,
         help_text="Link to the event of the previous year",
         on_delete=models.CASCADE,
+    )
+
+    # Google Analytics statistics
+    active_user_count = models.IntegerField(
+        null=True,
+        blank=True,
+        help_text="Number of active users from Google Analytics for this event's page",
+    )
+    active_user_count_updated_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text="Last time active_user_count was updated from Google Analytics",
     )
 
     _clone_many_to_one_or_one_to_many_fields = ["races"]

@@ -56,6 +56,12 @@ export default async function ({ route, app, store }) {
     }
   }
 
+  // Handle /submit path to open submit event modal
+  const submitMatch = route.path.match(/\/submit\/?$/)
+  if (submitMatch) {
+    store.commit('submitEventBoxShown', true)
+  }
+
   // add function to disable event-pane + define zoom level
   const eventSlug = getEventFromRequest()
   if (eventSlug) {
