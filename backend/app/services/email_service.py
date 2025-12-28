@@ -50,24 +50,13 @@ class EmailService:
         """Generate email content using GPT-4 based on organizer's events, including a data quality check."""
         events = organizer.events.filter(date_start__gte=timezone.now())
 
-        language = "en"  # default to English
+        # Get or detect language (uses cached value if available)
+        language = self.get_or_detect_language(organizer)
+
         first_event_location_info = "N/A"
         if events.exists():
             first_event = events.first()
             if first_event.location:
-                # Let GPT-4 determine the language based on country/city
-                language_prompt = f"""
-
-                Determine the language that the organizer {organizer.name} (website: {organizer.website}) probably speaks.
-
-                If the name of the organizer does not contain any language information or the website is empty, 
-                use the language of the first event: Based on the location {first_event.location.city}, {first_event.location.country.name},
-
-                Return only the ISO language code (e.g., 'en', 'de', 'fr', 'it').
-                """
-                language = (
-                    self.llm_service.get_completion(language_prompt).strip().lower()
-                )
                 first_event_location_info = (
                     f"{first_event.location.city}, {first_event.location.country.name}"
                 )
@@ -247,6 +236,26 @@ class EmailService:
             logger.error(f"Error detecting language: {e}")
             return "en"
 
+    def get_or_detect_language(self, organizer: Organizer) -> str:
+        """
+        Get the organizer's language, detecting and saving it if not already set.
+
+        Args:
+            organizer: The organizer to get language for
+
+        Returns:
+            ISO language code (e.g., 'en', 'de', 'fr')
+        """
+        if organizer.language:
+            return organizer.language
+
+        # Detect language and save it
+        language = self.detect_language(organizer)
+        organizer.language = language
+        organizer.save(update_fields=["language"])
+        logger.info(f"Detected and saved language '{language}' for organizer {organizer.name}")
+        return language
+
     def get_translated_template(self, variant: str, language: str) -> Dict[str, str]:
         """
         Get translated template for the given variant and language.
@@ -346,9 +355,9 @@ class EmailService:
         # Determine which template variant to use
         variant = "high_views" if total_users > 100 else "low_views"
 
-        # Detect language
-        language = self.detect_language(organizer)
-        log(f"  Detected language: {language}")
+        # Get or detect language
+        language = self.get_or_detect_language(organizer)
+        log(f"  Language: {language}")
 
         # Get translated template
         template = self.get_translated_template(variant, language)
