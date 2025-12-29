@@ -39,6 +39,22 @@ class TranslatedTemplate(BaseModel):
     body: str = Field(description="The translated email body in HTML format")
 
 
+class TableTranslations(BaseModel):
+    """Model for table header and UI text translations."""
+
+    event: str = Field(description="Translation for 'Event'")
+    date: str = Field(description="Translation for 'Date'")
+    interested_swimmers: str = Field(description="Translation for 'Interested Swimmers'")
+    global_rank: str = Field(description="Translation for 'Global Rank'")
+    next_year_intro: str = Field(
+        description="Translation for 'Great news! Your {year} events are already "
+        "published on our platform:' - keep {year} placeholder"
+    )
+    next_year_check: str = Field(
+        description="Translation for 'Please check that all information is correct.'"
+    )
+
+
 class EmailService:
     def __init__(self):
         self.sparkpost = SparkPost(settings.SPARKPOST_API_KEY)
@@ -201,6 +217,86 @@ class EmailService:
         with open(template_path, "w", encoding="utf-8") as f:
             json.dump(templates, f, indent=2, ensure_ascii=False)
 
+    def _load_table_translations(self) -> Dict:
+        """Load table translations from JSON file."""
+        path = os.path.join(
+            settings.BASE_DIR, "app", "data", "table_translations.json"
+        )
+        with open(path, "r", encoding="utf-8") as f:
+            return json.load(f)
+
+    def _save_table_translations(self, translations: Dict) -> None:
+        """Save table translations to JSON file."""
+        path = os.path.join(
+            settings.BASE_DIR, "app", "data", "table_translations.json"
+        )
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(translations, f, indent=2, ensure_ascii=False)
+
+    def get_table_translations(self, language: str) -> Dict[str, str]:
+        """
+        Get table translations for the given language.
+        If translation doesn't exist, generate it via LLM and cache it.
+
+        Args:
+            language: ISO language code (e.g., 'en', 'de', 'fr')
+
+        Returns:
+            Dict with translation keys (event, date, interested_swimmers, etc.)
+        """
+        translations = self._load_table_translations()
+
+        # Check if translation exists
+        if language in translations:
+            return translations[language]
+
+        # Get English as source
+        english = translations["en"]
+
+        if language == "en":
+            return english
+
+        # Generate translation via LLM
+        translate_prompt = f"""
+        Translate the following UI text labels from English to {language}.
+        These are table headers and short phrases for an email about swimming events.
+        Keep the {{year}} placeholder exactly as is - do not translate it.
+
+        - event: {english['event']}
+        - date: {english['date']}
+        - interested_swimmers: {english['interested_swimmers']}
+        - global_rank: {english['global_rank']}
+        - next_year_intro: {english['next_year_intro']}
+        - next_year_check: {english['next_year_check']}
+        """
+
+        try:
+            result = self.llm_service.parse_completion(
+                prompt=translate_prompt,
+                response_model=TableTranslations,
+                system_prompt="You are a professional translator. Translate the "
+                "UI labels accurately. Keep {year} placeholder unchanged.",
+            )
+
+            # Cache the translation
+            translations[language] = {
+                "event": result.event,
+                "date": result.date,
+                "interested_swimmers": result.interested_swimmers,
+                "global_rank": result.global_rank,
+                "next_year_intro": result.next_year_intro,
+                "next_year_check": result.next_year_check,
+            }
+            self._save_table_translations(translations)
+            logger.info(f"Generated and cached table translations for '{language}'")
+
+            return translations[language]
+
+        except Exception as e:
+            logger.error(f"Error translating table headers to {language}: {e}")
+            # Fall back to English
+            return english
+
     def detect_language(self, organizer: Organizer) -> str:
         """Detect the language for an organizer based on their location."""
         # Try to get language from first event's location
@@ -359,6 +455,9 @@ class EmailService:
         language = self.get_or_detect_language(organizer)
         log(f"  Language: {language}")
 
+        # Get translations for table headers (generates via LLM if needed)
+        trans = self.get_table_translations(language)
+
         # Get translated template
         template = self.get_translated_template(variant, language)
 
@@ -390,13 +489,13 @@ class EmailService:
                 return int((events_below / total_events_with_stats) * 100)
 
             # High views: show table with "Interested Swimmers" and "Global Rank" columns
-            event_table_html = """
+            event_table_html = f"""
 <table border="1" cellpadding="8" cellspacing="0" style="border-collapse: collapse; width: 100%;">
   <tr style="background-color: #f2f2f2;">
-    <th style="text-align: left;">Event</th>
-    <th style="text-align: left;">Date</th>
-    <th style="text-align: right;">Interested Swimmers</th>
-    <th style="text-align: right;">Global Rank</th>
+    <th style="text-align: left;">{trans["event"]}</th>
+    <th style="text-align: left;">{trans["date"]}</th>
+    <th style="text-align: right;">{trans["interested_swimmers"]}</th>
+    <th style="text-align: right;">{trans["global_rank"]}</th>
   </tr>
 """
             for event in events:
@@ -414,11 +513,11 @@ class EmailService:
             event_table_html += "</table>"
         elif variant == "low_views" and all_events:
             # Low views: show simple table without stats column
-            event_table_html = """
+            event_table_html = f"""
 <table border="1" cellpadding="8" cellspacing="0" style="border-collapse: collapse; width: 100%;">
   <tr style="background-color: #f2f2f2;">
-    <th style="text-align: left;">Event</th>
-    <th style="text-align: left;">Date</th>
+    <th style="text-align: left;">{trans["event"]}</th>
+    <th style="text-align: left;">{trans["date"]}</th>
   </tr>
 """
             for event in all_events:
@@ -443,12 +542,13 @@ class EmailService:
         next_year_events_html = ""
         if next_year_events.exists():
             log(f"  {next_year} events: {next_year_events.count()}")
-            next_year_events_html = f"<p>Great news! Your {next_year} events are already published on our platform:</p>\n<ul>\n"
+            intro_text = trans["next_year_intro"].format(year=next_year)
+            next_year_events_html = f"<p>{intro_text}</p>\n<ul>\n"
             for event in next_year_events:
                 event_url = f"https://open-water-swims.com/event/{event.slug}"
                 event_date = event.date_start.strftime("%d.%m.%Y") if event.date_start else "TBD"
                 next_year_events_html += f'  <li><a href="{event_url}">{event.name}</a> ({event_date})</li>\n'
-            next_year_events_html += "</ul>\n<p>Please check that all information is correct.</p>\n\n"
+            next_year_events_html += f'</ul>\n<p>{trans["next_year_check"]}</p>\n\n'
 
         # Fill in template placeholders
         subject = template["subject"].format(

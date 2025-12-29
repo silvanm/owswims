@@ -1,0 +1,58 @@
+{
+  "en": {
+    "event": "Event",
+    "date": "Date",
+    "interested_swimmers": "Interested Swimmers",
+    "global_rank": "Global Rank",
+    "next_year_intro": "Great news! Your {year} events are already published on our platform:",
+    "next_year_check": "Please check that all information is correct."
+  },
+  "de": {
+    "event": "Veranstaltung",
+    "date": "Datum",
+    "interested_swimmers": "Interessierte Schwimmer",
+    "global_rank": "Globaler Rang",
+    "next_year_intro": "Gute Neuigkeiten! Ihre Veranstaltungen für {year} sind bereits auf unserer Plattform veröffentlicht:",
+    "next_year_check": "Bitte überprüfen Sie, ob alle Informationen korrekt sind."
+  },
+  "nl": {
+    "event": "Evenement",
+    "date": "Datum",
+    "interested_swimmers": "Geïnteresseerde Zwemmers",
+    "global_rank": "Wereldwijde Rang",
+    "next_year_intro": "Goed nieuws! Uw evenementen voor {year} zijn al gepubliceerd op ons platform:",
+    "next_year_check": "Controleer of alle informatie correct is."
+  },
+  "es": {
+    "event": "Evento",
+    "date": "Fecha",
+    "interested_swimmers": "Nadadores Interesados",
+    "global_rank": "Ranking Global",
+    "next_year_intro": "¡Buenas noticias! Tus eventos de {year} ya están publicados en nuestra plataforma:",
+    "next_year_check": "Por favor, verifica que toda la información sea correcta."
+  },
+  "fr": {
+    "event": "Événement",
+    "date": "Date",
+    "interested_swimmers": "Nageurs Intéressés",
+    "global_rank": "Classement Mondial",
+    "next_year_intro": "Bonne nouvelle ! Vos événements {year} sont déjà publiés sur notre plateforme :",
+    "next_year_check": "Veuillez vérifier que toutes les informations sont correctes."
+  },
+  "ca": {
+    "event": "Esdeveniment",
+    "date": "Data",
+    "interested_swimmers": "Nedadors Interessats",
+    "global_rank": "Rànquing Global",
+    "next_year_intro": "Bones notícies! Els teus esdeveniments de {year} ja estan publicats a la nostra plataforma:",
+    "next_year_check": "Si us plau, verifica que tota la informació sigui correcta."
+  },
+  "el": {
+    "event": "Εκδήλωση",
+    "date": "Ημερομηνία",
+    "interested_swimmers": "Ενδιαφερόμενοι Κολυμβητές",
+    "global_rank": "Παγκόσμια Κατάταξη",
+    "next_year_intro": "Καλά νέα! Οι εκδηλώσεις σας για το {year} είναι ήδη δημοσιευμένες στην πλατφόρμα μας:",
+    "next_year_check": "Παρακαλούμε ελέγξτε ότι όλες οι πληροφορίες είναι σωστές."
+  }
+}
