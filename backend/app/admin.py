@@ -24,7 +24,7 @@ from ckeditor.widgets import CKEditorWidget
 from django_google_maps import widgets as map_widgets
 from django_google_maps import fields as map_fields
 from . import models
-from .models import Race, Event, Location, Review, ApiToken, EventSubmission
+from .models import Race, Event, Location, Review, ApiToken, EventSubmission, CrawlSource
 from .services.email_service import EmailService
 
 admin.site.site_header = ugettext_lazy("Open-Water-Swims Admin")
@@ -215,6 +215,64 @@ class OrganizerAdmin(admin.ModelAdmin):
         }
 
         return render(request, "admin/compose_email.html", context)
+
+
+class CrawlSourceEventInline(admin.TabularInline):
+    """Inline display of events belonging to a CrawlSource"""
+
+    model = Event
+    fields = ["name", "date_start", "location", "website", "invisible"]
+    readonly_fields = ["name", "date_start", "location", "website"]
+    extra = 0
+    show_change_link = True
+    can_delete = False
+    ordering = ["date_start"]
+
+    def get_queryset(self, request):
+        # Only show future events by default
+        qs = super().get_queryset(request)
+        return qs.filter(date_start__gte=datetime.now())
+
+
+@admin.register(CrawlSource)
+class CrawlSourceAdmin(admin.ModelAdmin):
+    list_display = [
+        "name",
+        "source_type",
+        "homepage_url_link",
+        "organizer",
+        "event_count",
+        "last_crawled_at",
+        "created_at",
+    ]
+    list_filter = ["source_type", "organizer", "last_crawled_at"]
+    search_fields = ["name", "homepage_url", "organizer__name"]
+    autocomplete_fields = ["organizer"]
+    readonly_fields = ["last_crawled_at", "created_at", "event_count"]
+    inlines = [CrawlSourceEventInline]
+
+    fieldsets = (
+        (None, {"fields": ("name", "source_type", "homepage_url", "organizer")}),
+        ("Crawl Settings", {"fields": ("crawl_profile", "last_crawled_at")}),
+        ("Internal", {"fields": ("internal_comment", "created_at")}),
+    )
+
+    def homepage_url_link(self, obj):
+        if obj.homepage_url:
+            return format_html(
+                '<a target="_blank" href="{}">{}</a>',
+                obj.homepage_url,
+                obj.homepage_url[:50] + "..." if len(obj.homepage_url) > 50 else obj.homepage_url,
+            )
+        return ""
+
+    homepage_url_link.short_description = "Homepage URL"
+    homepage_url_link.allow_tags = True
+
+    def event_count(self, obj):
+        return obj.events.count()
+
+    event_count.short_description = "Events"
 
 
 class LocationForm(forms.ModelForm):
@@ -463,10 +521,11 @@ class EventAdmin(CloneModelAdmin):
         IsVerifiedFilter,
         "created_by",
         ("organizer", RelatedDropdownFilter),
+        ("crawl_source", RelatedDropdownFilter),
         "location__country",
     )
     search_fields = ["name", "location__city", "location__country", "organizer__name"]
-    autocomplete_fields = ["location", "organizer", "previous_year_event"]
+    autocomplete_fields = ["location", "organizer", "previous_year_event", "crawl_source"]
     exclude = ["edited_by", "edited_at"]
     readonly_fields = ["public_url", "created_by", "last_auto_check_at"]
     inlines = [RaceInline, ReviewInline]

@@ -2,6 +2,75 @@
 
 This directory contains Django management commands for the OWSwims application. These commands handle event import, data maintenance, and administrative tasks.
 
+---
+
+## Yearly Calendar Update Workflow
+
+Follow these steps each year to update the event calendar (e.g., preparing 2027 events in late 2026):
+
+### Step 1: Copy Events to Next Year
+```bash
+python manage.py copy_to_next_year 2027
+```
+This copies all visible events from 2026 to 2027, marking them as invisible/unverified.
+
+### Step 2: Identify CrawlSources (First Time or Refresh)
+```bash
+# Preview first
+python manage.py identify_crawl_sources 2026 --dry-run
+
+# Create CrawlSources from current year's visible events
+python manage.py identify_crawl_sources 2026
+```
+This groups events by (hostname, organizer) and creates CrawlSource records for series with 3+ events. Only needed once per series, or when new series emerge.
+
+### Step 3: Batch-Update Events with CrawlSources
+```bash
+# Preview first
+python manage.py update_crawl_sources 2027 --dry-run
+
+# Update events belonging to CrawlSources
+python manage.py update_crawl_sources 2027
+```
+This crawls each series homepage once and updates all linked events efficiently.
+
+### Step 4: Update Remaining Events
+```bash
+# Update events WITHOUT a CrawlSource (individual crawling)
+python manage.py update_next_year_events 2027
+```
+This handles events that don't belong to a series - each event's website is crawled individually.
+
+### Step 5: Discover New Events (Optional)
+```bash
+# Search for new events via Google
+python manage.py discover_event_urls --countries CH DE FR AT
+
+# Import discovered events
+python manage.py crawl_events --discovered discovered_event_urls.json
+```
+
+### Step 6: Process New Locations
+```bash
+# Geocode and fetch images for new locations
+python manage.py process_unverified_locations
+
+# Merge nearby duplicate locations
+python manage.py merge_locations --dry-run
+python manage.py merge_locations
+```
+
+### Step 7: Final Cleanup
+```bash
+# Find and merge duplicate events
+python manage.py merge_events --dry-run
+
+# Fix currencies for new events
+python manage.py fix_race_currencies
+```
+
+---
+
 ## Quick Reference
 
 | Command | Description |
@@ -9,6 +78,8 @@ This directory contains Django management commands for the OWSwims application. 
 | `crawl_events` | Import events from websites using LLM-based processing |
 | `discover_event_urls` | Discover new event URLs via Google Search |
 | `update_next_year_events` | Update next year's events with fresh data from websites |
+| `identify_crawl_sources` | Identify and create CrawlSources from existing events |
+| `update_crawl_sources` | Batch-update events by crawling CrawlSource homepages |
 | `copy_to_next_year` | Copy events from one year to the next |
 | `geocode` | Geocode locations without coordinates |
 | `process_unverified_locations` | Process unverified locations (geocode + fetch images) |
@@ -135,9 +206,117 @@ python manage.py update_next_year_events 2026 --force
 
 **How it works:**
 1. Finds events for the target year that are invisible and unverified
-2. Searches the event's website for updated information
-3. Extracts and validates event data using LLM
-4. Updates event details while preserving location and organizer
+2. **Excludes events with a `crawl_source`** (those are handled by `update_crawl_sources`)
+3. Searches the event's website for updated information
+4. Extracts and validates event data using LLM
+5. Updates event details while preserving location and organizer
+
+---
+
+### `identify_crawl_sources`
+
+Identifies and creates CrawlSource records (type: `series`) from existing events by grouping events that share a common hostname and organizer.
+
+**Usage:**
+```bash
+# Preview what would be created
+python manage.py identify_crawl_sources --dry-run
+
+# Create CrawlSources for groups with 3+ events (default)
+python manage.py identify_crawl_sources
+
+# Require more events per group
+python manage.py identify_crawl_sources --min-events 5
+
+# Process only a specific organizer
+python manage.py identify_crawl_sources --organizer 210
+
+# Process only a specific hostname
+python manage.py identify_crawl_sources --hostname oceanman-openwater.com
+```
+
+**Options:**
+- `--min-events N`: Minimum events required to create a CrawlSource (default: 3)
+- `--dry-run`: Preview without database changes
+- `--organizer ID`: Only process events for a specific organizer ID
+- `--hostname NAME`: Only process events matching a specific hostname
+- `--include-existing`: Include events that already have a crawl_source assigned
+
+**How it works:**
+1. Groups events by (hostname, organizer)
+2. Excludes known registration platforms (findarace.com, ffneaulibre.fr, reg.place, etc.)
+3. Creates CrawlSource (type: `series`) for groups meeting minimum event threshold
+4. Assigns events to their CrawlSource
+
+**Note:** This command only creates `series` type CrawlSources. For `calendar` type sources (third-party event calendars), create them manually via Django admin.
+
+---
+
+### `update_crawl_sources`
+
+Batch-updates events by crawling CrawlSource homepages. Handles two source types differently:
+
+- **series**: Event series (e.g., oceanman-openwater.com) - matches extracted events to existing DB events by date order
+- **calendar**: Third-party calendars (e.g., ffneaulibre.fr) - processes each event independently, creates new events
+
+**Usage:**
+```bash
+# Preview updates for 2026 events
+python manage.py update_crawl_sources 2026 --dry-run
+
+# Update events for 2026
+python manage.py update_crawl_sources 2026
+
+# Process only a specific CrawlSource
+python manage.py update_crawl_sources 2026 --crawl-source 123
+
+# Force update all (ignore last crawl date)
+python manage.py update_crawl_sources 2026 --force
+
+# Limit processing for debugging
+python manage.py update_crawl_sources 2026 --limit 5
+```
+
+**Options:**
+- `year`: Target year to update (required)
+- `--limit N`: Limit number of CrawlSources to process
+- `--dry-run`: Preview without database changes
+- `--crawl-source ID`: Only process a specific CrawlSource by ID
+- `--force`: Force update all CrawlSources, ignoring last_crawled_at
+- `--check-interval N`: Skip CrawlSources crawled within N days (default: 30)
+
+**How it works:**
+
+For `series` type:
+1. Finds CrawlSources with events for the target year
+2. Crawls the homepage URL once
+3. Extracts all events from the page
+4. Matches extracted events to DB events by date order
+5. Updates matched events with fresh data
+
+For `calendar` type:
+1. Crawls the calendar homepage
+2. Filters out URLs that already exist in the database
+3. Processes each new event independently (like `--crawl` mode)
+4. Links created events to the CrawlSource
+
+**Workflow with `update_next_year_events`:**
+```bash
+# Step 1: Batch-update events WITH crawl_source
+python manage.py update_crawl_sources 2026
+
+# Step 2: Update remaining events WITHOUT crawl_source
+python manage.py update_next_year_events 2026
+```
+
+**Creating Calendar Sources:**
+Calendar sources must be created manually via Django admin:
+```
+Name: French Swimming Calendar
+Source Type: calendar
+Homepage URL: https://www.ffneaulibre.fr/calendrier
+Organizer: (leave empty for multi-organizer calendars)
+```
 
 ---
 
