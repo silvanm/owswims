@@ -16,7 +16,7 @@ def find_duplicate_events(location_id=None) -> Dict[Tuple[int, datetime], List[E
     Only considers future events.
     """
     current_date = timezone.now().date()
-    events = Event.objects.filter(date_start__gte=current_date)
+    events = Event.objects.filter(date_start__gte=current_date, location__isnull=False)
 
     if location_id:
         events = events.filter(location_id=location_id)
