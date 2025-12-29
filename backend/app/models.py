@@ -133,6 +133,72 @@ class Organizer(models.Model):
         return f"{self.name}"
 
 
+class CrawlSource(models.Model):
+    """
+    A URL source for batch crawling events.
+
+    Two types:
+    - series: Events belong to same organizer (e.g., oceanman-openwater.com).
+              Events are matched by date order to existing DB events.
+    - calendar: Third-party calendar listing events from multiple organizers
+                (e.g., ffneaulibre.fr, calendarioaguasabiertas.com).
+                Events are processed independently like --crawl mode.
+    """
+
+    SOURCE_TYPE_CHOICES = [
+        ("series", "Event Series"),
+        ("calendar", "Event Calendar"),
+    ]
+
+    name = models.CharField(max_length=200)
+    homepage_url = models.URLField(max_length=500)
+    source_type = models.CharField(
+        max_length=20,
+        choices=SOURCE_TYPE_CHOICES,
+        default="series",
+        help_text="series: events matched by date order; calendar: events processed independently",
+    )
+    organizer = models.ForeignKey(
+        "Organizer",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="crawl_sources",
+        help_text="Required for series type; optional for calendar type",
+    )
+    last_crawled_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text="Last time this source was crawled for updates",
+    )
+    crawl_profile = models.CharField(
+        max_length=100,
+        blank=True,
+        help_text="Optional crawl profile ID for custom scraping logic",
+    )
+    internal_comment = models.TextField(
+        max_length=2048,
+        default="",
+        blank=True,
+        help_text="Internal notes about this crawl source",
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["name"]
+        unique_together = ["homepage_url", "organizer"]
+        verbose_name = "Crawl Source"
+        verbose_name_plural = "Crawl Sources"
+
+    def __str__(self):
+        org_name = self.organizer.name if self.organizer else "No organizer"
+        return f"{self.name} ({org_name})"
+
+    def event_count(self):
+        """Returns the number of events associated with this crawl source."""
+        return self.events.count()
+
+
 class Event(CloneMixin, models.Model):
     name = models.CharField(max_length=100)
     website = models.URLField(max_length=200, blank=True)
@@ -152,6 +218,14 @@ class Event(CloneMixin, models.Model):
         null=True,
         related_name="events",
         blank=True,
+    )
+    crawl_source = models.ForeignKey(
+        "CrawlSource",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="events",
+        help_text="If set, this event will be updated via batch crawling of the source homepage",
     )
     needs_medical_certificate = models.BooleanField(null=True, blank=True)
     needs_license = models.BooleanField(null=True, blank=True)

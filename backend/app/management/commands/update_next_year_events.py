@@ -209,6 +209,7 @@ class Command(BaseCommand):
             invisible=True,
             verified_at__isnull=True,
             previous_year_event__isnull=False,
+            crawl_source__isnull=True,  # Exclude events with crawl_source (handled by update_crawl_sources)
         ).select_related("location", "organizer", "previous_year_event")
 
         # Apply check interval filter unless force is True
