@@ -62,13 +62,10 @@
       </i18n>
       <i18n tag="p" path="infoboxPara3a"></i18n>
       <i18n tag="p" path="infoboxPara4">
-        <a href="https://muehlemann.com" target="_blank">{{ $t('me') }}</a>
+        <nuxt-link to="/submit">{{ $t('submissionForm') }}</nuxt-link>
         <a href="mailto:silvan@open-water-swims.com"
           >silvan@open-water-swims.com</a
         >
-        <a href="https://www.facebook.com/openwaterswims" target="_blank">
-          <font-awesome-icon :icon="['fab', 'facebook']" />
-        </a>
       </i18n>
 
       <p v-if="extended">
