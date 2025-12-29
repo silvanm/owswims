@@ -11,6 +11,10 @@
     "nl": {
       "subject": "Uw evenementen hebben {total_users} zwemmers aangetrokken op open-water-swims.com!",
       "body": "<p>Beste {organizer_name},</p>\n\n<p><a href=\"https://open-water-swims.com\">Open Water Swims</a> is een non-profitplatform dat zwemmers helpt overal ter wereld openwaterzwemwedstrijden te ontdekken.</p>\n\n<p>Uw evenementen op ons platform hebben in 2025 <strong>{total_users}</strong> geïnteresseerde zwemmers aangetrokken!</p>\n\n<p>De kolom \"Geïnteresseerde zwemmers\" laat zien hoeveel gebruikers elke evenementenpagina hebben bekeken (gegevens van Google Analytics):</p>\n\n{event_table}\n\n{next_year_events}<p>Plannen voor meer evenementen in 2026? Dien ze in om nog meer zwemmers te bereiken:</p>\n<p><a href=\"https://open-water-swims.com/submit\">Dien uw evenement in</a></p>\n\n<p>Met vriendelijke groet,<br>Silvan M&uuml;hlemann<br>Open Water Swims</p>\n\n<p><small><em>Deze e-mail is automatisch gegenereerd, maar ik zal persoonlijk op eventuele antwoorden reageren.</em></small></p>"
+    },
+    "es": {
+      "subject": "¡Tus eventos atrajeron a {total_users} nadadores en open-water-swims.com!",
+      "body": "<p>Estimado/a {organizer_name},</p>\n\n<p><a href=\"https://open-water-swims.com\">Open Water Swims</a> es una plataforma sin fines de lucro que ayuda a los nadadores a descubrir eventos de natación en aguas abiertas en todo el mundo.</p>\n\n<p>¡Tus eventos en nuestra plataforma atrajeron a <strong>{total_users}</strong> nadadores interesados en 2025!</p>\n\n<p>La columna \"Nadadores interesados\" muestra cuántos usuarios vieron la página de cada evento (datos de Google Analytics):</p>\n\n{event_table}\n\n{next_year_events}<p>¿Estás planificando más eventos para 2026? Envíalos para llegar a aún más nadadores:</p>\n<p><a href=\"https://open-water-swims.com/submit\">Enviar tu evento</a></p>\n\n<p>Un cordial saludo,<br>Silvan M&uuml;hlemann<br>Open Water Swims</p>\n\n<p><small><em>Este correo electrónico fue generado automáticamente, pero responderé personalmente a cualquier respuesta.</em></small></p>"
     }
   },
   "low_views": {
