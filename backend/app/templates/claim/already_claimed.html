@@ -1,0 +1,108 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Already Claimed - Open Water Swims</title>
+    <link rel="stylesheet" href="{% static 'admin/css/base.css' %}">
+    <link rel="stylesheet" href="{% static 'admin/css/login.css' %}">
+    <style>
+        body.login {
+            background: #417690;
+        }
+        #container {
+            background: white;
+            border: 1px solid #417690;
+            border-radius: 4px;
+            overflow: hidden;
+            max-width: 420px;
+            margin: 100px auto;
+        }
+        #header {
+            background: #417690;
+            color: white;
+            padding: 15px 20px;
+        }
+        #header h1 {
+            font-size: 18px;
+            margin: 0;
+            font-weight: normal;
+        }
+        #branding h1 {
+            color: white;
+        }
+        #content {
+            padding: 20px;
+            text-align: center;
+        }
+        .icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+            color: #417690;
+        }
+        #content h1 {
+            font-size: 18px;
+            color: #333;
+            margin: 0 0 15px 0;
+        }
+        #content p {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        .organizer-name {
+            color: #417690;
+            font-weight: 600;
+        }
+        .button {
+            display: inline-block;
+            background: #417690;
+            color: white !important;
+            text-decoration: none !important;
+            padding: 10px 20px;
+            border-radius: 4px;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+        .button:hover {
+            background: #205067;
+        }
+        .beta-badge {
+            display: inline-block;
+            background: #79aec8;
+            color: white;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 3px;
+            margin-left: 8px;
+            vertical-align: middle;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body class="login">
+    <div id="container">
+        <div id="header">
+            <div id="branding">
+                <h1>Open Water Swims - Organizer Portal <span class="beta-badge">Beta</span></h1>
+            </div>
+        </div>
+
+        <div id="content">
+            <div class="icon">&#10003;</div>
+
+            <h1>Already Claimed</h1>
+            <p>
+                The organizer profile for <span class="organizer-name">{{ organizer.name }}</span>
+                has already been claimed and linked to an account.
+            </p>
+            <p>
+                If this is your organization, you can log in to the organizer portal.
+            </p>
+
+            <a href="/organizer-admin/" class="button">Go to Organizer Portal</a>
+        </div>
+    </div>
+</body>
+</html>

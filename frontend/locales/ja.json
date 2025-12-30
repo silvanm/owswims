@@ -76,5 +76,15 @@
 	"submit": "送信",
 	"thankYouSubmission": "イベントを送信いただきありがとうございます！確認後、地図に追加いたします。",
 	"urlRequired": "URLを入力してください",
-	"invalidUrl": "有効なURLを入力してください"
+	"invalidUrl": "有効なURLを入力してください",
+	"titleOrganizers": "主催者",
+	"organizerPortalTitle": "主催者ポータル（ベータ版）",
+	"organizerPortalDescription": "イベント主催者ですか？主催者ポータルを使えば、open-water-swims.comで直接イベントを管理できます。",
+	"organizerFeature1": "イベントの詳細、日程、場所を更新",
+	"organizerFeature2": "レース距離と料金を追加・変更",
+	"organizerFeature3": "イベントのチラシや写真をアップロード",
+	"organizerFeature4": "イベントを売り切れまたはキャンセル済みとしてマーク",
+	"organizerPortalButton": "主催者ポータルへ",
+	"organizerPortalNote": "すでにイベントを登録済みですか？",
+	"organizerPortalLink": "主催者ポータル"
 } 

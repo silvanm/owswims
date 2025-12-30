@@ -5,6 +5,12 @@
         {{ $t('titleHelp') }}
       </li>
       <li
+        :class="{ active: activeTab === 'organizers' }"
+        @click="activeTab = 'organizers'"
+      >
+        {{ $t('titleOrganizers') }}
+      </li>
+      <li
         :class="{ active: activeTab === 'contributors' }"
         @click="activeTab = 'contributors'"
       >
@@ -30,6 +36,23 @@
           <a @click="$emit('showLogin')">{{ $t('login') }}</a>
         </span>
       </div>
+    </div>
+    <div v-if="activeTab === 'organizers'" id="organizers">
+      <h3 class="font-bold text-lg mb-2">{{ $t('organizerPortalTitle') }}</h3>
+      <p class="mb-3">{{ $t('organizerPortalDescription') }}</p>
+      <ul class="list-disc ml-4 mb-4 text-sm">
+        <li>{{ $t('organizerFeature1') }}</li>
+        <li>{{ $t('organizerFeature2') }}</li>
+        <li>{{ $t('organizerFeature3') }}</li>
+        <li>{{ $t('organizerFeature4') }}</li>
+      </ul>
+      <a
+        href="/organizer-admin/"
+        target="_blank"
+        class="inline-block bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+      >
+        {{ $t('organizerPortalButton') }}
+      </a>
     </div>
     <div v-if="activeTab === 'contributors'" id="contributors">
       <i18n tag="p" path="infoboxThanks"

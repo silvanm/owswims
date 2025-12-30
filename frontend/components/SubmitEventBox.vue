@@ -1,7 +1,7 @@
 <template>
   <div
     class="absolute flex items-center justify-center h-screen w-screen"
-    style="z-index: 5"
+    style="z-index: 100"
   >
     <div class="p-4 bg-white shadow-xl w-4/5" style="max-width: 500px">
       <div class="float-right">
@@ -25,6 +25,19 @@
       <div v-else>
         <h1 class="font-bold text-xl mb-2">{{ $t('submitEventTitle') }}</h1>
         <p class="text-gray-600 mb-4">{{ $t('submitEventIntro') }}</p>
+
+        <div class="bg-blue-50 border border-blue-200 rounded p-3 mb-4 text-sm">
+          <p class="text-gray-700">
+            {{ $t('organizerPortalNote') }}
+            <a
+              href="/organizer-admin/"
+              target="_blank"
+              class="text-blue-600 underline"
+            >
+              {{ $t('organizerPortalLink') }}
+            </a>
+          </p>
+        </div>
 
         <form @submit.prevent="submitEvent">
           <!-- URL field (required) -->

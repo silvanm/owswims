@@ -21,12 +21,15 @@ from django.contrib import admin
 from django.urls import path
 from django.views.decorators.csrf import csrf_exempt
 from django_sitemaps import robots_txt
-from app.views import index, sitemap
+from app.views import index, sitemap, claim_organizer
+from app.organizer_admin import organizer_admin_site
 from graphene_django.views import GraphQLView
 
 urlpatterns = [
     path("", index, name="index"),
     path("admin/", admin.site.urls),
+    path("organizer-admin/", organizer_admin_site.urls),
+    path("claim/<str:token>/", claim_organizer, name="claim_organizer"),
     path("graphql", csrf_exempt(GraphQLView.as_view(graphiql=True))),
     url(r"^sitemap\.xml$", sitemap),
     url(r"^robots\.txt$", robots_txt(timeout=86400)),
