@@ -315,13 +315,11 @@ msgstr "パスワードを設定してポータルにアクセス"
 
 #: app/templates/organizer_admin/login.html:9
 msgid "Don't have an account yet? Contact us at"
-msgstr ""
+msgstr "まだアカウントをお持ちでないですか？"
 
 #: app/templates/organizer_admin/login.html:13
-#, fuzzy
-#| msgid "Go to Organizer Portal"
 msgid "to request access to the Organizer Portal."
-msgstr "主催者ポータル（ベータ版）"
+msgstr "までご連絡いただき、主催者ポータルへのアクセスをリクエストしてください。"
 
 #: app/views.py:111
 msgid "Password is required."

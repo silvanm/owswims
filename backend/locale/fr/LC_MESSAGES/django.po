@@ -325,13 +325,11 @@ msgstr "Définir le mot de passe et accéder au portail"
 
 #: app/templates/organizer_admin/login.html:9
 msgid "Don't have an account yet? Contact us at"
-msgstr ""
+msgstr "Vous n'avez pas encore de compte ? Contactez-nous à"
 
 #: app/templates/organizer_admin/login.html:13
-#, fuzzy
-#| msgid "Go to Organizer Portal"
 msgid "to request access to the Organizer Portal."
-msgstr "Portail Organisateur (Bêta)"
+msgstr "pour demander l'accès au Portail Organisateur."
 
 #: app/views.py:111
 msgid "Password is required."
