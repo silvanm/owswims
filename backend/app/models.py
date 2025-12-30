@@ -6,6 +6,7 @@ from django.contrib.postgres.fields import ArrayField
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
 from django_countries.fields import CountryField
 from djmoney.models.fields import MoneyField
 from django_google_maps import fields as map_fields
@@ -57,6 +58,8 @@ class Location(models.Model):
 
     class Meta:
         ordering = ["city"]
+        verbose_name = _("Location")
+        verbose_name_plural = _("Locations")
 
     def __str__(self):
         s = f"{self.water_name}, " if self.water_name else ""
@@ -126,6 +129,8 @@ class Organizer(models.Model):
 
     class Meta:
         ordering = ["name"]
+        verbose_name = _("Organizer")
+        verbose_name_plural = _("Organizers")
 
     def number_of_events(self):
         return len(self.events.filter(date_start__gte=datetime.now()))
@@ -355,6 +360,8 @@ class Event(CloneMixin, models.Model):
 
     class Meta:
         ordering = ["date_start"]
+        verbose_name = _("Event")
+        verbose_name_plural = _("Events")
 
     def is_verified(self):
         return self.verified_at is not None
@@ -421,6 +428,8 @@ class Race(CloneMixin, models.Model):
 
     class Meta:
         ordering = ["date", "race_time", "distance"]
+        verbose_name = _("Race")
+        verbose_name_plural = _("Races")
 
     def __str__(self):
         return f"{self.event.name}, {self.distance}"

@@ -1,10 +1,10 @@
-{% load static %}
+{% load static i18n %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ LANGUAGE_CODE }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Already Claimed - Open Water Swims</title>
+    <title>{% trans "Already Claimed" %} - Open Water Swims</title>
     <link rel="stylesheet" href="{% static 'admin/css/base.css' %}">
     <link rel="stylesheet" href="{% static 'admin/css/login.css' %}">
     <style>
@@ -85,23 +85,22 @@
     <div id="container">
         <div id="header">
             <div id="branding">
-                <h1>Open Water Swims - Organizer Portal <span class="beta-badge">Beta</span></h1>
+                <h1>{% trans "Open Water Swims - Organizer Portal" %} <span class="beta-badge">Beta</span></h1>
             </div>
         </div>
 
         <div id="content">
             <div class="icon">&#10003;</div>
 
-            <h1>Already Claimed</h1>
+            <h1>{% trans "Already Claimed" %}</h1>
             <p>
-                The organizer profile for <span class="organizer-name">{{ organizer.name }}</span>
-                has already been claimed and linked to an account.
+                {% blocktrans with name=organizer.name %}The organizer profile for <span class="organizer-name">{{ name }}</span> has already been claimed and linked to an account.{% endblocktrans %}
             </p>
             <p>
-                If this is your organization, you can log in to the organizer portal.
+                {% trans "If this is your organization, you can log in to the organizer portal." %}
             </p>
 
-            <a href="/organizer-admin/" class="button">Go to Organizer Portal</a>
+            <a href="/organizer-admin/" class="button">{% trans "Go to Organizer Portal" %}</a>
         </div>
     </div>
 </body>

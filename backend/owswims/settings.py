@@ -73,6 +73,7 @@ MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.locale.LocaleMiddleware",  # i18n: language detection
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -147,7 +148,23 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/3.1/topics/i18n/
 
-LANGUAGE_CODE = "en-uk"
+LANGUAGE_CODE = "en"
+
+# Supported languages (matching frontend)
+LANGUAGES = [
+    ("en", "English"),
+    ("de", "Deutsch"),
+    ("fr", "Français"),
+    ("it", "Italiano"),
+    ("es", "Español"),
+    ("ru", "Русский"),
+    ("ja", "日本語"),
+]
+
+# Path to locale files
+LOCALE_PATHS = [
+    BASE_DIR / "locale",
+]
 
 TIME_ZONE = "Europe/Berlin"
 

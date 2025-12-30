@@ -6,6 +6,7 @@ from django.contrib.auth.models import User
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
+from django.utils.translation import gettext as _
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django_sitemaps import Sitemap
 
@@ -107,11 +108,11 @@ def claim_organizer(request, token):
 
         # Validate passwords
         if not password:
-            errors.append("Password is required.")
+            errors.append(_("Password is required."))
         elif len(password) < 8:
-            errors.append("Password must be at least 8 characters.")
+            errors.append(_("Password must be at least 8 characters."))
         elif password != password_confirm:
-            errors.append("Passwords do not match.")
+            errors.append(_("Passwords do not match."))
 
         if errors:
             return render(
@@ -123,7 +124,7 @@ def claim_organizer(request, token):
         # Create user with organizer's email
         email = organizer.contact_email
         if not email:
-            errors.append("Organizer does not have a contact email set. Please contact support.")
+            errors.append(_("Organizer does not have a contact email set. Please contact support."))
             return render(
                 request,
                 "claim/set_password.html",
