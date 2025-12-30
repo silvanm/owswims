@@ -322,13 +322,11 @@ msgstr "Установить пароль и войти в портал"
 
 #: app/templates/organizer_admin/login.html:9
 msgid "Don't have an account yet? Contact us at"
-msgstr ""
+msgstr "Ещё нет аккаунта? Свяжитесь с нами по адресу"
 
 #: app/templates/organizer_admin/login.html:13
-#, fuzzy
-#| msgid "Go to Organizer Portal"
 msgid "to request access to the Organizer Portal."
-msgstr "Портал организатора (Бета)"
+msgstr "чтобы запросить доступ к Порталу организатора."
 
 #: app/views.py:111
 msgid "Password is required."
