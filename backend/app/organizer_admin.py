@@ -44,6 +44,7 @@ class OrganizerAdminSite(admin.AdminSite):
     site_header = _("Open Water Swims - Organizer Portal (Beta)")
     site_title = _("Organizer Portal (Beta)")
     index_title = _("Manage Your Events")
+    login_template = "organizer_admin/login.html"
 
     def has_permission(self, request):
         """Only allow users linked to an organizer."""
@@ -214,12 +215,37 @@ class OrganizerEventAdmin(admin.ModelAdmin):
         return qs.none()
 
     def has_add_permission(self, request):
-        """For beta, organizers cannot add events (use submission form)."""
-        return False
+        """Organizers can add new events."""
+        return hasattr(request.user, "organizer") and request.user.organizer is not None
 
     def has_delete_permission(self, request, obj=None):
         """Organizers cannot delete events."""
         return False
+
+    def get_fieldsets(self, request, obj=None):
+        """Hide statistics section when adding a new event."""
+        fieldsets = super().get_fieldsets(request, obj)
+        if obj is None:
+            # When adding, exclude the Statistics section
+            return [fs for fs in fieldsets if fs[0] != _("Statistics (read-only)")]
+        return fieldsets
+
+    def save_model(self, request, obj, form, change):
+        """Set sensible defaults for hidden fields when creating events."""
+        if not change:
+            # Set organizer to the logged-in user's organizer
+            if hasattr(request.user, "organizer") and request.user.organizer:
+                obj.organizer = request.user.organizer
+            # Set created_by to the logged-in user
+            obj.created_by = request.user
+            # Track source as organizer portal
+            obj.source = "organizer_portal"
+            # Mark as complete since manually created
+            obj.entry_quality = "complete"
+            # Ensure not invisible
+            obj.invisible = False
+
+        super().save_model(request, obj, form, change)
 
     def has_change_permission(self, request, obj=None):
         """Only allow changing events belonging to their organizer."""
