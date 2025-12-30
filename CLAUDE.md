@@ -68,6 +68,20 @@ Nuxt.js SPA with Vue 2:
 - **Layouts**: Page layouts in `layouts/`
 - **Internationalization**: Multi-language support via nuxt-i18n with locale files
 
+### Internationalization (i18n)
+
+#### Frontend (Nuxt.js)
+- **Mechanism**: nuxt-i18n module with JSON locale files
+- **Locale files**: `frontend/locales/*.json` (en, de, fr, es, it, ja, ru)
+- **Usage in components**: `{{ $t('keyName') }}` or `this.$t('keyName')`
+- **Adding translations**: Add key-value pairs to all locale JSON files
+- **URL structure**: Language prefix in URL (e.g., `/en/`, `/de/`)
+
+#### Organizer Admin (Django)
+- **Built-in UI**: Django admin has built-in i18n - standard UI elements (buttons, labels, navigation) are automatically translated based on the user's browser language
+- **Custom strings**: Help texts and fieldset descriptions in `app/organizer_admin.py` are already wrapped with `gettext_lazy as _` and ready for translation
+- **To add translations**: Run `python manage.py makemessages -l <lang>`, translate the `.po` files in `locale/<lang>/LC_MESSAGES/`, then `python manage.py compilemessages`
+
 ### Key Integration Points
 
 #### LLM-Based Event Import System
