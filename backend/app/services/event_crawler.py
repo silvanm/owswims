@@ -40,6 +40,7 @@ class EventCrawler:
             model=settings.OPENAI_MODEL,
             reasoning_options={"effort": settings.OPENAI_REASONING_EFFORT},
             additional_kwargs={"temperature": NOT_GIVEN, "top_p": NOT_GIVEN},
+            max_tokens=8192,  # Prevent response truncation
         )
         self.profile = profile
 

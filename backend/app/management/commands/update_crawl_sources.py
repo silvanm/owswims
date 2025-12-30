@@ -566,8 +566,9 @@ class Command(BaseCommand):
             event.races.all().delete()
 
             for race_data in races_data:
-                price_amount = race_data.get("price", {}).get("amount")
-                price_currency = race_data.get("price", {}).get("currency", "EUR")
+                price_info = race_data.get("price") or {}
+                price_amount = price_info.get("amount")
+                price_currency = price_info.get("currency", "EUR")
 
                 race_kwargs = {
                     "event": event,
@@ -639,8 +640,9 @@ class Command(BaseCommand):
 
             # Create races
             for race_data in races_data:
-                price_amount = race_data.get("price", {}).get("amount")
-                price_currency = race_data.get("price", {}).get("currency", "EUR")
+                price_info = race_data.get("price") or {}
+                price_amount = price_info.get("amount")
+                price_currency = price_info.get("currency", "EUR")
 
                 race_kwargs = {
                     "event": event,
