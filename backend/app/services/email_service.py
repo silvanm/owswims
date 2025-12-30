@@ -9,7 +9,7 @@ from django.utils import timezone
 from pydantic import BaseModel, Field
 from sparkpost import SparkPost
 
-from app.models import Organizer, Event, EventSubmission
+from app.models import Organizer, Event, EventSubmission, ClaimToken
 from app.services.llm_service import LLMService
 
 logger = logging.getLogger(__name__)
@@ -412,6 +412,55 @@ class EmailService:
             # Fall back to English
             return english_template
 
+    def get_or_create_claim_token(self, organizer: Organizer) -> Optional[ClaimToken]:
+        """
+        Get an existing valid claim token for the organizer, or create a new one.
+
+        Args:
+            organizer: The organizer to get/create token for
+
+        Returns:
+            A valid ClaimToken instance, or None if organizer has no contact_email
+        """
+        # Cannot create claim token without contact_email (needed for user creation)
+        if not organizer.contact_email:
+            logger.warning(
+                f"Cannot create claim token for organizer {organizer.name}: no contact_email"
+            )
+            return None
+
+        # Look for an existing valid token
+        existing_tokens = ClaimToken.objects.filter(
+            organizer=organizer,
+            used_at__isnull=True,
+        ).order_by("-created_at")
+
+        for token in existing_tokens:
+            if token.is_valid():
+                return token
+
+        # Create a new token
+        token = ClaimToken.objects.create(organizer=organizer)
+        logger.info(f"Created new claim token for organizer {organizer.name}")
+        return token
+
+    def get_claim_url(self, organizer: Organizer) -> Optional[str]:
+        """
+        Get the claim URL for an organizer.
+
+        Args:
+            organizer: The organizer to get claim URL for
+
+        Returns:
+            Full URL for claiming the organizer profile, or None if no contact_email
+        """
+        token = self.get_or_create_claim_token(organizer)
+        if token is None:
+            return None
+        # Use the site URL from settings or default to production
+        base_url = getattr(settings, "SITE_URL", "https://open-water-swims.com")
+        return f"{base_url}/claim/{token.token}/"
+
     def send_marketing_email(
         self,
         organizer: Organizer,
@@ -550,6 +599,14 @@ class EmailService:
                 next_year_events_html += f'  <li><a href="{event_url}">{event.name}</a> ({event_date})</li>\n'
             next_year_events_html += f'</ul>\n<p>{trans["next_year_check"]}</p>\n\n'
 
+        # Generate claim URL for organizer portal access
+        claim_url = self.get_claim_url(organizer)
+        if claim_url:
+            log(f"  Claim URL: {claim_url}")
+        else:
+            log(f"  Warning: No claim URL (organizer has no contact_email)")
+            claim_url = ""  # Template will have empty link
+
         # Fill in template placeholders
         subject = template["subject"].format(
             organizer_name=organizer_name,
@@ -562,6 +619,7 @@ class EmailService:
             event_table=event_table_html,
             total_event_count=total_event_count,
             next_year_events=next_year_events_html,
+            claim_url=claim_url,
         )
 
         # Determine recipient

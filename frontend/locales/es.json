@@ -76,5 +76,15 @@
 	"submit": "Enviar",
 	"thankYouSubmission": "¡Gracias por enviar tu evento! Revisaremos tu propuesta y la añadiremos a nuestro mapa pronto.",
 	"urlRequired": "Por favor, introduce una URL",
-	"invalidUrl": "Por favor, introduce una URL válida"
+	"invalidUrl": "Por favor, introduce una URL válida",
+	"titleOrganizers": "Organizadores",
+	"organizerPortalTitle": "Portal del Organizador (Beta)",
+	"organizerPortalDescription": "¿Eres organizador de eventos? Nuestro Portal del Organizador te permite gestionar tus eventos directamente en open-water-swims.com.",
+	"organizerFeature1": "Actualizar detalles, fechas y ubicaciones de eventos",
+	"organizerFeature2": "Añadir o modificar distancias y precios",
+	"organizerFeature3": "Subir flyers y fotos de eventos",
+	"organizerFeature4": "Marcar eventos como agotados o cancelados",
+	"organizerPortalButton": "Ir al Portal del Organizador",
+	"organizerPortalNote": "¿Ya tienes eventos listados? Gestiónalos a través de nuestro",
+	"organizerPortalLink": "Portal del Organizador"
 }

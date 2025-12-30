@@ -46,6 +46,14 @@ class Location(models.Model):
         blank=True,
         help_text="set if the location has been verified by the admin",
     )
+    created_by_organizer = models.ForeignKey(
+        "Organizer",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="created_locations",
+        help_text="Organizer who created this location (for organizer portal)",
+    )
 
     class Meta:
         ordering = ["city"]
@@ -107,6 +115,14 @@ class Organizer(models.Model):
         blank=True,
         help_text="ISO language code (e.g., 'en', 'de', 'fr'). Auto-detected if empty.",
     )
+    user = models.OneToOneField(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="organizer",
+        help_text="Linked user account for organizer portal access",
+    )
 
     class Meta:
         ordering = ["name"]
@@ -131,6 +147,39 @@ class Organizer(models.Model):
 
     def __str__(self):
         return f"{self.name}"
+
+
+class ClaimToken(models.Model):
+    """Token for organizers to claim their profile and set up portal access."""
+
+    organizer = models.ForeignKey(
+        Organizer,
+        on_delete=models.CASCADE,
+        related_name="claim_tokens",
+    )
+    token = models.CharField(max_length=64, unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    used_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text="Set when the token is used to claim the organizer",
+    )
+
+    def save(self, *args, **kwargs):
+        if not self.token:
+            self.token = secrets.token_urlsafe(32)
+        super().save(*args, **kwargs)
+
+    def is_valid(self):
+        """Check if token is still valid (not used, not expired)."""
+        if self.used_at:
+            return False
+        # Token expires after 30 days
+        return (timezone.now() - self.created_at).days < 30
+
+    def __str__(self):
+        status = "used" if self.used_at else ("valid" if self.is_valid() else "expired")
+        return f"ClaimToken for {self.organizer.name} ({status})"
 
 
 class CrawlSource(models.Model):

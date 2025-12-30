@@ -76,5 +76,15 @@
 	"submit": "Submit",
 	"thankYouSubmission": "Thank you for submitting your event! We'll review your submission and add it to our map soon.",
 	"urlRequired": "Please enter a URL",
-	"invalidUrl": "Please enter a valid URL"
+	"invalidUrl": "Please enter a valid URL",
+	"titleOrganizers": "Organizers",
+	"organizerPortalTitle": "Organizer Portal (Beta)",
+	"organizerPortalDescription": "Are you an event organizer? Our Organizer Portal lets you manage your events directly on open-water-swims.com.",
+	"organizerFeature1": "Update event details, dates, and locations",
+	"organizerFeature2": "Add or modify race distances and prices",
+	"organizerFeature3": "Upload event flyers and photos",
+	"organizerFeature4": "Mark events as sold out or cancelled",
+	"organizerPortalButton": "Go to Organizer Portal",
+	"organizerPortalNote": "Already have events listed? Manage them through our",
+	"organizerPortalLink": "Organizer Portal"
 }

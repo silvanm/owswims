@@ -1,0 +1,116 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invalid Link - Open Water Swims</title>
+    <link rel="stylesheet" href="{% static 'admin/css/base.css' %}">
+    <link rel="stylesheet" href="{% static 'admin/css/login.css' %}">
+    <style>
+        body.login {
+            background: #417690;
+        }
+        #container {
+            background: white;
+            border: 1px solid #417690;
+            border-radius: 4px;
+            overflow: hidden;
+            max-width: 420px;
+            margin: 100px auto;
+        }
+        #header {
+            background: #417690;
+            color: white;
+            padding: 15px 20px;
+        }
+        #header h1 {
+            font-size: 18px;
+            margin: 0;
+            font-weight: normal;
+        }
+        #branding h1 {
+            color: white;
+        }
+        #content {
+            padding: 20px;
+            text-align: center;
+        }
+        .icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+            color: #417690;
+        }
+        #content h1 {
+            font-size: 18px;
+            color: #333;
+            margin: 0 0 15px 0;
+        }
+        #content p {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        #content a {
+            color: #417690;
+            text-decoration: none;
+        }
+        #content a:hover {
+            text-decoration: underline;
+        }
+        .button {
+            display: inline-block;
+            background: #417690;
+            color: white !important;
+            text-decoration: none !important;
+            padding: 10px 20px;
+            border-radius: 4px;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+        .button:hover {
+            background: #205067;
+        }
+        .beta-badge {
+            display: inline-block;
+            background: #79aec8;
+            color: white;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 3px;
+            margin-left: 8px;
+            vertical-align: middle;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body class="login">
+    <div id="container">
+        <div id="header">
+            <div id="branding">
+                <h1>Open Water Swims - Organizer Portal <span class="beta-badge">Beta</span></h1>
+            </div>
+        </div>
+
+        <div id="content">
+            {% if reason == "used" %}
+            <div class="icon">&#10003;</div>
+            <h1>Link Already Used</h1>
+            <p>
+                This claim link has already been used. If you've already set up your account,
+                you can log in to the organizer portal.
+            </p>
+            <a href="/organizer-admin/" class="button">Go to Organizer Portal</a>
+            {% else %}
+            <div class="icon">&#9201;</div>
+            <h1>Link Expired</h1>
+            <p>
+                This claim link has expired. Claim links are valid for 30 days.<br>
+                Please contact us to request a new link.
+            </p>
+            <a href="mailto:silvan@open-water-swims.com" class="button">Contact Support</a>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>
