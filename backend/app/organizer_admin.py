@@ -325,6 +325,8 @@ class OrganizerLocationAdmin(admin.ModelAdmin):
 
     def save_model(self, request, obj, form, change):
         """Set created_by_organizer on create and auto-geocode on save."""
+        from django.contrib import messages
+
         # Set created_by_organizer for new locations
         if not change and hasattr(request.user, "organizer") and request.user.organizer:
             obj.created_by_organizer = request.user.organizer
@@ -332,14 +334,28 @@ class OrganizerLocationAdmin(admin.ModelAdmin):
         super().save_model(request, obj, form, change)
 
         # Auto-geocode if no coordinates (uses address or city+country as fallback)
-        if not obj.lat:
+        if not obj.lat or not obj.lng:
             from app.services.geocoding_service import GeocodingService
 
             try:
-                if GeocodingService().geocode_location(obj):
+                geocoding_service = GeocodingService()
+                if geocoding_service.geocode_location(obj):
                     obj.save()  # Save the geocoded coordinates
-            except Exception:
-                pass  # Silently fail geocoding - admin can fix later
+                    messages.success(
+                        request,
+                        _("Location coordinates were automatically determined from the address.")
+                    )
+                else:
+                    messages.warning(
+                        request,
+                        _("Could not determine coordinates automatically. "
+                          "Please check the address or city/country fields.")
+                    )
+            except Exception as e:
+                messages.warning(
+                    request,
+                    _("Geocoding failed: %(error)s. Coordinates were not set.") % {"error": str(e)}
+                )
 
 
 # Register models with the organizer admin site
