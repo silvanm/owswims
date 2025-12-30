@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-12-30 15:41+0100\n"
+"POT-Creation-Date: 2025-12-30 18:28+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -57,7 +57,9 @@ msgstr "レース一覧"
 msgid ""
 "Optional: Full address for precise map placement. If left empty, we'll use "
 "the city and country to determine coordinates."
-msgstr "オプション：正確な地図表示のために住所を入力してください。未入力の場合は都市と国から座標を決定します。"
+msgstr ""
+"オプション：正確な地図表示のために住所を入力してください。未入力の場合は都市"
+"と国から座標を決定します。"
 
 #: app/organizer_admin.py:33
 msgid "The city or town where the event takes place"
@@ -91,119 +93,120 @@ msgstr "主催者ポータル（ベータ版）"
 msgid "Manage Your Events"
 msgstr "イベント管理"
 
-#: app/organizer_admin.py:73
+#: app/organizer_admin.py:74
 msgid "Your organization's name as shown to swimmers"
 msgstr "参加者に表示される団体名"
 
-#: app/organizer_admin.py:75
+#: app/organizer_admin.py:76
 msgid "Your main website URL"
 msgstr "公式ウェブサイトURL"
 
-#: app/organizer_admin.py:77
+#: app/organizer_admin.py:78
 msgid "Your organization's logo (displayed on event pages)"
 msgstr "団体ロゴ（イベントページに表示）"
 
-#: app/organizer_admin.py:79
+#: app/organizer_admin.py:80
 msgid "Email for swimmer inquiries (not shown publicly)"
 msgstr "参加者からのお問い合わせ用メールアドレス（非公開）"
 
-#: app/organizer_admin.py:126
+#: app/organizer_admin.py:127
 msgid "Race / Distance"
 msgstr "レース／距離"
 
-#: app/organizer_admin.py:127
+#: app/organizer_admin.py:128
 msgid "Races / Distances (add one row per distance offered)"
 msgstr "レース／距離（距離ごとに1行追加）"
 
-#: app/organizer_admin.py:163
+#: app/organizer_admin.py:164
 msgid "Dates & Location"
 msgstr "日程・場所"
 
-#: app/organizer_admin.py:165
+#: app/organizer_admin.py:166
 msgid "Set the event dates and choose or create a location."
 msgstr "イベントの日程を設定し、場所を選択または新規作成してください。"
 
-#: app/organizer_admin.py:167
+#: app/organizer_admin.py:168
 msgid "Requirements"
 msgstr "参加条件"
 
-#: app/organizer_admin.py:169
+#: app/organizer_admin.py:170
 msgid "Let swimmers know what they need to participate."
 msgstr "参加に必要な条件を参加者に知らせましょう。"
 
-#: app/organizer_admin.py:171
+#: app/organizer_admin.py:172
 msgid "Status"
 msgstr "ステータス"
 
-#: app/organizer_admin.py:173
+#: app/organizer_admin.py:174
 msgid "Update if registration is closed or the event is cancelled."
 msgstr "受付終了やイベント中止の場合は更新してください。"
 
-#: app/organizer_admin.py:175
+#: app/organizer_admin.py:176 app/organizer_admin.py:230
 msgid "Statistics (read-only)"
 msgstr "統計情報（閲覧のみ）"
 
-#: app/organizer_admin.py:177
+#: app/organizer_admin.py:178
 msgid "These fields are automatically updated by our system."
 msgstr "これらの項目はシステムによって自動更新されます。"
 
-#: app/organizer_admin.py:188
+#: app/organizer_admin.py:189
 msgid "The official name of your event"
 msgstr "イベントの正式名称"
 
-#: app/organizer_admin.py:189
+#: app/organizer_admin.py:190
 msgid "Link to your event's registration or info page"
 msgstr "イベントの申込・情報ページへのリンク"
 
-#: app/organizer_admin.py:190
+#: app/organizer_admin.py:191
 msgid "A brief description shown to swimmers (supports basic formatting)"
 msgstr "参加者向けの簡単な説明（基本的な書式対応）"
 
-#: app/organizer_admin.py:191
+#: app/organizer_admin.py:192
 msgid "Upload your event flyer or poster (optional)"
 msgstr "イベントのチラシやポスターをアップロード（任意）"
 
-#: app/organizer_admin.py:192
+#: app/organizer_admin.py:193
 msgid "First day of the event"
 msgstr "イベント初日"
 
-#: app/organizer_admin.py:193
+#: app/organizer_admin.py:194
 msgid "Last day of the event (same as start date for single-day events)"
 msgstr "イベント最終日（単日開催の場合は開始日と同じ）"
 
-#: app/organizer_admin.py:194
+#: app/organizer_admin.py:195
 msgid "Select an existing location or create a new one"
 msgstr "既存の場所を選択するか新規作成してください"
 
-#: app/organizer_admin.py:195
+#: app/organizer_admin.py:196
 msgid "Expected water temperature in Celsius (helps swimmers prepare)"
 msgstr "予想水温（摂氏・準備の参考）"
 
-#: app/organizer_admin.py:196
+#: app/organizer_admin.py:197
 msgid "Is a medical certificate required to participate?"
 msgstr "参加に医師の診断書が必要ですか？"
 
-#: app/organizer_admin.py:197
+#: app/organizer_admin.py:198
 msgid "Is a federation license required?"
 msgstr "連盟のライセンスが必要ですか？"
 
-#: app/organizer_admin.py:198
-msgid "Is this a timed race with results/rankings? (Uncheck for casual swims)"
-msgstr "記録・順位が出る計測レースですか？（カジュアルスイムの場合はチェックを外す）"
-
 #: app/organizer_admin.py:199
+msgid "Is this a timed race with results/rankings? (Uncheck for casual swims)"
+msgstr ""
+"記録・順位が出る計測レースですか？（カジュアルスイムの場合はチェックを外す）"
+
+#: app/organizer_admin.py:200
 msgid "Check if registration is full/closed"
 msgstr "受付終了・満員の場合はチェック"
 
-#: app/organizer_admin.py:200
+#: app/organizer_admin.py:201
 msgid "Check if the event has been cancelled"
 msgstr "イベントが中止の場合はチェック"
 
-#: app/organizer_admin.py:201
+#: app/organizer_admin.py:202
 msgid "Number of swimmers viewing this event (from analytics)"
 msgstr "このイベントを閲覧した参加者数（分析データより）"
 
-#: app/organizer_admin.py:202
+#: app/organizer_admin.py:203
 msgid "When we last verified the event details"
 msgstr "イベント情報の最終確認日時"
 
@@ -214,8 +217,7 @@ msgstr "既に申請済み"
 
 #: app/templates/claim/already_claimed.html:88
 #: app/templates/claim/invalid_token.html:91
-#: app/templates/claim/set_password.html:128
-#| msgid "Open Water Swims - Organizer Portal (Beta)"
+#: app/templates/claim/set_password.html:132
 msgid "Open Water Swims - Organizer Portal"
 msgstr "オープンウォータースイム - 主催者ポータル（ベータ版）"
 
@@ -224,7 +226,9 @@ msgstr "オープンウォータースイム - 主催者ポータル（ベータ
 msgid ""
 "The organizer profile for <span class=\"organizer-name\">%(name)s</span> has "
 "already been claimed and linked to an account."
-msgstr "<span class=\"organizer-name\">%(name)s</span> の主催者プロフィールは既に申請され、アカウントにリンクされています。"
+msgstr ""
+"<span class=\"organizer-name\">%(name)s</span> の主催者プロフィールは既に申請"
+"され、アカウントにリンクされています。"
 
 #: app/templates/claim/already_claimed.html:100
 msgid "If this is your organization, you can log in to the organizer portal."
@@ -232,7 +236,6 @@ msgstr "貴団体の場合は、主催者ポータルにログインできます
 
 #: app/templates/claim/already_claimed.html:103
 #: app/templates/claim/invalid_token.html:102
-#| msgid "Organizer Portal (Beta)"
 msgid "Go to Organizer Portal"
 msgstr "主催者ポータル（ベータ版）"
 
@@ -248,7 +251,9 @@ msgstr "リンクは既に使用されています"
 msgid ""
 "This claim link has already been used. If you've already set up your "
 "account, you can log in to the organizer portal."
-msgstr "この申請リンクは既に使用されています。アカウントの設定が完了している場合は、主催者ポータルにログインできます。"
+msgstr ""
+"この申請リンクは既に使用されています。アカウントの設定が完了している場合は、"
+"主催者ポータルにログインできます。"
 
 #: app/templates/claim/invalid_token.html:105
 msgid "Link Expired"
@@ -256,7 +261,8 @@ msgstr "リンクの有効期限切れ"
 
 #: app/templates/claim/invalid_token.html:107
 msgid "This claim link has expired. Claim links are valid for 30 days."
-msgstr "この申請リンクの有効期限が切れています。申請リンクの有効期間は30日間です。"
+msgstr ""
+"この申請リンクの有効期限が切れています。申請リンクの有効期間は30日間です。"
 
 #: app/templates/claim/invalid_token.html:108
 msgid "Please contact us to request a new link."
@@ -270,40 +276,52 @@ msgstr "サポートに連絡"
 msgid "Claim Your Organizer Profile"
 msgstr "主催者プロフィールの申請"
 
-#: app/templates/claim/set_password.html:133
+#: app/templates/claim/set_password.html:137
 msgid "Claim Your Profile"
 msgstr "プロフィールの申請"
 
-#: app/templates/claim/set_password.html:136
+#: app/templates/claim/set_password.html:140
 #, python-format
 msgid "Welcome, <span class=\"organizer-name\">%(name)s</span>!"
 msgstr "ようこそ、<span class=\"organizer-name\">%(name)s</span>さん！"
 
-#: app/templates/claim/set_password.html:137
+#: app/templates/claim/set_password.html:141
 msgid ""
 "Set a password to access your organizer portal where you can manage your "
 "events."
-msgstr "イベント管理ができる主催者ポータルにアクセスするためのパスワードを設定してください。"
+msgstr ""
+"イベント管理ができる主催者ポータルにアクセスするためのパスワードを設定してく"
+"ださい。"
 
-#: app/templates/claim/set_password.html:142
+#: app/templates/claim/set_password.html:146
 msgid "Please correct the errors below:"
 msgstr "下記のエラーを修正してください："
 
-#: app/templates/claim/set_password.html:155
+#: app/templates/claim/set_password.html:159
 msgid "Password:"
 msgstr "パスワード："
 
-#: app/templates/claim/set_password.html:157
+#: app/templates/claim/set_password.html:161
 msgid "At least 8 characters"
 msgstr "8文字以上"
 
-#: app/templates/claim/set_password.html:161
+#: app/templates/claim/set_password.html:165
 msgid "Confirm Password:"
 msgstr "パスワード（確認）："
 
-#: app/templates/claim/set_password.html:166
+#: app/templates/claim/set_password.html:170
 msgid "Set Password & Access Portal"
 msgstr "パスワードを設定してポータルにアクセス"
+
+#: app/templates/organizer_admin/login.html:9
+msgid "Don't have an account yet? Contact us at"
+msgstr ""
+
+#: app/templates/organizer_admin/login.html:13
+#, fuzzy
+#| msgid "Go to Organizer Portal"
+msgid "to request access to the Organizer Portal."
+msgstr "主催者ポータル（ベータ版）"
 
 #: app/views.py:111
 msgid "Password is required."
@@ -319,7 +337,9 @@ msgstr "パスワードが一致しません。"
 
 #: app/views.py:127
 msgid "Organizer does not have a contact email set. Please contact support."
-msgstr "主催者の連絡用メールアドレスが設定されていません。サポートまでご連絡ください。"
+msgstr ""
+"主催者の連絡用メールアドレスが設定されていません。サポートまでご連絡くださ"
+"い。"
 
 #: templates/admin/app/event/change_list.html:8
 #: templates/admin/crawl_single_event.html:16
@@ -336,7 +356,8 @@ msgstr "単一イベント非同期クロール"
 
 #: templates/admin/crawl_single_event.html:28
 msgid "Enter the URL of an event to crawl. This is equivalent to running:"
-msgstr "クロールするイベントのURLを入力してください。これは以下のコマンドと同等です："
+msgstr ""
+"クロールするイベントのURLを入力してください。これは以下のコマンドと同等です："
 
 #: templates/admin/crawl_single_event.html:30
 msgid "The event will be crawled asynchronously using Django Q."
