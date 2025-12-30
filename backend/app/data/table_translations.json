@@ -54,5 +54,21 @@
     "global_rank": "Παγκόσμια Κατάταξη",
     "next_year_intro": "Καλά νέα! Οι εκδηλώσεις σας για το {year} είναι ήδη δημοσιευμένες στην πλατφόρμα μας:",
     "next_year_check": "Παρακαλούμε ελέγξτε ότι όλες οι πληροφορίες είναι σωστές."
+  },
+  "hu": {
+    "event": "Esemény",
+    "date": "Dátum",
+    "interested_swimmers": "Érdeklődő úszók",
+    "global_rank": "Globális rangsor",
+    "next_year_intro": "Nagyszerű hír! A(z) {year} eseményeid már megjelentek a platformunkon:",
+    "next_year_check": "Kérjük, ellenőrizd, hogy minden információ helyes-e."
+  },
+  "it": {
+    "event": "Evento",
+    "date": "Data",
+    "interested_swimmers": "Nuotatori interessati",
+    "global_rank": "Classifica globale",
+    "next_year_intro": "Ottime notizie! I tuoi eventi {year} sono già pubblicati sulla nostra piattaforma:",
+    "next_year_check": "Per favore, verifica che tutte le informazioni siano corrette."
   }
 }
