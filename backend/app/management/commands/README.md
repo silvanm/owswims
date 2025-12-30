@@ -90,6 +90,8 @@ python manage.py fix_race_currencies
 | `merge_events` | Find and merge duplicate events at same location/date |
 | `find_organizer_contacts` | Use AI to find organizer contact information |
 | `inform_organizers` | Send emails to organizers |
+| `send_marketing_emails` | Send marketing emails with analytics to organizers |
+| `fetch_analytics` | Fetch Google Analytics data for events |
 | `list_crawl_profiles` | List available crawl profiles |
 | `fix_race_currencies` | Fix race currencies based on country |
 | `populate_organizer_slugs` | Generate slugs for organizers |
@@ -541,6 +543,85 @@ Generates URL slugs for organizers that don't have one.
 ```bash
 python manage.py populate_organizer_slugs
 ```
+
+---
+
+### `send_marketing_emails`
+
+Sends marketing emails to organizers showing their events' Google Analytics data.
+
+**Usage:**
+```bash
+# Preview without sending
+python manage.py send_marketing_emails --dry-run
+
+# Send to all eligible organizers
+python manage.py send_marketing_emails
+
+# Test with a specific email address
+python manage.py send_marketing_emails --test-email test@example.com --organizer-id 123
+
+# Only send to organizers with high traffic
+python manage.py send_marketing_emails --min-users 100
+
+# Force resend (ignore already sent)
+python manage.py send_marketing_emails --force
+```
+
+**Options:**
+- `--year YEAR`: Year to filter events (default: current year)
+- `--dry-run`: Preview without sending emails
+- `--test-email EMAIL`: Send to this address instead of organizer's email
+- `--limit N`: Limit number of organizers to process
+- `--min-users N`: Minimum total active users required (default: 1)
+- `--force`: Send even if already sent before
+- `--organizer-id ID`: Send to a specific organizer only
+
+**Email variants:**
+- **high_views** (>100 users): Shows detailed table with "Interested Swimmers" and "Global Rank" columns
+- **low_views** (≤100 users): Simpler message focusing on platform reach
+
+**Features:**
+- Automatically detects organizer's language and translates email
+- Shows 2026 events if already published
+- Tracks sent status to avoid duplicate emails
+
+---
+
+## Analytics Commands
+
+### `fetch_analytics`
+
+Fetches Google Analytics active user counts for event pages.
+
+**Usage:**
+```bash
+# Fetch for current year
+python manage.py fetch_analytics
+
+# Fetch for specific year
+python manage.py fetch_analytics --year 2025
+
+# Preview without saving
+python manage.py fetch_analytics --dry-run
+
+# Test with limited events
+python manage.py fetch_analytics --limit 10
+```
+
+**Options:**
+- `--year YEAR`: Year to fetch analytics for (default: current year)
+- `--dry-run`: Show what would be updated without saving
+- `--limit N`: Limit number of events to update
+
+**How it works:**
+1. Queries Google Analytics API for page views by event slug
+2. Updates `active_user_count` field on Event model
+3. This data is used by `send_marketing_emails` to show organizers their reach
+
+**Environment Variables:**
+- `GOOGLE_APPLICATION_CREDENTIALS`: Path to service account JSON file
+- Google Analytics property must be configured in settings
 
 ---
 
