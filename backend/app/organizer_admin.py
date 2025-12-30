@@ -7,6 +7,7 @@ who have a linked Organizer record.
 
 from django import forms
 from django.contrib import admin
+from django.utils.translation import gettext_lazy as _
 
 from app.models import Organizer, Event, Location, Race
 
@@ -18,7 +19,7 @@ class OrganizerLocationForm(forms.ModelForm):
     address = forms.CharField(
         max_length=200,
         required=False,
-        help_text=(
+        help_text=_(
             "Optional: Full address for precise map placement. "
             "If left empty, we'll use the city and country to determine coordinates."
         ),
@@ -29,20 +30,20 @@ class OrganizerLocationForm(forms.ModelForm):
         model = Location
         fields = ["city", "water_name", "water_type", "country", "address", "header_photo"]
         help_texts = {
-            "city": "The city or town where the event takes place",
-            "water_name": "Name of the body of water (e.g., 'Lake Zurich', 'Rhine River')",
-            "water_type": "Type of water body - helps swimmers know what to expect",
-            "country": "Country where the location is",
-            "header_photo": "A scenic photo of the location (shown on the event page)",
+            "city": _("The city or town where the event takes place"),
+            "water_name": _("Name of the body of water (e.g., 'Lake Zurich', 'Rhine River')"),
+            "water_type": _("Type of water body - helps swimmers know what to expect"),
+            "country": _("Country where the location is"),
+            "header_photo": _("A scenic photo of the location (shown on the event page)"),
         }
 
 
 class OrganizerAdminSite(admin.AdminSite):
     """Custom admin site for organizers."""
 
-    site_header = "Open Water Swims - Organizer Portal (Beta)"
-    site_title = "Organizer Portal (Beta)"
-    index_title = "Manage Your Events"
+    site_header = _("Open Water Swims - Organizer Portal (Beta)")
+    site_title = _("Organizer Portal (Beta)")
+    index_title = _("Manage Your Events")
 
     def has_permission(self, request):
         """Only allow users linked to an organizer."""
@@ -69,13 +70,13 @@ class OrganizerProfileAdmin(admin.ModelAdmin):
         form = super().get_form(request, obj, **kwargs)
         # Add help texts for profile fields
         if "name" in form.base_fields:
-            form.base_fields["name"].help_text = "Your organization's name as shown to swimmers"
+            form.base_fields["name"].help_text = _("Your organization's name as shown to swimmers")
         if "website" in form.base_fields:
-            form.base_fields["website"].help_text = "Your main website URL"
+            form.base_fields["website"].help_text = _("Your main website URL")
         if "logo" in form.base_fields:
-            form.base_fields["logo"].help_text = "Your organization's logo (displayed on event pages)"
+            form.base_fields["logo"].help_text = _("Your organization's logo (displayed on event pages)")
         if "contact_email" in form.base_fields:
-            form.base_fields["contact_email"].help_text = "Email for swimmer inquiries (not shown publicly)"
+            form.base_fields["contact_email"].help_text = _("Email for swimmer inquiries (not shown publicly)")
         return form
 
     def get_queryset(self, request):
@@ -122,8 +123,8 @@ class OrganizerRaceInline(admin.TabularInline):
     model = Race
     extra = 1  # Show 1 empty form for adding new races
     fields = ["date", "race_time", "distance", "name", "wetsuit", "price"]
-    verbose_name = "Race / Distance"
-    verbose_name_plural = "Races / Distances (add one row per distance offered)"
+    verbose_name = _("Race / Distance")
+    verbose_name_plural = _("Races / Distances (add one row per distance offered)")
 
     def has_add_permission(self, request, obj=None):
         """Allow adding races to events owned by the organizer."""
@@ -159,21 +160,21 @@ class OrganizerEventAdmin(admin.ModelAdmin):
         (None, {
             "fields": ["name", "website", "description", "flyer_image"],
         }),
-        ("Dates & Location", {
+        (_("Dates & Location"), {
             "fields": ["date_start", "date_end", "location", "water_temp"],
-            "description": "Set the event dates and choose or create a location.",
+            "description": _("Set the event dates and choose or create a location."),
         }),
-        ("Requirements", {
+        (_("Requirements"), {
             "fields": ["needs_medical_certificate", "needs_license", "with_ranking"],
-            "description": "Let swimmers know what they need to participate.",
+            "description": _("Let swimmers know what they need to participate."),
         }),
-        ("Status", {
+        (_("Status"), {
             "fields": ["sold_out", "cancelled"],
-            "description": "Update if registration is closed or the event is cancelled.",
+            "description": _("Update if registration is closed or the event is cancelled."),
         }),
-        ("Statistics (read-only)", {
+        (_("Statistics (read-only)"), {
             "fields": ["active_user_count", "verified_at"],
-            "description": "These fields are automatically updated by our system.",
+            "description": _("These fields are automatically updated by our system."),
             "classes": ["collapse"],
         }),
     ]
@@ -184,21 +185,21 @@ class OrganizerEventAdmin(admin.ModelAdmin):
         form = super().get_form(request, obj, **kwargs)
         # Add help texts for event fields
         help_texts = {
-            "name": "The official name of your event",
-            "website": "Link to your event's registration or info page",
-            "description": "A brief description shown to swimmers (supports basic formatting)",
-            "flyer_image": "Upload your event flyer or poster (optional)",
-            "date_start": "First day of the event",
-            "date_end": "Last day of the event (same as start date for single-day events)",
-            "location": "Select an existing location or create a new one",
-            "water_temp": "Expected water temperature in Celsius (helps swimmers prepare)",
-            "needs_medical_certificate": "Is a medical certificate required to participate?",
-            "needs_license": "Is a federation license required?",
-            "with_ranking": "Is this a timed race with results/rankings? (Uncheck for casual swims)",
-            "sold_out": "Check if registration is full/closed",
-            "cancelled": "Check if the event has been cancelled",
-            "active_user_count": "Number of swimmers viewing this event (from analytics)",
-            "verified_at": "When we last verified the event details",
+            "name": _("The official name of your event"),
+            "website": _("Link to your event's registration or info page"),
+            "description": _("A brief description shown to swimmers (supports basic formatting)"),
+            "flyer_image": _("Upload your event flyer or poster (optional)"),
+            "date_start": _("First day of the event"),
+            "date_end": _("Last day of the event (same as start date for single-day events)"),
+            "location": _("Select an existing location or create a new one"),
+            "water_temp": _("Expected water temperature in Celsius (helps swimmers prepare)"),
+            "needs_medical_certificate": _("Is a medical certificate required to participate?"),
+            "needs_license": _("Is a federation license required?"),
+            "with_ranking": _("Is this a timed race with results/rankings? (Uncheck for casual swims)"),
+            "sold_out": _("Check if registration is full/closed"),
+            "cancelled": _("Check if the event has been cancelled"),
+            "active_user_count": _("Number of swimmers viewing this event (from analytics)"),
+            "verified_at": _("When we last verified the event details"),
         }
         for field_name, help_text in help_texts.items():
             if field_name in form.base_fields:

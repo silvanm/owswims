@@ -1,10 +1,10 @@
-{% load static %}
+{% load static i18n %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ LANGUAGE_CODE }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Invalid Link - Open Water Swims</title>
+    <title>{% trans "Invalid Link" %} - Open Water Swims</title>
     <link rel="stylesheet" href="{% static 'admin/css/base.css' %}">
     <link rel="stylesheet" href="{% static 'admin/css/login.css' %}">
     <style>
@@ -88,27 +88,26 @@
     <div id="container">
         <div id="header">
             <div id="branding">
-                <h1>Open Water Swims - Organizer Portal <span class="beta-badge">Beta</span></h1>
+                <h1>{% trans "Open Water Swims - Organizer Portal" %} <span class="beta-badge">Beta</span></h1>
             </div>
         </div>
 
         <div id="content">
             {% if reason == "used" %}
             <div class="icon">&#10003;</div>
-            <h1>Link Already Used</h1>
+            <h1>{% trans "Link Already Used" %}</h1>
             <p>
-                This claim link has already been used. If you've already set up your account,
-                you can log in to the organizer portal.
+                {% trans "This claim link has already been used. If you've already set up your account, you can log in to the organizer portal." %}
             </p>
-            <a href="/organizer-admin/" class="button">Go to Organizer Portal</a>
+            <a href="/organizer-admin/" class="button">{% trans "Go to Organizer Portal" %}</a>
             {% else %}
             <div class="icon">&#9201;</div>
-            <h1>Link Expired</h1>
+            <h1>{% trans "Link Expired" %}</h1>
             <p>
-                This claim link has expired. Claim links are valid for 30 days.<br>
-                Please contact us to request a new link.
+                {% trans "This claim link has expired. Claim links are valid for 30 days." %}<br>
+                {% trans "Please contact us to request a new link." %}
             </p>
-            <a href="mailto:silvan@open-water-swims.com" class="button">Contact Support</a>
+            <a href="mailto:silvan@open-water-swims.com" class="button">{% trans "Contact Support" %}</a>
             {% endif %}
         </div>
     </div>

@@ -1,0 +1,351 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-30 15:41+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: app/admin.py:30
+msgid "Open-Water-Swims Admin"
+msgstr "Admin Open-Water-Swims"
+
+#: app/models.py:61
+msgid "Location"
+msgstr "Località"
+
+#: app/models.py:62
+msgid "Locations"
+msgstr "Località"
+
+#: app/models.py:132
+msgid "Organizer"
+msgstr "Organizzatore"
+
+#: app/models.py:133
+msgid "Organizers"
+msgstr "Organizzatori"
+
+#: app/models.py:363
+msgid "Event"
+msgstr "Evento"
+
+#: app/models.py:364
+msgid "Events"
+msgstr "Eventi"
+
+#: app/models.py:431
+msgid "Race"
+msgstr "Gara"
+
+#: app/models.py:432
+msgid "Races"
+msgstr "Gare"
+
+#: app/organizer_admin.py:23
+msgid ""
+"Optional: Full address for precise map placement. If left empty, we'll use "
+"the city and country to determine coordinates."
+msgstr "Opzionale: Indirizzo completo per una posizione precisa sulla mappa. Se lasciato vuoto, useremo città e paese per determinare le coordinate."
+
+#: app/organizer_admin.py:33
+msgid "The city or town where the event takes place"
+msgstr "La città o il paese dove si svolge l’evento"
+
+#: app/organizer_admin.py:34
+msgid "Name of the body of water (e.g., 'Lake Zurich', 'Rhine River')"
+msgstr "Nome dello specchio d’acqua (es. \"Lago di Zurigo\", \"Fiume Reno\")"
+
+#: app/organizer_admin.py:35
+msgid "Type of water body - helps swimmers know what to expect"
+msgstr "Tipo di specchio d’acqua - aiuta i nuotatori a sapere cosa aspettarsi"
+
+#: app/organizer_admin.py:36
+msgid "Country where the location is"
+msgstr "Paese in cui si trova la località"
+
+#: app/organizer_admin.py:37
+msgid "A scenic photo of the location (shown on the event page)"
+msgstr "Una foto panoramica della località (mostrata nella pagina dell’evento)"
+
+#: app/organizer_admin.py:44
+msgid "Open Water Swims - Organizer Portal (Beta)"
+msgstr "Open Water Swims - Portale Organizzatore (Beta)"
+
+#: app/organizer_admin.py:45
+msgid "Organizer Portal (Beta)"
+msgstr "Portale Organizzatore (Beta)"
+
+#: app/organizer_admin.py:46
+msgid "Manage Your Events"
+msgstr "Gestisci i Tuoi Eventi"
+
+#: app/organizer_admin.py:73
+msgid "Your organization's name as shown to swimmers"
+msgstr "Nome della tua organizzazione come mostrato ai nuotatori"
+
+#: app/organizer_admin.py:75
+msgid "Your main website URL"
+msgstr "URL del sito principale"
+
+#: app/organizer_admin.py:77
+msgid "Your organization's logo (displayed on event pages)"
+msgstr "Logo della tua organizzazione (visualizzato nelle pagine evento)"
+
+#: app/organizer_admin.py:79
+msgid "Email for swimmer inquiries (not shown publicly)"
+msgstr "Email per richieste dei nuotatori (non visibile pubblicamente)"
+
+#: app/organizer_admin.py:126
+msgid "Race / Distance"
+msgstr "Gara / Distanza"
+
+#: app/organizer_admin.py:127
+msgid "Races / Distances (add one row per distance offered)"
+msgstr "Gare / Distanze (aggiungi una riga per ogni distanza offerta)"
+
+#: app/organizer_admin.py:163
+msgid "Dates & Location"
+msgstr "Date & Località"
+
+#: app/organizer_admin.py:165
+msgid "Set the event dates and choose or create a location."
+msgstr "Imposta le date dell’evento e scegli o crea una località."
+
+#: app/organizer_admin.py:167
+msgid "Requirements"
+msgstr "Requisiti"
+
+#: app/organizer_admin.py:169
+msgid "Let swimmers know what they need to participate."
+msgstr "Informa i nuotatori su cosa serve per partecipare."
+
+#: app/organizer_admin.py:171
+msgid "Status"
+msgstr "Stato"
+
+#: app/organizer_admin.py:173
+msgid "Update if registration is closed or the event is cancelled."
+msgstr "Aggiorna se le iscrizioni sono chiuse o l’evento è annullato."
+
+#: app/organizer_admin.py:175
+msgid "Statistics (read-only)"
+msgstr "Statistiche (sola lettura)"
+
+#: app/organizer_admin.py:177
+msgid "These fields are automatically updated by our system."
+msgstr "Questi campi vengono aggiornati automaticamente dal nostro sistema."
+
+#: app/organizer_admin.py:188
+msgid "The official name of your event"
+msgstr "Nome ufficiale del tuo evento"
+
+#: app/organizer_admin.py:189
+msgid "Link to your event's registration or info page"
+msgstr "Link alla pagina di iscrizione o informazioni dell’evento"
+
+#: app/organizer_admin.py:190
+msgid "A brief description shown to swimmers (supports basic formatting)"
+msgstr "Breve descrizione mostrata ai nuotatori (supporta formattazione base)"
+
+#: app/organizer_admin.py:191
+msgid "Upload your event flyer or poster (optional)"
+msgstr "Carica il volantino o manifesto dell’evento (opzionale)"
+
+#: app/organizer_admin.py:192
+msgid "First day of the event"
+msgstr "Primo giorno dell’evento"
+
+#: app/organizer_admin.py:193
+msgid "Last day of the event (same as start date for single-day events)"
+msgstr "Ultimo giorno dell’evento (uguale alla data di inizio per eventi di un solo giorno)"
+
+#: app/organizer_admin.py:194
+msgid "Select an existing location or create a new one"
+msgstr "Seleziona una località esistente o creane una nuova"
+
+#: app/organizer_admin.py:195
+msgid "Expected water temperature in Celsius (helps swimmers prepare)"
+msgstr "Temperatura dell’acqua prevista in gradi Celsius (aiuta i nuotatori a prepararsi)"
+
+#: app/organizer_admin.py:196
+msgid "Is a medical certificate required to participate?"
+msgstr "È richiesto un certificato medico per partecipare?"
+
+#: app/organizer_admin.py:197
+msgid "Is a federation license required?"
+msgstr "È richiesta una tessera federale?"
+
+#: app/organizer_admin.py:198
+msgid "Is this a timed race with results/rankings? (Uncheck for casual swims)"
+msgstr "Questa è una gara cronometrata con risultati/classifiche? (Deseleziona per nuotate libere)"
+
+#: app/organizer_admin.py:199
+msgid "Check if registration is full/closed"
+msgstr "Seleziona se le iscrizioni sono complete/chiuse"
+
+#: app/organizer_admin.py:200
+msgid "Check if the event has been cancelled"
+msgstr "Seleziona se l’evento è stato annullato"
+
+#: app/organizer_admin.py:201
+msgid "Number of swimmers viewing this event (from analytics)"
+msgstr "Numero di nuotatori che visualizzano questo evento (da analytics)"
+
+#: app/organizer_admin.py:202
+msgid "When we last verified the event details"
+msgstr "Ultima verifica dei dettagli dell’evento"
+
+#: app/templates/claim/already_claimed.html:7
+#: app/templates/claim/already_claimed.html:95
+msgid "Already Claimed"
+msgstr "Già rivendicato"
+
+#: app/templates/claim/already_claimed.html:88
+#: app/templates/claim/invalid_token.html:91
+#: app/templates/claim/set_password.html:128
+#| msgid "Open Water Swims - Organizer Portal (Beta)"
+msgid "Open Water Swims - Organizer Portal"
+msgstr "Open Water Swims - Portale Organizzatore (Beta)"
+
+#: app/templates/claim/already_claimed.html:97
+#, python-format
+msgid ""
+"The organizer profile for <span class=\"organizer-name\">%(name)s</span> has "
+"already been claimed and linked to an account."
+msgstr "Il profilo organizzatore per <span class=\"organizer-name\">%(name)s</span> è già stato rivendicato e collegato a un account."
+
+#: app/templates/claim/already_claimed.html:100
+msgid "If this is your organization, you can log in to the organizer portal."
+msgstr "Se questa è la tua organizzazione, puoi accedere al portale organizzatore."
+
+#: app/templates/claim/already_claimed.html:103
+#: app/templates/claim/invalid_token.html:102
+#| msgid "Organizer Portal (Beta)"
+msgid "Go to Organizer Portal"
+msgstr "Portale Organizzatore (Beta)"
+
+#: app/templates/claim/invalid_token.html:7
+msgid "Invalid Link"
+msgstr "Link non valido"
+
+#: app/templates/claim/invalid_token.html:98
+msgid "Link Already Used"
+msgstr "Link già utilizzato"
+
+#: app/templates/claim/invalid_token.html:100
+msgid ""
+"This claim link has already been used. If you've already set up your "
+"account, you can log in to the organizer portal."
+msgstr "Questo link di rivendicazione è già stato utilizzato. Se hai già configurato il tuo account, puoi accedere al portale organizzatore."
+
+#: app/templates/claim/invalid_token.html:105
+msgid "Link Expired"
+msgstr "Link scaduto"
+
+#: app/templates/claim/invalid_token.html:107
+msgid "This claim link has expired. Claim links are valid for 30 days."
+msgstr "Questo link di rivendicazione è scaduto. I link di rivendicazione sono validi per 30 giorni."
+
+#: app/templates/claim/invalid_token.html:108
+msgid "Please contact us to request a new link."
+msgstr "Contattaci per richiedere un nuovo link."
+
+#: app/templates/claim/invalid_token.html:110
+msgid "Contact Support"
+msgstr "Contatta il supporto"
+
+#: app/templates/claim/set_password.html:7
+msgid "Claim Your Organizer Profile"
+msgstr "Rivendica il tuo profilo organizzatore"
+
+#: app/templates/claim/set_password.html:133
+msgid "Claim Your Profile"
+msgstr "Rivendica il tuo profilo"
+
+#: app/templates/claim/set_password.html:136
+#, python-format
+msgid "Welcome, <span class=\"organizer-name\">%(name)s</span>!"
+msgstr "Benvenuto, <span class=\"organizer-name\">%(name)s</span>!"
+
+#: app/templates/claim/set_password.html:137
+msgid ""
+"Set a password to access your organizer portal where you can manage your "
+"events."
+msgstr "Imposta una password per accedere al portale organizzatore dove puoi gestire i tuoi eventi."
+
+#: app/templates/claim/set_password.html:142
+msgid "Please correct the errors below:"
+msgstr "Correggi gli errori qui sotto:"
+
+#: app/templates/claim/set_password.html:155
+msgid "Password:"
+msgstr "Password:"
+
+#: app/templates/claim/set_password.html:157
+msgid "At least 8 characters"
+msgstr "Almeno 8 caratteri"
+
+#: app/templates/claim/set_password.html:161
+msgid "Confirm Password:"
+msgstr "Conferma password:"
+
+#: app/templates/claim/set_password.html:166
+msgid "Set Password & Access Portal"
+msgstr "Imposta password e accedi al portale"
+
+#: app/views.py:111
+msgid "Password is required."
+msgstr "La password è obbligatoria."
+
+#: app/views.py:113
+msgid "Password must be at least 8 characters."
+msgstr "La password deve contenere almeno 8 caratteri."
+
+#: app/views.py:115
+msgid "Passwords do not match."
+msgstr "Le password non corrispondono."
+
+#: app/views.py:127
+msgid "Organizer does not have a contact email set. Please contact support."
+msgstr "L'organizzatore non ha un'email di contatto impostata. Contatta il supporto."
+
+#: templates/admin/app/event/change_list.html:8
+#: templates/admin/crawl_single_event.html:16
+msgid "Crawl Single Event"
+msgstr "Scansiona Evento Singolo"
+
+#: templates/admin/crawl_single_event.html:13
+msgid "Home"
+msgstr "Home"
+
+#: templates/admin/crawl_single_event.html:26
+msgid "Crawl Single Event Asynchronously"
+msgstr "Scansiona Evento Singolo Asincrono"
+
+#: templates/admin/crawl_single_event.html:28
+msgid "Enter the URL of an event to crawl. This is equivalent to running:"
+msgstr "Inserisci l’URL di un evento da scansionare. Equivale a eseguire:"
+
+#: templates/admin/crawl_single_event.html:30
+msgid "The event will be crawled asynchronously using Django Q."
+msgstr "L’evento verrà scansionato in modo asincrono tramite Django Q."
+
+#: templates/admin/crawl_single_event.html:48
+msgid "Crawl Event"
+msgstr "Scansiona Evento"
+
+#: templates/admin/crawl_single_event.html:49
+msgid "Cancel"
+msgstr "Annulla"
