@@ -34,6 +34,9 @@ python manage.py update_crawl_sources 2027
 ```
 This crawls each series homepage once and updates all linked events efficiently.
 
+*Warning*: There is an issue with updating events, resulting
+in having the same event at multiple locations.
+
 ### Step 4: Update Remaining Events
 ```bash
 # Update events WITHOUT a CrawlSource (individual crawling)
