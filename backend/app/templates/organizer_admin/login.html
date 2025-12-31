@@ -1,6 +1,18 @@
 {% extends "admin/login.html" %}
 {% load i18n %}
 
+{% block extrahead %}
+{{ block.super }}
+<!-- Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-10357230-11"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'UA-10357230-11');
+</script>
+{% endblock %}
+
 {% block content %}
 {{ block.super }}
 
