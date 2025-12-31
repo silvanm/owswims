@@ -1,0 +1,15 @@
+{% extends "admin/index.html" %}
+{% load i18n %}
+
+{% block sidebar %}
+{{ block.super }}
+<div class="module" id="admin-actions">
+    <h2>{% trans 'Admin Actions' %}</h2>
+    <table>
+        <tr>
+            <th scope="row"><a href="{% url 'admin:clear_graphql_cache' %}">{% trans 'Clear GraphQL Cache' %}</a></th>
+            <td>{% trans 'Clear cached location and organizer queries' %}</td>
+        </tr>
+    </table>
+</div>
+{% endblock %}

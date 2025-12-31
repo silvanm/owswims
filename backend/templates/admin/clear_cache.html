@@ -1,0 +1,37 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls static %}
+
+{% block extrastyle %}{{ block.super }}<link rel="stylesheet" type="text/css" href="{% static "admin/css/forms.css" %}">{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+<a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+&rsaquo; {% trans 'Clear GraphQL Cache' %}
+</div>
+{% endblock %}
+
+{% block content %}
+<div id="content-main">
+    <form method="post">
+        {% csrf_token %}
+        <div>
+            <fieldset class="module aligned">
+                <h2>{% trans 'Clear GraphQL Cache' %}</h2>
+                <div class="description">
+                    <p>{% trans 'This will clear the GraphQL query cache, including:' %}</p>
+                    <ul>
+                        <li>{% trans 'Cached location filter results (locationsFiltered queries)' %}</li>
+                        <li>{% trans 'Cached organizer queries (allOrganizers queries)' %}</li>
+                    </ul>
+                    <p>{% trans 'The cache will be rebuilt as new queries are made. This may temporarily slow down the site as caches are repopulated.' %}</p>
+                </div>
+            </fieldset>
+
+            <div class="submit-row">
+                <input type="submit" value="{% trans 'Clear Cache' %}" class="default" name="_clear">
+                <a href="{% url 'admin:index' %}" class="button cancel-link">{% trans "Cancel" %}</a>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
