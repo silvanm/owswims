@@ -13,7 +13,11 @@ logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
-    help = "Send marketing emails to organizers showing their events' analytics"
+    help = (
+        "Send marketing emails to organizers showing their events' analytics. "
+        "Duplicate prevention: organizers are skipped if already emailed "
+        "(tracked via marketing_email_sent_at). Use --force to resend."
+    )
 
     def add_arguments(self, parser):
         parser.add_argument(
