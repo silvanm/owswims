@@ -683,3 +683,50 @@ class EventSubmissionAdmin(admin.ModelAdmin):
         self.message_user(request, f"{updated} submission(s) marked as rejected.")
 
     mark_as_rejected.short_description = "Mark selected as rejected"
+
+
+# Custom admin view to clear GraphQL cache
+class ClearCacheAdminView:
+    """Admin view to clear the GraphQL cache"""
+
+    @staticmethod
+    def clear_cache_view(request):
+        from django.core.cache import cache
+        from django.contrib.admin.views.decorators import staff_member_required
+        from django.http import HttpResponseRedirect
+        from django.contrib import messages as django_messages
+
+        if request.method == "POST":
+            # Clear all cache entries
+            cache.clear()
+            django_messages.success(request, "GraphQL cache has been cleared successfully.")
+            return HttpResponseRedirect(request.META.get("HTTP_REFERER", "/admin/"))
+
+        # For GET requests, show a confirmation page
+        from django.shortcuts import render
+
+        context = {
+            "title": "Clear GraphQL Cache",
+            "opts": {"app_label": "app"},
+        }
+        return render(request, "admin/clear_cache.html", context)
+
+
+# Register custom admin URLs
+original_get_urls = admin.site.get_urls
+
+
+def custom_admin_urls():
+    from django.urls import path
+
+    custom_urls = [
+        path(
+            "clear-cache/",
+            admin.site.admin_view(ClearCacheAdminView.clear_cache_view),
+            name="clear_graphql_cache",
+        ),
+    ]
+    return custom_urls + original_get_urls()
+
+
+admin.site.get_urls = custom_admin_urls
