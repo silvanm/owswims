@@ -70,5 +70,21 @@
     "global_rank": "Classifica globale",
     "next_year_intro": "Ottime notizie! I tuoi eventi {year} sono già pubblicati sulla nostra piattaforma:",
     "next_year_check": "Per favore, verifica che tutte le informazioni siano corrette."
+  },
+  "pt": {
+    "event": "Evento",
+    "date": "Data",
+    "interested_swimmers": "Nadadores Interessados",
+    "global_rank": "Ranking Global",
+    "next_year_intro": "Boas notícias! Seus eventos de {year} já estão publicados em nossa plataforma:",
+    "next_year_check": "Por favor, verifique se todas as informações estão corretas."
+  },
+  "cs": {
+    "event": "Událost",
+    "date": "Datum",
+    "interested_swimmers": "Zájemci o plavání",
+    "global_rank": "Globální pořadí",
+    "next_year_intro": "Skvělá zpráva! Vaše události pro {year} jsou již zveřejněny na naší platformě:",
+    "next_year_check": "Prosím zkontrolujte, že všechny informace jsou správné."
   }
 }
