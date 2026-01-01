@@ -3,13 +3,16 @@
 
 {% block sidebar %}
 {{ block.super }}
+{% url 'admin:clear_graphql_cache' as clear_cache_url %}
+{% if clear_cache_url %}
 <div class="module" id="admin-actions">
     <h2>{% trans 'Admin Actions' %}</h2>
     <table>
         <tr>
-            <th scope="row"><a href="{% url 'admin:clear_graphql_cache' %}">{% trans 'Clear GraphQL Cache' %}</a></th>
+            <th scope="row"><a href="{{ clear_cache_url }}">{% trans 'Clear GraphQL Cache' %}</a></th>
             <td>{% trans 'Clear cached location and organizer queries' %}</td>
         </tr>
     </table>
 </div>
+{% endif %}
 {% endblock %}
