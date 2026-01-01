@@ -7,9 +7,18 @@ who have a linked Organizer record.
 
 from django import forms
 from django.contrib import admin
+from django.contrib.admin.forms import AdminAuthenticationForm
 from django.utils.translation import gettext_lazy as _
 
 from app.models import Organizer, Event, Location, Race
+
+
+class OrganizerLoginForm(AdminAuthenticationForm):
+    """Custom login form that labels username as E-mail."""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["username"].label = _("E-mail")
 
 
 class OrganizerLocationForm(forms.ModelForm):
@@ -45,6 +54,7 @@ class OrganizerAdminSite(admin.AdminSite):
     site_title = _("Organizer Portal (Beta)")
     index_title = _("Manage Your Events")
     login_template = "organizer_admin/login.html"
+    login_form = OrganizerLoginForm
 
     def has_permission(self, request):
         """Only allow users linked to an organizer."""
