@@ -20,7 +20,25 @@ from djmoney.money import Money
 
 from .scraping_service import ScrapingService
 from .geocoding_service import GeocodingService
-from app.models import Event, Location, Organizer, Race
+from app.models import CrawlSource, Event, Location, Organizer, Race
+
+
+def strip_json_comments(json_text: str) -> str:
+    """
+    Remove JavaScript-style comments from JSON text.
+
+    LLMs sometimes add comments to JSON despite being told not to.
+    This function strips both single-line (//) and multi-line (/* */) comments.
+    """
+    # Remove single-line comments (// ...) but be careful not to remove URLs
+    # Only remove // comments that are not part of a URL (http:// or https://)
+    # Match // that is NOT preceded by : (which would be part of a URL)
+    json_text = re.sub(r'(?<!:)//[^\n]*', '', json_text)
+
+    # Remove multi-line comments (/* ... */)
+    json_text = re.sub(r'/\*.*?\*/', '', json_text, flags=re.DOTALL)
+
+    return json_text
 
 
 def is_running_from_django_q():
@@ -88,6 +106,7 @@ class EventProcessor:
         stderr: OutputWrapper = None,
         dry_run: bool = False,
         update_existing: bool = False,
+        crawl_source: CrawlSource = None,
     ):
         self.scraping_service = ScrapingService(
             api_key=firecrawl_api_key, stdout=stdout, stderr=stderr
@@ -102,6 +121,7 @@ class EventProcessor:
         self.update_existing = update_existing
         self.stdout = stdout
         self.stderr = stderr
+        self.crawl_source = crawl_source
 
         logger.info(
             f"EventProcessor initialized (dry_run={dry_run}, update_existing={update_existing})"
@@ -237,6 +257,9 @@ Do NOT extract {target_year-1} data - we already have it. Only return data if it
             if json_match:
                 json_text = json_match.group(1)
 
+            # Strip any comments that LLM may have added despite instructions
+            json_text = strip_json_comments(json_text)
+
             data = json.loads(json_text)
             return data
         except json.JSONDecodeError as e:
@@ -324,18 +347,29 @@ Do NOT extract {target_year-1} data - we already have it. Only return data if it
                     return None
 
         # Get or create organizer
-        organizer_name = data["event"].get("organizer", {}).get("name", "")
-        if self.dry_run:
-            logger.info(f"[DRY RUN] Would get or create organizer: {organizer_name}")
-            # Create a dummy organizer object for dry run
-            from collections import namedtuple
-
-            DummyOrganizer = namedtuple("DummyOrganizer", ["id", "name"])
-            organizer = (
-                DummyOrganizer(id=0, name=organizer_name) if organizer_name else None
+        # Use crawl_source.organizer if provided, otherwise extract from data
+        if self.crawl_source and self.crawl_source.organizer:
+            organizer = self.crawl_source.organizer
+            logger.info(
+                f"Using organizer from CrawlSource: {organizer.name} (ID: {organizer.id})"
             )
         else:
-            organizer = self._get_or_create_organizer(organizer_name)
+            organizer_name = data["event"].get("organizer", {}).get("name", "")
+            if self.dry_run:
+                logger.info(
+                    f"[DRY RUN] Would get or create organizer: {organizer_name}"
+                )
+                # Create a dummy organizer object for dry run
+                from collections import namedtuple
+
+                DummyOrganizer = namedtuple("DummyOrganizer", ["id", "name"])
+                organizer = (
+                    DummyOrganizer(id=0, name=organizer_name)
+                    if organizer_name
+                    else None
+                )
+            else:
+                organizer = self._get_or_create_organizer(organizer_name)
 
         # Create or update Event
         event_data = data["event"]
@@ -358,6 +392,7 @@ Do NOT extract {target_year-1} data - we already have it. Only return data if it
                 existing_event.slug = slugify(event_data["name"])
                 existing_event.location = location
                 existing_event.organizer = organizer
+                existing_event.crawl_source = self.crawl_source
                 existing_event.needs_medical_certificate = event_data.get(
                     "needs_medical_certificate"
                 )
@@ -390,6 +425,7 @@ Do NOT extract {target_year-1} data - we already have it. Only return data if it
                     slug=slugify(event_data["name"]),  # Generate slug from name
                     location=location,
                     organizer=organizer,
+                    crawl_source=self.crawl_source,
                     needs_medical_certificate=event_data.get(
                         "needs_medical_certificate"
                     ),
