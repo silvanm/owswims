@@ -12,6 +12,7 @@ from datetime import date
 from django.utils import timezone
 from typing import List, Optional, Dict, Tuple
 from django.core.management.base import BaseCommand
+from django.core.management import call_command
 from django.db.models import Q
 from django.utils.text import slugify
 import dotenv
@@ -104,14 +105,10 @@ class Command(BaseCommand):
             self.style.SUCCESS(f"Found {len(crawl_sources)} CrawlSources to process")
         )
 
-        # Create processor and crawler
-        processor = EventProcessor(
-            firecrawl_api_key=api_key,
-            stdout=self.stdout,
-            stderr=self.stderr,
-            dry_run=dry_run,
-        )
+        # Store API key for use in processing methods
+        self.api_key = api_key
 
+        # Create crawler (shared across all sources)
         crawler = EventCrawler(
             firecrawl_api_key=api_key,
             stdout=self.stdout,
@@ -143,11 +140,11 @@ class Command(BaseCommand):
                 # Dispatch based on source type
                 if crawl_source.source_type == "calendar":
                     result = self._update_calendar_source(
-                        crawl_source, processor, crawler, target_year, dry_run
+                        crawl_source, target_year, dry_run
                     )
                 else:
                     result = self._update_series_source(
-                        crawl_source, processor, crawler, target_year, dry_run
+                        crawl_source, crawler, target_year, dry_run
                     )
 
                 if result["success"]:
@@ -300,7 +297,6 @@ class Command(BaseCommand):
     def _update_series_source(
         self,
         crawl_source: CrawlSource,
-        processor: EventProcessor,
         crawler: EventCrawler,
         target_year: int,
         dry_run: bool,
@@ -316,6 +312,15 @@ class Command(BaseCommand):
             Dict with 'success', 'updated', 'not_found', 'created' counts
         """
         result = {"success": False, "updated": 0, "not_found": 0, "created": 0}
+
+        # Create processor for this crawl_source
+        processor = EventProcessor(
+            firecrawl_api_key=self.api_key,
+            stdout=self.stdout,
+            stderr=self.stderr,
+            dry_run=dry_run,
+            crawl_source=crawl_source,
+        )
 
         # Get DB events for this CrawlSource and target year
         db_events = list(
@@ -474,7 +479,8 @@ class Command(BaseCommand):
                         )
                         result["created"] += 1
                     else:
-                        event = self._create_event(extracted, urls, crawl_source)
+                        # Use EventProcessor._save_event_data with crawl_source set
+                        event = processor._save_event_data(extracted, urls)
                         if event:
                             result["created"] += 1
                             self.logger.info(f"Created event {event.id}: {event.name}")
@@ -591,182 +597,54 @@ class Command(BaseCommand):
             self.logger.error(f"Error applying updates to event {event.id}: {str(e)}")
             return False
 
-    def _create_event(
-        self, event_data: Dict, urls: List[str], crawl_source: CrawlSource
-    ) -> Optional[Event]:
-        """
-        Create a new event from extracted data.
-
-        Returns: Created Event or None on failure
-        """
-        from djmoney.money import Money
-        from app.services.geocoding_service import GeocodingService
-
-        try:
-            new_event_data = event_data["event"]
-            races_data = event_data.get("races", [])
-            location_data = event_data.get("location", {})
-
-            # Get or create location
-            location = None
-            if location_data:
-                geocoding_service = GeocodingService()
-                location = geocoding_service.get_or_create_location(
-                    address=location_data.get("address", ""),
-                    body_of_water=location_data.get("body_of_water", ""),
-                )
-
-            # Create the event
-            event = Event.objects.create(
-                name=new_event_data.get("name", "Unknown Event"),
-                slug=slugify(new_event_data.get("name", "unknown-event")),
-                website=new_event_data.get("website", urls[0] if urls else ""),
-                date_start=new_event_data.get("date_start"),
-                date_end=new_event_data.get("date_end"),
-                description=new_event_data.get("description", "") or "",
-                water_temp=new_event_data.get("water_temp"),
-                needs_medical_certificate=new_event_data.get("needs_medical_certificate", False),
-                needs_license=new_event_data.get("needs_license", False),
-                sold_out=new_event_data.get("sold_out", False),
-                cancelled=new_event_data.get("cancelled", False),
-                with_ranking=new_event_data.get("with_ranking", False),
-                location=location,
-                organizer=crawl_source.organizer,
-                crawl_source=crawl_source,
-                source=f"Auto-created via CrawlSource: {urls[0] if urls else crawl_source.homepage_url}"[:200],
-                invisible=False,
-                last_auto_check_at=timezone.now(),
-            )
-
-            # Create races
-            for race_data in races_data:
-                price_info = race_data.get("price") or {}
-                price_amount = price_info.get("amount")
-                price_currency = price_info.get("currency", "EUR")
-
-                race_kwargs = {
-                    "event": event,
-                    "name": race_data["name"],
-                    "date": race_data["date"],
-                    "race_time": race_data.get("race_time"),
-                    "distance": race_data.get("distance"),
-                    "wetsuit": race_data.get("wetsuit"),
-                }
-
-                if price_amount is not None:
-                    race_kwargs["price"] = Money(price_amount, price_currency)
-
-                Race.objects.create(**race_kwargs)
-
-            self.stdout.write(
-                self.style.SUCCESS(f"Created event: {event.name} ({event.date_start})")
-            )
-            return event
-
-        except Exception as e:
-            self.logger.error(f"Error creating event: {str(e)}")
-            return None
-
     def _update_calendar_source(
         self,
         crawl_source: CrawlSource,
-        processor: EventProcessor,
-        crawler: EventCrawler,
         target_year: int,
         dry_run: bool,
     ) -> Dict:
         """
         Process a 'calendar' type CrawlSource.
 
-        Works like --crawl mode: crawls the homepage, filters out existing URLs,
-        and processes each new event independently.
+        Delegates to crawl_events command with --crawl-source option.
+        This handles URL crawling, filtering, and event creation.
 
         Returns:
             Dict with 'success', 'created', 'skipped' counts
         """
         result = {"success": False, "created": 0, "skipped": 0}
 
-        # Crawl the homepage
         self.stdout.write(f"Crawling calendar: {crawl_source.homepage_url}")
         self.logger.info(f"Crawling calendar homepage: {crawl_source.homepage_url}")
 
         try:
-            event_url_sets = crawler.get_event_urls(crawl_source.homepage_url)
+            # Count events before to calculate how many were created
+            events_before = Event.objects.filter(crawl_source=crawl_source).count()
+
+            # Delegate to crawl_events command (uses CrawlSource's homepage_url)
+            call_command(
+                "crawl_events",
+                crawl_source=crawl_source.id,
+                dry_run=dry_run,
+                stdout=self.stdout,
+                stderr=self.stderr,
+            )
+
+            # Count events after
+            events_after = Event.objects.filter(crawl_source=crawl_source).count()
+            result["created"] = events_after - events_before
+
+            # Update last_crawled_at on CrawlSource
+            if not dry_run:
+                crawl_source.last_crawled_at = timezone.now()
+                crawl_source.save(update_fields=["last_crawled_at"])
+
+            result["success"] = True
+
         except Exception as e:
             self.stderr.write(
-                self.style.ERROR(f"Failed to crawl calendar homepage: {str(e)}")
+                self.style.ERROR(f"Failed to crawl calendar: {str(e)}")
             )
-            self.logger.error(f"Failed to crawl calendar homepage: {str(e)}")
-            return result
+            self.logger.error(f"Failed to crawl calendar: {str(e)}")
 
-        if not event_url_sets:
-            self.stdout.write(
-                self.style.WARNING(f"No events found on {crawl_source.homepage_url}")
-            )
-            # Still mark as success since crawl completed
-            result["success"] = True
-            if not dry_run:
-                crawl_source.last_crawled_at = timezone.now()
-                crawl_source.save(update_fields=["last_crawled_at"])
-            return result
-
-        self.stdout.write(
-            self.style.SUCCESS(f"Found {len(event_url_sets)} events on calendar")
-        )
-
-        # Filter out URLs that already exist in the database
-        self.stdout.write("Filtering out URLs that already exist in the database...")
-        filtered_url_sets = URLUtils.filter_existing_url_sets(
-            event_url_sets, stdout=self.stdout, stderr=self.stderr
-        )
-
-        skipped_count = len(event_url_sets) - len(filtered_url_sets)
-        if skipped_count > 0:
-            self.stdout.write(
-                self.style.WARNING(f"Skipping {skipped_count} events that already exist")
-            )
-            result["skipped"] = skipped_count
-
-        if not filtered_url_sets:
-            self.stdout.write(
-                self.style.WARNING("All events already exist in the database")
-            )
-            result["success"] = True
-            if not dry_run:
-                crawl_source.last_crawled_at = timezone.now()
-                crawl_source.save(update_fields=["last_crawled_at"])
-            return result
-
-        self.stdout.write(f"Processing {len(filtered_url_sets)} new events")
-
-        # Process each event URL set
-        for urls in filtered_url_sets:
-            try:
-                if dry_run:
-                    self.stdout.write(
-                        self.style.WARNING(f"[DRY RUN] Would process event: {urls[0]}")
-                    )
-                    result["created"] += 1
-                else:
-                    event = processor.process_event_urls(urls)
-                    if event:
-                        # Link the event to this CrawlSource
-                        event.crawl_source = crawl_source
-                        event.save(update_fields=["crawl_source"])
-                        self.logger.info(
-                            f"Created event {event.id}: {event.name} from {urls[0]}"
-                        )
-                        result["created"] += 1
-                    else:
-                        self.logger.warning(f"Failed to process event from {urls[0]}")
-            except Exception as e:
-                self.logger.error(f"Failed to process event from {urls}: {str(e)}")
-                continue
-
-        # Update last_crawled_at on CrawlSource
-        if not dry_run:
-            crawl_source.last_crawled_at = timezone.now()
-            crawl_source.save(update_fields=["last_crawled_at"])
-
-        result["success"] = True
         return result

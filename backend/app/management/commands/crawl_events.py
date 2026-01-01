@@ -3,6 +3,7 @@ from typing import List
 from django.core.management.base import BaseCommand
 import dotenv
 
+from app.models import CrawlSource
 from app.services.event_processor import EventProcessor
 from app.services.event_crawler import EventCrawler
 from app.utils.url_utils import URLUtils
@@ -39,6 +40,11 @@ class Command(BaseCommand):
             "--file",
             type=str,
             help="Process events from a text file, one URL per line. Each URL will be processed as a separate event.",
+        )
+        mode_group.add_argument(
+            "--crawl-source",
+            type=int,
+            help="CrawlSource ID - crawls the source's homepage_url and associates events with the source",
         )
 
         # Optional arguments
@@ -84,12 +90,37 @@ class Command(BaseCommand):
                 )
             )
 
+        # Look up CrawlSource if provided (used as mode or with --crawl)
+        crawl_source = None
+        crawl_url = options.get("crawl")  # URL from --crawl option
+
+        if options.get("crawl_source"):
+            try:
+                crawl_source = CrawlSource.objects.get(id=options["crawl_source"])
+                self.stdout.write(
+                    self.style.SUCCESS(
+                        f"Using CrawlSource {crawl_source.id}: {crawl_source}"
+                    )
+                )
+                # If --crawl-source is used as mode (not --crawl), use its homepage_url
+                if not crawl_url:
+                    crawl_url = crawl_source.homepage_url
+                    self.stdout.write(f"Crawling URL: {crawl_url}")
+            except CrawlSource.DoesNotExist:
+                self.stderr.write(
+                    self.style.ERROR(
+                        f"CrawlSource with ID {options['crawl_source']} not found"
+                    )
+                )
+                return
+
         processor = EventProcessor(
             firecrawl_api_key=api_key,
             stdout=self.stdout,
             stderr=self.stderr,
             dry_run=dry_run,
             update_existing=update_existing,
+            crawl_source=crawl_source,
         )
 
         if options["event"]:
@@ -115,10 +146,10 @@ class Command(BaseCommand):
         elif options["file"]:
             # Process events from a text file
             self._process_file_events(processor, options["file"])
-        else:
-            # Crawl multiple events mode
+        elif crawl_url:
+            # Crawl multiple events mode (from --crawl or --crawl-source)
             self._crawl_multiple_events(
-                processor, api_key, options["crawl"], limit=options.get("limit")
+                processor, api_key, crawl_url, limit=options.get("limit")
             )
 
     def _process_event_url_sets(
