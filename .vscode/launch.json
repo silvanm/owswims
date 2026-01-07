@@ -53,6 +53,26 @@
             "python": "${workspaceFolder}/backend/.venv/bin/python"
         },
         {
+            "name": "owswims (uvicorn+MCP)",
+            "type": "python",
+            "request": "launch",
+            "module": "uvicorn",
+            "args": [
+                "owswims.asgi:application",
+                "--host", "0.0.0.0",
+                "--port", "8000",
+                "--reload"
+            ],
+            "envFile": "${workspaceFolder}/backend/.env",
+            "env": {
+                "PYTHONUNBUFFERED": "1",
+                "DJANGO_SETTINGS_MODULE": "owswims.settings"
+            },
+            "justMyCode": false,
+            "cwd": "${workspaceFolder}/backend",
+            "python": "${workspaceFolder}/backend/.venv/bin/python"
+        },
+        {
             "name": "migrate",
             "type": "python",
             "request": "launch",
@@ -120,6 +140,15 @@
                 "hidden": false,
                 "group": "OWSwims",
                 "order": 1
+            }
+        },
+        {
+            "name": "Uvicorn + MCP + Q Cluster",
+            "configurations": ["Django Q Cluster", "owswims (uvicorn+MCP)"],
+            "presentation": {
+                "hidden": false,
+                "group": "OWSwims",
+                "order": 2
             }
         }
     ]
