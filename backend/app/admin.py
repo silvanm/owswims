@@ -27,7 +27,37 @@ from . import models
 from .models import Race, Event, Location, Review, ApiToken, EventSubmission, CrawlSource
 from .services.email_service import EmailService
 
+
 admin.site.site_header = ugettext_lazy("Open-Water-Swims Admin")
+
+# Store the original index method
+_original_admin_index = admin.site.index
+
+
+def _custom_admin_index(request, extra_context=None):
+    """Add statistics to the admin index page."""
+    extra_context = extra_context or {}
+
+    # Calculate statistics
+    future_events_count = models.Event.objects.filter(
+        date_start__gte=timezone.now()
+    ).count()
+    organizers_count = models.Organizer.objects.count()
+    organizers_with_accounts = models.Organizer.objects.filter(
+        user__isnull=False
+    ).count()
+
+    extra_context.update({
+        "future_events_count": future_events_count,
+        "organizers_count": organizers_count,
+        "organizers_with_accounts": organizers_with_accounts,
+    })
+
+    return _original_admin_index(request, extra_context=extra_context)
+
+
+# Monkey-patch the admin site's index method
+admin.site.index = _custom_admin_index
 
 
 class HasFutureEventsFilter(admin.SimpleListFilter):
@@ -61,7 +91,7 @@ class OrganizerAdmin(admin.ModelAdmin):
         "last_contact_attempt",
         "email_actions",
     ]
-    readonly_fields = ["public_url", "website_link", "events_link"]
+    readonly_fields = ["public_url", "website_link", "events_link", "claim_status"]
     search_fields = ["name", "website", "internal_comment", "contact_email"]
     list_filter = ("contact_status", "language", HasFutureEventsFilter)
 
@@ -107,6 +137,42 @@ class OrganizerAdmin(admin.ModelAdmin):
 
     events_link.short_description = "View Events"
     events_link.allow_tags = True
+
+    def claim_status(self, obj):
+        """Display whether the organizer account has been claimed."""
+        if obj.user:
+            # Account is claimed - find when
+            claimed_token = obj.claim_tokens.filter(used_at__isnull=False).first()
+            if claimed_token:
+                claimed_date = claimed_token.used_at.strftime("%Y-%m-%d %H:%M")
+                return format_html(
+                    '<span style="color: green;">✓ Claimed on {}</span><br>'
+                    '<small>User: {}</small>',
+                    claimed_date,
+                    obj.user.email or obj.user.username,
+                )
+            else:
+                # User linked but no claim token record (manual linking?)
+                return format_html(
+                    '<span style="color: green;">✓ Claimed</span><br>'
+                    '<small>User: {}</small>',
+                    obj.user.email or obj.user.username,
+                )
+        else:
+            # Not claimed - check if there's a pending token
+            pending_token = obj.claim_tokens.filter(used_at__isnull=True).first()
+            if pending_token:
+                if pending_token.is_valid():
+                    return format_html(
+                        '<span style="color: orange;">⏳ Pending (token sent)</span>'
+                    )
+                else:
+                    return format_html(
+                        '<span style="color: gray;">Token expired</span>'
+                    )
+            return format_html('<span style="color: gray;">Not claimed</span>')
+
+    claim_status.short_description = "Claim Status"
 
     def get_urls(self):
         urls = super().get_urls()
@@ -196,6 +262,12 @@ class OrganizerAdmin(admin.ModelAdmin):
             content = generation_result.body
             quality_warnings = generation_result.quality_warnings
 
+            # Generate claim URL for the organizer
+            claim_url = email_service.get_claim_url(organizer)
+
+            # Build organizer admin URL
+            organizer_admin_url = f"{getattr(settings, 'SITE_URL', 'https://open-water-swims.com')}/organizer-admin/"
+
             form = EmailComposeForm(
                 initial={
                     "subject": subject,
@@ -212,6 +284,8 @@ class OrganizerAdmin(admin.ModelAdmin):
             "has_change_permission": self.has_change_permission(request),
             "quality_warnings": quality_warnings,  # Pass warnings to template
             "media": form.media,  # Ensure media is passed for CKEditor
+            "claim_url": claim_url,
+            "organizer_admin_url": organizer_admin_url,
         }
 
         return render(request, "admin/compose_email.html", context)

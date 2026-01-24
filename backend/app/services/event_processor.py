@@ -261,6 +261,12 @@ Do NOT extract {target_year-1} data - we already have it. Only return data if it
             json_text = strip_json_comments(json_text)
 
             data = json.loads(json_text)
+
+            # Validate that the LLM returned actual event data
+            if data.get("event") is None:
+                logger.info("LLM returned null event data - no valid event found on page")
+                return None
+
             return data
         except json.JSONDecodeError as e:
             logger.error(f"Failed to parse JSON response: {str(e)}")

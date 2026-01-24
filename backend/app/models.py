@@ -17,8 +17,8 @@ import secrets
 
 
 class Location(models.Model):
-    city = models.CharField(max_length=50)
-    water_name = models.CharField(max_length=50, null=True, blank=True)
+    city = models.CharField(max_length=100)
+    water_name = models.CharField(max_length=100, null=True, blank=True)
     water_type = models.CharField(
         max_length=10,
         choices=[
