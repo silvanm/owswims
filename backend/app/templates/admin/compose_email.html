@@ -33,6 +33,42 @@
     </div>
     {% endif %}
 
+    {# Useful Links Section #}
+    <div class="module aligned" style="margin-bottom: 15px;">
+        <h2>Useful Links</h2>
+        <table style="width: 100%;">
+            <tr>
+                <td style="width: 150px;"><strong>Claim URL:</strong></td>
+                <td>
+                    {% if claim_url %}
+                    <code id="claim-url">{{ claim_url }}</code>
+                    <button type="button" onclick="copyToClipboard('claim-url')" class="button" style="margin-left: 10px; padding: 2px 8px;">Copy</button>
+                    {% else %}
+                    <em style="color: #999;">Not available (no contact email)</em>
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <td><strong>Organizer Admin:</strong></td>
+                <td>
+                    <code id="admin-url">{{ organizer_admin_url }}</code>
+                    <button type="button" onclick="copyToClipboard('admin-url')" class="button" style="margin-left: 10px; padding: 2px 8px;">Copy</button>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <script>
+    function copyToClipboard(elementId) {
+        const text = document.getElementById(elementId).innerText;
+        navigator.clipboard.writeText(text).then(() => {
+            // Visual feedback
+            event.target.innerText = 'Copied!';
+            setTimeout(() => { event.target.innerText = 'Copy'; }, 1500);
+        });
+    }
+    </script>
+
     <form method="post" id="email-form">
         {% csrf_token %}
         

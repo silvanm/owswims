@@ -1,6 +1,27 @@
 {% extends "admin/index.html" %}
 {% load i18n %}
 
+{% block content %}
+{# Dashboard Statistics #}
+<div id="dashboard-stats" style="margin-bottom: 20px;">
+    <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+        <div class="module" style="flex: 1; min-width: 200px; padding: 15px;">
+            <h3 style="margin: 0 0 10px 0; color: #666;">{% trans 'Future Events' %}</h3>
+            <p style="font-size: 2em; margin: 0; font-weight: bold;">{{ future_events_count|default:"0" }}</p>
+        </div>
+        <div class="module" style="flex: 1; min-width: 200px; padding: 15px;">
+            <h3 style="margin: 0 0 10px 0; color: #666;">{% trans 'Total Organizers' %}</h3>
+            <p style="font-size: 2em; margin: 0; font-weight: bold;">{{ organizers_count|default:"0" }}</p>
+        </div>
+        <div class="module" style="flex: 1; min-width: 200px; padding: 15px;">
+            <h3 style="margin: 0 0 10px 0; color: #666;">{% trans 'Organizers with Accounts' %}</h3>
+            <p style="font-size: 2em; margin: 0; font-weight: bold;">{{ organizers_with_accounts|default:"0" }}</p>
+        </div>
+    </div>
+</div>
+{{ block.super }}
+{% endblock %}
+
 {% block sidebar %}
 {{ block.super }}
 {% url 'admin:clear_graphql_cache' as clear_cache_url %}

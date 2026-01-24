@@ -86,5 +86,61 @@
     "global_rank": "Globální pořadí",
     "next_year_intro": "Skvělá zpráva! Vaše události pro {year} jsou již zveřejněny na naší platformě:",
     "next_year_check": "Prosím zkontrolujte, že všechny informace jsou správné."
+  },
+  "ja": {
+    "event": "イベント",
+    "date": "日付",
+    "interested_swimmers": "興味のあるスイマー",
+    "global_rank": "世界ランキング",
+    "next_year_intro": "朗報です！あなたの{year}年のイベントがすでに当プラットフォームに公開されています：",
+    "next_year_check": "すべての情報が正しいかご確認ください。"
+  },
+  "sl": {
+    "event": "Dogodek",
+    "date": "Datum",
+    "interested_swimmers": "Zainteresirani plavalci",
+    "global_rank": "Globalna uvrstitev",
+    "next_year_intro": "Odlična novica! Vaši dogodki za leto {year} so že objavljeni na naši platformi:",
+    "next_year_check": "Prosimo, preverite, ali so vse informacije pravilne."
+  },
+  "hr": {
+    "event": "Događaj",
+    "date": "Datum",
+    "interested_swimmers": "Zainteresirani plivači",
+    "global_rank": "Globalni poredak",
+    "next_year_intro": "Sjajne vijesti! Vaši {year} događaji već su objavljeni na našoj platformi:",
+    "next_year_check": "Molimo provjerite jesu li svi podaci točni."
+  },
+  "pl": {
+    "event": "Wydarzenie",
+    "date": "Data",
+    "interested_swimmers": "Zainteresowani pływacy",
+    "global_rank": "Ranking globalny",
+    "next_year_intro": "Świetna wiadomość! Twoje wydarzenia na {year} są już opublikowane na naszej platformie:",
+    "next_year_check": "Prosimy o sprawdzenie, czy wszystkie informacje są poprawne."
+  },
+  "da": {
+    "event": "Begivenhed",
+    "date": "Dato",
+    "interested_swimmers": "Interesserede svømmere",
+    "global_rank": "Global rangliste",
+    "next_year_intro": "Godt nyt! Dine {year} arrangementer er allerede offentliggjort på vores platform:",
+    "next_year_check": "Venligst kontroller, at alle oplysninger er korrekte."
+  },
+  "is": {
+    "event": "Viðburður",
+    "date": "Dagsetning",
+    "interested_swimmers": "Áhugasamir sundmenn",
+    "global_rank": "Alþjóðleg röðun",
+    "next_year_intro": "Frábærar fréttir! {year} viðburðirnir þínir eru þegar komnir á vettvanginn okkar:",
+    "next_year_check": "Vinsamlegast athugaðu að allar upplýsingar séu réttar."
+  },
+  "eu": {
+    "event": "Ekitaldia",
+    "date": "Data",
+    "interested_swimmers": "Interesdun igerilariak",
+    "global_rank": "Sailkapen globala",
+    "next_year_intro": "Berri ona! Zure {year} ekitaldiak gure plataforman argitaratuta daude jada:",
+    "next_year_check": "Mesedez, egiaztatu informazio guztia zuzena dela."
   }
 }
