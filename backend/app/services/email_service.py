@@ -69,6 +69,19 @@ class EmailService:
         # Get or detect language (uses cached value if available)
         language = self.get_or_detect_language(organizer)
 
+        # Determine portal link based on account status
+        has_account = organizer.user is not None
+        portal_url = None
+
+        if has_account:
+            # Organizer already has an account - link to admin portal
+            portal_url = f"{getattr(settings, 'SITE_URL', 'https://open-water-swims.com')}/organizer-admin/"
+        else:
+            # No account - generate claim link
+            claim_token = self.get_or_create_claim_token(organizer)
+            if claim_token:
+                portal_url = f"{getattr(settings, 'SITE_URL', 'https://open-water-swims.com')}/claim/{claim_token.token}/"
+
         first_event_location_info = "N/A"
         if events.exists():
             first_event = events.first()
@@ -125,6 +138,57 @@ class EmailService:
             )
 
         system_prompt = f"You are a helpful assistant. First, perform data quality checks and report findings **in English** in 'quality_warnings'. Second, generate professional email content ('subject', 'body') in the requested language based on the guidelines. Respond strictly in the required JSON format matching the EmailGenerationResult model."
+
+        # Add portal link instruction if we have a URL
+        if portal_url:
+            if language == 'de':
+                if has_account:
+                    portal_instruction = (
+                        "\n\nWICHTIG: Füge am Ende der E-Mail einen "
+                        "freundlichen Hinweis ein, dass der Veranstalter "
+                        f"seine Events im Portal verwalten kann: {portal_url}"
+                    )
+                else:
+                    portal_instruction = (
+                        "\n\nWICHTIG: Füge am Ende der E-Mail einen "
+                        "freundlichen Hinweis ein, dass der Veranstalter "
+                        "sein Profil unter folgendem Link beanspruchen "
+                        "und seine Events verwalten kann: "
+                        f"{portal_url}"
+                    )
+            elif language == 'fr':
+                if has_account:
+                    portal_instruction = (
+                        "\n\nIMPORTANT: Ajoute à la fin de l'e-mail une "
+                        "invitation amicale à gérer les événements sur "
+                        f"le portail: {portal_url}"
+                    )
+                else:
+                    portal_instruction = (
+                        "\n\nIMPORTANT: Ajoute à la fin de l'e-mail une "
+                        "invitation amicale à revendiquer le profil et "
+                        f"gérer les événements: {portal_url}"
+                    )
+            else:  # English (default fallback for all other languages)
+                if has_account:
+                    portal_instruction = (
+                        "\n\nIMPORTANT: End the email with a friendly "
+                        "reminder that they can manage their events at "
+                        f"the portal: {portal_url}"
+                    )
+                else:
+                    portal_instruction = (
+                        "\n\nIMPORTANT: End the email with a friendly "
+                        "invitation to claim their profile and manage "
+                        f"their events at: {portal_url}"
+                    )
+
+            system_prompt += portal_instruction
+            system_prompt += (
+                "\n\nMake this feel natural and integrated - not like an "
+                "afterthought. The link should be properly formatted as an "
+                "HTML link."
+            )
 
         try:
             email_result = self.llm_service.parse_completion(
