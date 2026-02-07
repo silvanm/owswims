@@ -62,6 +62,14 @@ export default async function ({ route, app, store }) {
     store.commit('submitEventBoxShown', true)
   }
 
+  // Handle /info/<tab> path to open info pane with specific tab
+  const infoMatch = route.path.match(
+    /\/info\/(help|organizers|contributors|imprint)\/?$/
+  )
+  if (infoMatch) {
+    store.commit('activeInfoTab', infoMatch[1])
+  }
+
   // add function to disable event-pane + define zoom level
   const eventSlug = getEventFromRequest()
   if (eventSlug) {

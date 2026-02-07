@@ -36,6 +36,19 @@ def sitemap(request):
         alternates={code: urljoin("/", code) for code in other_languages},
     )
 
+    # Info pages
+    info_tabs = ["help", "organizers", "contributors", "imprint"]
+    for tab in info_tabs:
+        url = f"/en/info/{tab}"
+        sitemap.add(
+            url,
+            changefreq="yearly",
+            priority=0.3,
+            alternates={
+                code: f"/{code}/info/{tab}" for code in other_languages
+            },
+        )
+
     # Eventpages
     events = models.Event.objects.filter(date_start__gte=datetime.now())
     for event in events:
