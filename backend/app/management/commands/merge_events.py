@@ -171,10 +171,12 @@ class Command(BaseCommand):
 
                 while choice not in choices:
                     choice_str = click.prompt(
-                        "\nWhich event would you like to keep? (enter number)",
+                        "\nWhich event would you like to keep? (enter number, or 's' to skip)",
                         type=str,
                         default=str(default_choice),
                     )
+                    if choice_str.lower() == 's':
+                        break
                     try:
                         choice = int(choice_str)
                         if choice not in choices:
@@ -185,8 +187,14 @@ class Command(BaseCommand):
                             )
                     except ValueError:
                         self.stdout.write(
-                            self.style.ERROR("Please enter a valid number")
+                            self.style.ERROR("Please enter a valid number or 's' to skip")
                         )
+
+                if choice not in choices:
+                    self.stdout.write(
+                        self.style.WARNING("Skipping this group of events.")
+                    )
+                    continue
 
                 keep_event = events[choice - 1]
                 delete_events = [e for i, e in enumerate(events) if i != choice - 1]
