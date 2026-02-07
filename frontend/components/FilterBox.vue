@@ -182,7 +182,30 @@ export default {
       showCalendar: false,
     }
   },
+  computed: {
+    activeInfoTab() {
+      return this.$store.getters.activeInfoTab
+    },
+  },
+  mounted() {
+    if (this.activeInfoTab) {
+      this.expandedPane = 'info'
+      this.filterCollapsed = false
+    }
+  },
   watch: {
+    activeInfoTab(tab) {
+      if (tab) {
+        this.expandedPane = 'info'
+        this.filterCollapsed = false
+      }
+    },
+    expandedPane(newPane, oldPane) {
+      if (oldPane === 'info' && newPane !== 'info') {
+        this.$store.commit('activeInfoTab', null)
+        this.$urlHistory.push({}, '/')
+      }
+    },
     distanceRange(newRange, oldRange) {
       // if the slider is at the upper edge, then don't have a limit
       if (newRange[1] === distanceRangeMax) {
@@ -228,6 +251,8 @@ export default {
     },
     clickInfoCircle() {
       this.expandedPane = 'info'
+      this.$store.commit('activeInfoTab', 'help')
+      this.$urlHistory.push({}, '/info/help')
       this.$gtag('event', 'clickInfoCircle')
     },
     updateDateRange(range) {

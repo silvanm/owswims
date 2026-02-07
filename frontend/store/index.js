@@ -26,6 +26,7 @@ export const state = () => ({
   pageTitle: null,
   reviewBoxShown: false,
   submitEventBoxShown: false,
+  activeInfoTab: null,
 })
 
 export const mutations = {
@@ -117,6 +118,9 @@ export const mutations = {
   submitEventBoxShown(s, submitEventBoxShown) {
     s.submitEventBoxShown = submitEventBoxShown
   },
+  activeInfoTab(s, tab) {
+    s.activeInfoTab = tab
+  },
 }
 
 export const getters = {
@@ -194,6 +198,9 @@ export const getters = {
   },
   submitEventBoxShown(s) {
     return s.submitEventBoxShown
+  },
+  activeInfoTab(s) {
+    return s.activeInfoTab
   },
 }
 

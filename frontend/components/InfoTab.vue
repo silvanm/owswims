@@ -64,7 +64,7 @@
     <div v-if="activeTab === 'imprint'" id="imprint">
       <p>
         Silvan Mühlemann<br />
-        c/o Mühlemann&Popp Online Media AG<br />
+        c/o mühlemann+popp AG<br />
         Limmatquai 122<br />
         8001 Zürich<br />
         +41 78 714 14 78<br />
@@ -80,9 +80,19 @@
 export default {
   data() {
     return {
-      activeTab: 'help',
       release: process.env.ciCommitSHA,
     }
+  },
+  computed: {
+    activeTab: {
+      get() {
+        return this.$store.getters.activeInfoTab || 'help'
+      },
+      set(tab) {
+        this.$store.commit('activeInfoTab', tab)
+        this.$urlHistory.push({}, '/info/' + tab)
+      },
+    },
   },
 }
 </script>
