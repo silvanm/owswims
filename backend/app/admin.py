@@ -12,7 +12,7 @@ from django.shortcuts import render, redirect
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.utils import timezone
-from django.utils.translation import ugettext_lazy
+from django.utils.translation import gettext_lazy
 from django_admin_listfilter_dropdown.filters import RelatedDropdownFilter
 from model_clone import CloneModelAdmin
 from django_q.tasks import async_task, result
@@ -28,7 +28,7 @@ from .models import Race, Event, Location, Review, ApiToken, EventSubmission, Cr
 from .services.email_service import EmailService
 
 
-admin.site.site_header = ugettext_lazy("Open-Water-Swims Admin")
+admin.site.site_header = gettext_lazy("Open-Water-Swims Admin")
 
 # Store the original index method
 _original_admin_index = admin.site.index

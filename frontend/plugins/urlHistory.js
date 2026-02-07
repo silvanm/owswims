@@ -5,7 +5,7 @@ function encodeQueryData(data) {
   return ret.join('&')
 }
 
-export default ({ app }, inject) => {
+export default ({ app, store }, inject) => {
   inject('urlHistory', {
     push(query = {}, path = null) {
       if (path !== null) {
@@ -21,4 +21,18 @@ export default ({ app }, inject) => {
       history.pushState({}, '', path + '?' + encodeQueryData(queryVar))
     },
   })
+
+  // Handle browser back/forward for /info/<tab> URLs
+  if (process.client) {
+    window.addEventListener('popstate', () => {
+      const infoMatch = window.location.pathname.match(
+        /\/info\/(help|organizers|contributors|imprint)\/?$/
+      )
+      if (infoMatch) {
+        store.commit('activeInfoTab', infoMatch[1])
+      } else {
+        store.commit('activeInfoTab', null)
+      }
+    })
+  }
 }
