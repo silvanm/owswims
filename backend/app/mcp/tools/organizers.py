@@ -97,8 +97,6 @@ async def get_organizer(ctx: Context, organizer_id: int) -> dict:
                 "internal_comment": org.internal_comment,
                 "last_contact_attempt": str(org.last_contact_attempt)
                 if org.last_contact_attempt else None,
-                "marketing_email_sent_at": str(org.marketing_email_sent_at)
-                if org.marketing_email_sent_at else None,
                 "has_user_account": org.user is not None,
                 "total_events": total_events,
                 "upcoming_events": upcoming_events,
