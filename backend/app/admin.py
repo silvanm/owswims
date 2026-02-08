@@ -5,7 +5,7 @@ import requests
 from django import forms
 from django.conf import settings
 from django.contrib import admin
-from django.db.models import TextField
+from django.db.models import Q, TextField
 from django.forms import Textarea
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect
@@ -77,6 +77,34 @@ class HasFutureEventsFilter(admin.SimpleListFilter):
             return queryset.exclude(events__date_start__gte=timezone.now()).distinct()
 
 
+class NeedsEventNotificationFilter(admin.SimpleListFilter):
+    title = "needs event notification"
+    parameter_name = "needs_notification"
+
+    def lookups(self, request, model_admin):
+        return (
+            ("yes", "Yes"),
+            ("no", "No"),
+        )
+
+    def queryset(self, request, queryset):
+        from datetime import timedelta
+
+        one_year_ago = timezone.now() - timedelta(days=365)
+        has_future_events = Q(events__date_start__gte=timezone.now())
+        not_recently_contacted = Q(last_contact_attempt__isnull=True) | Q(
+            last_contact_attempt__lt=one_year_ago
+        )
+        if self.value() == "yes":
+            return queryset.filter(has_future_events).filter(
+                not_recently_contacted
+            ).distinct()
+        if self.value() == "no":
+            return queryset.exclude(
+                has_future_events & not_recently_contacted
+            ).distinct()
+
+
 @admin.register(models.Organizer)
 class OrganizerAdmin(admin.ModelAdmin):
     prepopulated_fields = {"slug": ("name",)}
@@ -93,7 +121,7 @@ class OrganizerAdmin(admin.ModelAdmin):
     ]
     readonly_fields = ["public_url", "website_link", "events_link", "claim_status"]
     search_fields = ["name", "website", "internal_comment", "contact_email"]
-    list_filter = ("contact_status", "language", HasFutureEventsFilter)
+    list_filter = ("contact_status", "language", HasFutureEventsFilter, NeedsEventNotificationFilter)
 
     def public_url(self, obj):
         if obj.slug:

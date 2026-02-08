@@ -107,11 +107,6 @@ class Organizer(models.Model):
     )
     last_contact_attempt = models.DateTimeField(null=True, blank=True)
     contact_notes = models.TextField(max_length=1000, blank=True, default="")
-    marketing_email_sent_at = models.DateTimeField(
-        null=True,
-        blank=True,
-        help_text="Last time a marketing email was sent to this organizer",
-    )
     language = models.CharField(
         max_length=5,
         null=True,

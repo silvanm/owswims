@@ -1,10 +1,10 @@
 import logging
 import os
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 
 from django.conf import settings
 from django.core.management.base import BaseCommand
-from django.db.models import Sum
+from django.db.models import Q, Sum
 
 from app.models import Organizer, Event
 from app.services.email_service import EmailService
@@ -15,8 +15,8 @@ logger = logging.getLogger(__name__)
 class Command(BaseCommand):
     help = (
         "Send marketing emails to organizers showing their events' analytics. "
-        "Duplicate prevention: organizers are skipped if already emailed "
-        "(tracked via marketing_email_sent_at). Use --force to resend."
+        "Duplicate prevention: organizers are skipped if emailed within the "
+        "last 6 months (tracked via last_contact_attempt). Use --force to resend."
     )
 
     def add_arguments(self, parser):
@@ -115,9 +115,14 @@ class Command(BaseCommand):
                 events__date_start__year=year,
             ).distinct()
 
-            # Exclude already-emailed unless force
+            # Exclude recently-emailed unless force
+            # Allow re-sending if last email was more than 6 months ago
             if not force:
-                organizers = organizers.filter(marketing_email_sent_at__isnull=True)
+                six_months_ago = datetime.now() - timedelta(days=180)
+                organizers = organizers.filter(
+                    Q(last_contact_attempt__isnull=True)
+                    | Q(last_contact_attempt__lt=six_months_ago)
+                )
 
         # Order by name for consistent output
         organizers = organizers.order_by("name")
