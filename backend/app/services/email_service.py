@@ -708,8 +708,8 @@ class EmailService:
 
             # Update tracking field (only if not a test email)
             if not test_email:
-                organizer.marketing_email_sent_at = timezone.now()
-                organizer.save(update_fields=["marketing_email_sent_at"])
+                organizer.last_contact_attempt = timezone.now()
+                organizer.save(update_fields=["last_contact_attempt"])
 
             log(f"  Email sent successfully to {recipient}")
 
