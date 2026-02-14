@@ -174,8 +174,8 @@ class ClaimToken(models.Model):
         """Check if token is still valid (not used, not expired)."""
         if self.used_at:
             return False
-        # Token expires after 30 days
-        return (timezone.now() - self.created_at).days < 30
+        # Token expires after 365 days
+        return (timezone.now() - self.created_at).days < 365
 
     def __str__(self):
         status = "used" if self.used_at else ("valid" if self.is_valid() else "expired")

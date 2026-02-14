@@ -260,9 +260,9 @@ msgid "Link Expired"
 msgstr "リンクの有効期限切れ"
 
 #: app/templates/claim/invalid_token.html:107
-msgid "This claim link has expired. Claim links are valid for 30 days."
+msgid "This claim link has expired. Claim links are valid for one year."
 msgstr ""
-"この申請リンクの有効期限が切れています。申請リンクの有効期間は30日間です。"
+"この申請リンクの有効期限が切れています。申請リンクの有効期間は1年間です。"
 
 #: app/templates/claim/invalid_token.html:108
 msgid "Please contact us to request a new link."
