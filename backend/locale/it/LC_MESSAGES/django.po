@@ -266,10 +266,10 @@ msgid "Link Expired"
 msgstr "Link scaduto"
 
 #: app/templates/claim/invalid_token.html:107
-msgid "This claim link has expired. Claim links are valid for 30 days."
+msgid "This claim link has expired. Claim links are valid for one year."
 msgstr ""
 "Questo link di rivendicazione è scaduto. I link di rivendicazione sono "
-"validi per 30 giorni."
+"validi per un anno."
 
 #: app/templates/claim/invalid_token.html:108
 msgid "Please contact us to request a new link."
