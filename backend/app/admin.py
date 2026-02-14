@@ -772,7 +772,23 @@ class EventSubmissionAdmin(admin.ModelAdmin):
     list_editable = ("status",)
     date_hierarchy = "created_at"
     ordering = ("-created_at",)
-    actions = ["mark_as_processed", "mark_as_rejected"]
+    actions = ["crawl_selected_submissions", "mark_as_processed", "mark_as_rejected"]
+
+    def crawl_selected_submissions(self, request, queryset):
+        count = 0
+        for submission in queryset:
+            async_task(
+                "app.tasks.crawl_single_event_async",
+                url=submission.url,
+                hook="app.tasks_hooks.crawl_single_event_hook",
+            )
+            count += 1
+        queryset.update(status="processed", processed_at=timezone.now())
+        self.message_user(
+            request, f"{count} submission(s) queued for crawling."
+        )
+
+    crawl_selected_submissions.short_description = "Crawl selected submissions"
 
     def mark_as_processed(self, request, queryset):
         updated = queryset.update(status="processed", processed_at=timezone.now())
