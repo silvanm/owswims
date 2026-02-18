@@ -24,7 +24,7 @@ from ckeditor.widgets import CKEditorWidget
 from django_google_maps import widgets as map_widgets
 from django_google_maps import fields as map_fields
 from . import models
-from .models import Race, Event, Location, Review, ApiToken, EventSubmission, CrawlSource
+from .models import Race, Event, Location, Review, ApiToken, EventSubmission, CrawlSource, Organizer
 from .services.email_service import EmailService
 
 
@@ -122,6 +122,156 @@ class OrganizerAdmin(admin.ModelAdmin):
     readonly_fields = ["public_url", "website_link", "events_link", "claim_status"]
     search_fields = ["name", "website", "internal_comment", "contact_email"]
     list_filter = ("contact_status", "language", HasFutureEventsFilter, NeedsEventNotificationFilter)
+    actions = ["merge_selected_organizers"]
+
+    def merge_selected_organizers(self, request, queryset):
+        from django.db import transaction
+
+        organizers = list(queryset.order_by("name"))
+
+        if len(organizers) < 2:
+            self.message_user(
+                request,
+                "Please select at least 2 organizers to merge.",
+                level=messages.WARNING,
+            )
+            return
+
+        # On confirmation POST, perform the merge
+        if request.POST.get("confirm_merge"):
+            primary_id = request.POST.get("primary_organizer")
+            if not primary_id:
+                self.message_user(
+                    request,
+                    "Please select a primary organizer.",
+                    level=messages.WARNING,
+                )
+                return
+
+            primary = Organizer.objects.get(pk=primary_id)
+            secondaries = [o for o in organizers if o.pk != primary.pk]
+
+            events_moved = 0
+            locations_moved = 0
+            crawl_sources_moved = 0
+            claim_tokens_moved = 0
+            users_unlinked = []
+
+            with transaction.atomic():
+                for secondary in secondaries:
+                    # Reassign events
+                    count = Event.objects.filter(organizer=secondary).update(
+                        organizer=primary
+                    )
+                    events_moved += count
+
+                    # Reassign locations
+                    count = Location.objects.filter(
+                        created_by_organizer=secondary
+                    ).update(created_by_organizer=primary)
+                    locations_moved += count
+
+                    # Reassign crawl sources (handle unique_together)
+                    for cs in secondary.crawl_sources.all():
+                        if CrawlSource.objects.filter(
+                            homepage_url=cs.homepage_url, organizer=primary
+                        ).exists():
+                            # Duplicate — reassign events from this source, then delete it
+                            cs.events.update(
+                                crawl_source=CrawlSource.objects.get(
+                                    homepage_url=cs.homepage_url, organizer=primary
+                                )
+                            )
+                            cs.delete()
+                        else:
+                            cs.organizer = primary
+                            cs.save()
+                            crawl_sources_moved += 1
+
+                    # Reassign claim tokens
+                    count = secondary.claim_tokens.update(organizer=primary)
+                    claim_tokens_moved += count
+
+                    # Fill empty fields on primary from secondary
+                    for field in [
+                        "contact_email",
+                        "contact_form_url",
+                        "logo",
+                        "language",
+                        "website",
+                    ]:
+                        primary_val = getattr(primary, field)
+                        secondary_val = getattr(secondary, field)
+                        if not primary_val and secondary_val:
+                            setattr(primary, field, secondary_val)
+
+                    # Append internal_comment
+                    if secondary.internal_comment:
+                        attribution = f"\n\n--- Merged from {secondary.name} (ID {secondary.pk}) ---\n"
+                        primary.internal_comment = (
+                            primary.internal_comment + attribution + secondary.internal_comment
+                        )
+
+                    # Append contact_notes
+                    if secondary.contact_notes:
+                        attribution = f"\n\n--- Merged from {secondary.name} (ID {secondary.pk}) ---\n"
+                        primary.contact_notes = (
+                            primary.contact_notes + attribution + secondary.contact_notes
+                        )
+
+                    # Unlink user account on secondary
+                    if secondary.user:
+                        users_unlinked.append(
+                            f"{secondary.user.username} (from {secondary.name})"
+                        )
+                        secondary.user = None
+                        secondary.save()
+
+                    secondary.delete()
+
+                primary.save()
+
+            msg = (
+                f"Merged {len(secondaries)} organizer(s) into '{primary.name}'. "
+                f"Moved: {events_moved} events, {locations_moved} locations, "
+                f"{crawl_sources_moved} crawl sources, {claim_tokens_moved} claim tokens."
+            )
+            if users_unlinked:
+                msg += f" Unlinked user accounts: {', '.join(users_unlinked)}."
+            self.message_user(request, msg, level=messages.SUCCESS)
+            return HttpResponseRedirect(
+                reverse("admin:app_organizer_changelist")
+            )
+
+        # Initial request — show intermediate confirmation page
+        organizer_data = []
+        for org in organizers:
+            organizer_data.append({
+                "obj": org,
+                "event_count": org.events.count(),
+                "location_count": org.created_locations.count(),
+                "crawl_source_count": org.crawl_sources.count(),
+                "has_user": org.user is not None,
+                "user_info": (
+                    org.user.email or org.user.username
+                ) if org.user else None,
+            })
+
+        # Pre-select organizer with most events
+        recommended = max(organizer_data, key=lambda x: x["event_count"])
+
+        context = {
+            **self.admin_site.each_context(request),
+            "title": "Merge Organizers",
+            "organizer_data": organizer_data,
+            "recommended_id": recommended["obj"].pk,
+            "opts": self.model._meta,
+            "action_checkbox_name": admin.helpers.ACTION_CHECKBOX_NAME,
+            "media": self.media,
+        }
+        return render(request, "admin/merge_organizers.html", context)
+
+    merge_selected_organizers.short_description = "Merge selected organizers"
 
     def public_url(self, obj):
         if obj.slug:
