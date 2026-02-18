@@ -68,6 +68,9 @@ INSTALLED_APPS = [
 # Default primary key field type
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+# Silence known system check warnings from third-party packages
+SILENCED_SYSTEM_CHECKS = ["ckeditor.W001"]
+
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
