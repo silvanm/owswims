@@ -18,6 +18,9 @@ async def list_locations(
     city: Optional[str] = None,
     water_type: Optional[str] = None,
     search: Optional[str] = None,
+    lat: Optional[float] = None,
+    lng: Optional[float] = None,
+    radius_km: Optional[float] = None,
 ) -> List[dict]:
     """
     List locations with optional filtering.
@@ -28,13 +31,18 @@ async def list_locations(
         country: Filter by country code (e.g., 'CH', 'DE')
         city: Filter by city name (partial match)
         water_type: Filter by water type (river, sea, lake, pool)
-        search: Search in city and water_name fields
+        search: Fuzzy search in city and water_name fields (e.g. "zurich see" finds "Zürichsee")
+        lat: Latitude for coordinate search (requires lng and radius_km)
+        lng: Longitude for coordinate search (requires lat and radius_km)
+        radius_km: Search radius in kilometers (requires lat and lng)
 
     Returns:
-        List of location objects
+        List of location objects, sorted by distance when coordinate search is used
     """
     from app.models import Location
     from django.db.models import Q
+
+    from app.mcp.utils import fuzzy_rank, haversine_km
 
     @sync_to_async
     def fetch_locations():
@@ -54,11 +62,22 @@ async def list_locations(
                 Q(city__icontains=search) | Q(water_name__icontains=search)
             )
 
-        limit_capped = min(limit, 100)
-        qs = qs.order_by('city')[offset:offset + limit_capped]
+        # Coordinate bounding-box pre-filter
+        geo_search = (lat is not None and lng is not None
+                      and radius_km is not None)
+        if geo_search:
+            qs = qs.filter(lat__isnull=False, lng__isnull=False)
+            # Rough bounding box to narrow candidates (~1 degree ≈ 111 km)
+            delta = radius_km / 111.0
+            qs = qs.filter(
+                lat__gte=lat - delta, lat__lte=lat + delta,
+                lng__gte=lng - delta, lng__lte=lng + delta,
+            )
 
-        return [
-            {
+        limit_capped = min(limit, 100)
+
+        def _serialize(loc, distance=None):
+            result = {
                 "id": loc.id,
                 "city": loc.city,
                 "country": str(loc.country),
@@ -69,8 +88,34 @@ async def list_locations(
                 "address": loc.address,
                 "average_rating": loc.average_rating,
             }
-            for loc in qs
-        ]
+            if distance is not None:
+                result["distance_km"] = round(distance, 1)
+            return result
+
+        if geo_search:
+            # Precise haversine filter + sort by distance
+            candidates = list(qs[:2000])
+            with_dist = []
+            for loc in candidates:
+                d = haversine_km(lat, lng, loc.lat, loc.lng)
+                if d <= radius_km:
+                    with_dist.append((d, loc))
+            with_dist.sort(key=lambda x: x[0])
+            return [
+                _serialize(loc, distance=d)
+                for d, loc in with_dist[offset:offset + limit_capped]
+            ]
+        elif search:
+            candidates = list(qs[:500])
+            ranked = fuzzy_rank(
+                candidates,
+                lambda loc: f"{loc.city} {loc.water_name or ''}",
+                search,
+            )
+            return [_serialize(loc) for loc in ranked[offset:offset + limit_capped]]
+        else:
+            qs = qs.order_by('city')[offset:offset + limit_capped]
+            return [_serialize(loc) for loc in qs]
 
     return await fetch_locations()
 
@@ -314,6 +359,8 @@ async def search_locations(
 
     @sync_to_async
     def do_search():
+        from app.mcp.utils import fuzzy_rank
+
         qs = Location.objects.filter(
             Q(city__icontains=query) | Q(water_name__icontains=query)
         )
@@ -321,8 +368,78 @@ async def search_locations(
         if country:
             qs = qs.filter(country=country.upper())
 
+        candidates = list(qs[:500])
         limit_capped = min(limit, 50)
-        qs = qs.order_by('city')[:limit_capped]
+        ranked = fuzzy_rank(
+            candidates,
+            lambda loc: f"{loc.city} {loc.water_name or ''}",
+            query,
+        )
+        return [
+            {
+                "id": loc.id,
+                "city": loc.city,
+                "country": str(loc.country),
+                "water_name": loc.water_name,
+                "water_type": loc.water_type,
+                "display": str(loc),
+            }
+            for loc in ranked[:limit_capped]
+        ]
+
+    return await do_search()
+
+
+@mcp.tool
+async def search_locations_by_coordinates(
+    ctx: Context,
+    lat: float,
+    lng: float,
+    radius_km: float = 50.0,
+    water_type: Optional[str] = None,
+    limit: int = 20,
+) -> List[dict]:
+    """
+    Search locations near a geographic point. Returns locations within
+    the given radius, sorted by distance (closest first).
+
+    Args:
+        lat: Latitude of the center point (required)
+        lng: Longitude of the center point (required)
+        radius_km: Search radius in kilometers (default 50)
+        water_type: Filter by water type (river, sea, lake, pool)
+        limit: Maximum results (default 20, max 50)
+
+    Returns:
+        List of matching locations with distance_km field
+    """
+    from app.models import Location
+
+    from app.mcp.utils import haversine_km
+
+    @sync_to_async
+    def do_search():
+        qs = Location.objects.filter(lat__isnull=False, lng__isnull=False)
+
+        if water_type:
+            qs = qs.filter(water_type=water_type)
+
+        # Bounding box pre-filter (~1 degree ≈ 111 km)
+        delta = radius_km / 111.0
+        qs = qs.filter(
+            lat__gte=lat - delta, lat__lte=lat + delta,
+            lng__gte=lng - delta, lng__lte=lng + delta,
+        )
+
+        candidates = list(qs[:2000])
+        limit_capped = min(limit, 50)
+
+        with_dist = []
+        for loc in candidates:
+            d = haversine_km(lat, lng, loc.lat, loc.lng)
+            if d <= radius_km:
+                with_dist.append((d, loc))
+        with_dist.sort(key=lambda x: x[0])
 
         return [
             {
@@ -331,9 +448,12 @@ async def search_locations(
                 "country": str(loc.country),
                 "water_name": loc.water_name,
                 "water_type": loc.water_type,
-                "display": str(loc),  # Uses __str__ method
+                "lat": loc.lat,
+                "lng": loc.lng,
+                "distance_km": round(d, 1),
+                "display": str(loc),
             }
-            for loc in qs
+            for d, loc in with_dist[:limit_capped]
         ]
 
     return await do_search()

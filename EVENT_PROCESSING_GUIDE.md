@@ -278,15 +278,29 @@ python manage.py fetch_analytics --year 2026
 # Preview marketing emails
 python manage.py send_marketing_emails --year 2026 --dry-run
 
-# Send (skips already-emailed organizers)
+# Send (skips recently-emailed organizers)
 python manage.py send_marketing_emails --year 2026
 
 # Test with your own email
 python manage.py send_marketing_emails --year 2026 --test-email silvan@open-water-swims.com --organizer-id 123
+
+# Force resend to all (ignore 6-month cooldown)
+python manage.py send_marketing_emails --year 2026 --force
 ```
+
+**Duplicate prevention:** Organizers who received a marketing email within the last 6 months are automatically skipped. After 6 months, they become eligible again for the next campaign. Use `--force` to bypass this cooldown.
+
+**Email variants:**
+- **high_views** (>100 interested swimmers): Detailed table with "Interested Swimmers" and "Global Rank" columns
+- **low_views** (<=100): Simpler message focusing on platform reach
+
+**Features:**
+- Auto-detects organizer language and translates email + table headers (cached via LLM)
+- Shows next year's events if already published (e.g., 2027 events in a 2026 campaign)
+- Includes organizer portal claim link for managing their events
 
 Note: `--year` defaults to the current year. In January, you typically want `--year` set to the previous year (where the analytics data is).
 
 ---
 
-*Last updated: 2026-02-07 | git: e85d18a*
+*Last updated: 2026-02-07 | git: 757c1ff*

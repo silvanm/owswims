@@ -1,3 +1,4 @@
+from datetime import date
 from enum import Enum
 import os
 import json
@@ -437,7 +438,7 @@ class Command(BaseCommand):
 
             # Add English queries for all countries
             for keyword in keywords:
-                search_queries.append(f"{keyword} {country} 2025")
+                search_queries.append(f"{keyword} {country} {date.today().year}")
 
             # Add local language queries
             for language in country_data["languages"]:
@@ -446,7 +447,9 @@ class Command(BaseCommand):
 
                 if language in translated_keywords:
                     for keyword in translated_keywords[language]:
-                        search_queries.append(f"{keyword} {country} 2025")
+                        search_queries.append(
+                            f"{keyword} {country} {date.today().year}"
+                        )
 
         return search_queries
 
@@ -521,7 +524,7 @@ class Command(BaseCommand):
             You are an expert at analyzing websites related to open water swimming events.
             Your task is to determine if a webpage is related to open water swimming _events_ and classify it.
 
-            Analyze this webpage content and determine if it's related to open water swimming events in 2025 or later.
+            Analyze this webpage content and determine if it's related to open water swimming events in {date.today().year} or later.
             
             Content:
             {content} 
@@ -537,8 +540,11 @@ class Command(BaseCommand):
                 "event_type": "single"/"multiple"/"unknown",
                 "explanation": "your brief explanation here"
             }}
+
+            Swim vacation with no fixed dayte (e.g. SwimTrek) do not qualify as valid events.
             
-            Only classify as valid if it's clearly related to open water swimming events (not pool swimming, not general sports).
+            Only classify as valid if it's clearly related to open water swimming events
+            (not pool swimming, not general sports, no swim vacations).
             """
 
             # Get completion from LLM

@@ -24,13 +24,15 @@ async def list_organizers(
     Args:
         limit: Maximum number of organizers to return (default 50, max 100)
         offset: Number of organizers to skip for pagination
-        search: Search in organizer name
+        search: Fuzzy search in organizer name (e.g. "swiss aquatic" finds fuzzy matches)
         has_upcoming_events: Filter to organizers with upcoming events
 
     Returns:
         List of organizer objects
     """
     from app.models import Organizer
+
+    from app.mcp.utils import fuzzy_rank
 
     @sync_to_async
     def fetch_organizers():
@@ -44,10 +46,9 @@ async def list_organizers(
             qs = qs.filter(events__date_start__gte=datetime.now()).distinct()
 
         limit_capped = min(limit, 100)
-        qs = qs.order_by('name')[offset:offset + limit_capped]
 
-        return [
-            {
+        def _serialize(org):
+            return {
                 "id": org.id,
                 "name": org.name,
                 "website": org.website,
@@ -56,8 +57,17 @@ async def list_organizers(
                 "language": org.language,
                 "contact_status": org.contact_status,
             }
-            for org in qs
-        ]
+
+        if search:
+            candidates = list(qs[:500])
+            ranked = fuzzy_rank(candidates, lambda org: org.name, search)
+            return [
+                _serialize(org)
+                for org in ranked[offset:offset + limit_capped]
+            ]
+        else:
+            qs = qs.order_by('name')[offset:offset + limit_capped]
+            return [_serialize(org) for org in qs]
 
     return await fetch_organizers()
 
@@ -298,11 +308,13 @@ async def search_organizers(
 
     @sync_to_async
     def do_search():
+        from app.mcp.utils import fuzzy_rank
+
         qs = Organizer.objects.filter(name__icontains=query)
 
+        candidates = list(qs[:500])
         limit_capped = min(limit, 50)
-        qs = qs.order_by('name')[:limit_capped]
-
+        ranked = fuzzy_rank(candidates, lambda org: org.name, query)
         return [
             {
                 "id": org.id,
@@ -310,7 +322,7 @@ async def search_organizers(
                 "website": org.website,
                 "slug": org.slug,
             }
-            for org in qs
+            for org in ranked[:limit_capped]
         ]
 
     return await do_search()

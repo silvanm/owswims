@@ -22,6 +22,7 @@ async def list_races(
     date_to: Optional[str] = None,
     distance_min: Optional[float] = None,
     distance_max: Optional[float] = None,
+    search: Optional[str] = None,
 ) -> List[dict]:
     """
     List races with optional filtering.
@@ -34,11 +35,15 @@ async def list_races(
         date_to: Filter races on or before this date (YYYY-MM-DD)
         distance_min: Minimum distance in km
         distance_max: Maximum distance in km
+        search: Fuzzy search in race name and event name (e.g. "zurich" finds "Zürich")
 
     Returns:
         List of race objects with event info
     """
     from app.models import Race
+    from django.db.models import Q
+
+    from app.mcp.utils import fuzzy_rank
 
     @sync_to_async
     def fetch_races():
@@ -63,11 +68,15 @@ async def list_races(
         if distance_max is not None:
             qs = qs.filter(distance__lte=distance_max)
 
-        limit_capped = min(limit, 100)
-        qs = qs.order_by('date', 'race_time')[offset:offset + limit_capped]
+        if search:
+            qs = qs.filter(
+                Q(name__icontains=search) | Q(event__name__icontains=search)
+            )
 
-        return [
-            {
+        limit_capped = min(limit, 100)
+
+        def _serialize(r):
+            return {
                 "id": r.id,
                 "event_id": r.event_id,
                 "event_name": r.event.name,
@@ -83,10 +92,74 @@ async def list_races(
                     if r.event.location else None,
                 },
             }
-            for r in qs
-        ]
+
+        if search:
+            candidates = list(qs[:500])
+            ranked = fuzzy_rank(
+                candidates,
+                lambda r: f"{r.name or ''} {r.event.name}",
+                search,
+            )
+            return [_serialize(r) for r in ranked[offset:offset + limit_capped]]
+        else:
+            qs = qs.order_by('date', 'race_time')[offset:offset + limit_capped]
+            return [_serialize(r) for r in qs]
 
     return await fetch_races()
+
+
+@mcp.tool
+async def search_races(
+    ctx: Context,
+    query: str,
+    limit: int = 20,
+) -> List[dict]:
+    """
+    Search races by name or event name with fuzzy matching.
+
+    Args:
+        query: Search query (required)
+        limit: Maximum results (default 20, max 50)
+
+    Returns:
+        List of matching races sorted by relevance
+    """
+    from app.models import Race
+    from django.db.models import Q
+
+    from app.mcp.utils import fuzzy_rank
+
+    @sync_to_async
+    def do_search():
+        qs = Race.objects.select_related('event', 'event__location').filter(
+            Q(name__icontains=query) | Q(event__name__icontains=query)
+        )
+
+        candidates = list(qs[:500])
+        limit_capped = min(limit, 50)
+        ranked = fuzzy_rank(
+            candidates,
+            lambda r: f"{r.name or ''} {r.event.name}",
+            query,
+        )
+        return [
+            {
+                "id": r.id,
+                "event_id": r.event_id,
+                "event_name": r.event.name,
+                "date": str(r.date),
+                "distance": r.distance,
+                "name": r.name,
+                "location": {
+                    "city": r.event.location.city if r.event.location else None,
+                    "country": str(r.event.location.country)
+                    if r.event.location else None,
+                },
+            }
+            for r in ranked[:limit_capped]
+        ]
+
+    return await do_search()
 
 
 @mcp.tool
