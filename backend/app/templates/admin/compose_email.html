@@ -71,24 +71,37 @@
 
     <form method="post" id="email-form">
         {% csrf_token %}
-        
+
+        <div class="module aligned" style="margin-bottom: 15px;">
+            <h2>Additional prompt</h2>
+            <div class="form-row">
+                <div>
+                    <label for="id_prompt">Additional instructions for email generation:</label>
+                    {{ form.prompt }}
+                </div>
+            </div>
+            <div class="submit-row" style="overflow: visible;">
+                <input type="submit" value="Generate" name="_generate" class="button">
+            </div>
+        </div>
+
         <div class="module aligned">
             <h2>{{ title }}</h2>
-            
+
             <div class="form-row">
                 <div>
                     <label for="id_to_email">To:</label>
                     {{ form.to_email }}
                 </div>
             </div>
-            
+
             <div class="form-row">
                 <div>
                     <label for="id_subject">Subject:</label>
                     {{ form.subject }}
                 </div>
             </div>
-            
+
             <div class="form-row">
                 <div>
                     <label for="id_content">Content:</label>
@@ -96,7 +109,7 @@
                 </div>
             </div>
         </div>
-        
+
         <div class="submit-row">
             <input type="submit" value="Send" class="default" name="_send">
             <input type="submit" value="Send and Next" name="_send_and_next" style="margin-left: 5px;">
