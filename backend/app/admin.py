@@ -216,8 +216,26 @@ class OrganizerAdmin(admin.ModelAdmin):
     def compose_email(self, request, organizer_id):
         organizer = models.Organizer.objects.get(id=organizer_id)
         email_service = EmailService()
+        quality_warnings = []
 
-        if request.method == "POST":
+        if request.method == "POST" and "_generate" in request.POST:
+            # Regenerate email content with optional prompt extension
+            prompt_extension = request.POST.get("prompt", "").strip() or None
+            generation_result = email_service.generate_email_content(
+                organizer, prompt_extension=prompt_extension
+            )
+            quality_warnings = generation_result.quality_warnings
+
+            form = EmailComposeForm(
+                initial={
+                    "prompt": request.POST.get("prompt", ""),
+                    "subject": generation_result.subject,
+                    "content": generation_result.body,
+                    "to_email": request.POST.get("to_email", organizer.contact_email),
+                }
+            )
+
+        elif request.method == "POST":
             form = EmailComposeForm(request.POST)
             if form.is_valid():
                 success = email_service.send_email(
@@ -286,23 +304,21 @@ class OrganizerAdmin(admin.ModelAdmin):
         else:
             # Generate initial content and perform quality check
             generation_result = email_service.generate_email_content(organizer)
-            subject = generation_result.subject
-            content = generation_result.body
             quality_warnings = generation_result.quality_warnings
-
-            # Generate claim URL for the organizer
-            claim_url = email_service.get_claim_url(organizer)
-
-            # Build organizer admin URL
-            organizer_admin_url = f"{getattr(settings, 'SITE_URL', 'https://open-water-swims.com')}/organizer-admin/"
 
             form = EmailComposeForm(
                 initial={
-                    "subject": subject,
-                    "content": content,
+                    "subject": generation_result.subject,
+                    "content": generation_result.body,
                     "to_email": organizer.contact_email,
                 }
             )
+
+        # Generate claim URL for the organizer
+        claim_url = email_service.get_claim_url(organizer)
+
+        # Build organizer admin URL
+        organizer_admin_url = f"{getattr(settings, 'SITE_URL', 'https://open-water-swims.com')}/organizer-admin/"
 
         context = {
             "title": f"Compose Email to {organizer.name}",
@@ -310,8 +326,8 @@ class OrganizerAdmin(admin.ModelAdmin):
             "organizer": organizer,
             "opts": self.model._meta,
             "has_change_permission": self.has_change_permission(request),
-            "quality_warnings": quality_warnings,  # Pass warnings to template
-            "media": form.media,  # Ensure media is passed for CKEditor
+            "quality_warnings": quality_warnings,
+            "media": form.media,
             "claim_url": claim_url,
             "organizer_admin_url": organizer_admin_url,
         }
@@ -735,6 +751,16 @@ class EventAdmin(CloneModelAdmin):
 
 
 class EmailComposeForm(forms.Form):
+    prompt = forms.CharField(
+        required=False,
+        label="Additional prompt",
+        widget=forms.Textarea(
+            attrs={
+                "style": "width: 90%; height: 80px;",
+                "placeholder": "E.g. paste a previous conversation, adjust tone, add specific details...",
+            }
+        ),
+    )
     subject = forms.CharField(
         max_length=200,
         required=True,
