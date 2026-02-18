@@ -15,10 +15,9 @@ Including another URLconf
 """
 
 from django.conf import settings
-from django.conf.urls import url
 from django.conf.urls.static import static
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, re_path
 from django.views.decorators.csrf import csrf_exempt
 from django_sitemaps import robots_txt
 from app.views import index, sitemap, claim_organizer
@@ -31,7 +30,7 @@ urlpatterns = [
     path("organizer-admin/", organizer_admin_site.urls),
     path("claim/<str:token>/", claim_organizer, name="claim_organizer"),
     path("graphql", csrf_exempt(GraphQLView.as_view(graphiql=True))),
-    url(r"^sitemap\.xml$", sitemap),
-    url(r"^robots\.txt$", robots_txt(timeout=86400)),
-    url(r"^.*/$", index, name="index"),
+    re_path(r"^sitemap\.xml$", sitemap),
+    re_path(r"^robots\.txt$", robots_txt(timeout=86400)),
+    re_path(r"^.*/$", index, name="index"),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
