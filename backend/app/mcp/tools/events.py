@@ -19,6 +19,7 @@ async def list_events(
     date_from: Optional[str] = None,
     date_to: Optional[str] = None,
     organizer_id: Optional[int] = None,
+    search: Optional[str] = None,
     include_invisible: bool = False,
     include_cancelled: bool = True,
 ) -> List[dict]:
@@ -32,6 +33,7 @@ async def list_events(
         date_from: Filter events starting on or after this date (YYYY-MM-DD)
         date_to: Filter events starting on or before this date (YYYY-MM-DD)
         organizer_id: Filter by organizer ID
+        search: Fuzzy search in event name and description (e.g. "zurich" finds "Zürich")
         include_invisible: Include hidden events (default False)
         include_cancelled: Include cancelled events (default True)
 
@@ -39,6 +41,9 @@ async def list_events(
         List of event objects with id, name, dates, location, and organizer info
     """
     from app.models import Event
+    from django.db.models import Q
+
+    from app.mcp.utils import fuzzy_rank
 
     @sync_to_async
     def fetch_events():
@@ -66,17 +71,21 @@ async def list_events(
         if organizer_id:
             qs = qs.filter(organizer_id=organizer_id)
 
-        limit_capped = min(limit, 100)
-        qs = qs.order_by('date_start')[offset:offset + limit_capped]
+        if search:
+            qs = qs.filter(
+                Q(name__icontains=search) | Q(description__icontains=search)
+            )
 
-        return [
-            {
+        limit_capped = min(limit, 100)
+
+        def _serialize(e):
+            return {
                 "id": e.id,
                 "name": e.name,
                 "date_start": str(e.date_start),
                 "date_end": str(e.date_end),
                 "website": e.website or "",
-                "description": (e.description or "")[:200],  # Truncate for list
+                "description": (e.description or "")[:200],
                 "cancelled": e.cancelled or False,
                 "invisible": e.invisible or False,
                 "location": {
@@ -90,8 +99,19 @@ async def list_events(
                     "name": e.organizer.name,
                 } if e.organizer else None,
             }
-            for e in qs
-        ]
+
+        if search:
+            # Fetch broader set for fuzzy ranking
+            candidates = list(qs[:500])
+            ranked = fuzzy_rank(
+                candidates,
+                lambda e: f"{e.name} {e.description or ''}",
+                search,
+            )
+            return [_serialize(e) for e in ranked[offset:offset + limit_capped]]
+        else:
+            qs = qs.order_by('date_start')[offset:offset + limit_capped]
+            return [_serialize(e) for e in qs]
 
     return await fetch_events()
 
@@ -339,6 +359,70 @@ async def update_event(
         }
 
     return await do_update()
+
+
+@mcp.tool
+async def search_events(
+    ctx: Context,
+    query: str,
+    country: Optional[str] = None,
+    limit: int = 20,
+) -> List[dict]:
+    """
+    Search events by name with fuzzy matching (e.g. "zurich" finds "Zürich").
+
+    Args:
+        query: Search query (required)
+        country: Filter by country code
+        limit: Maximum results (default 20, max 50)
+
+    Returns:
+        List of matching events sorted by relevance
+    """
+    from app.models import Event
+    from django.db.models import Q
+
+    from app.mcp.utils import fuzzy_rank
+
+    @sync_to_async
+    def do_search():
+        qs = Event.objects.select_related('location', 'organizer').filter(
+            Q(name__icontains=query) | Q(description__icontains=query)
+        )
+
+        if country:
+            qs = qs.filter(location__country=country.upper())
+
+        candidates = list(qs[:500])
+        limit_capped = min(limit, 50)
+        ranked = fuzzy_rank(
+            candidates,
+            lambda e: f"{e.name} {e.description or ''}",
+            query,
+        )
+        return [
+            {
+                "id": e.id,
+                "name": e.name,
+                "date_start": str(e.date_start),
+                "date_end": str(e.date_end),
+                "website": e.website or "",
+                "cancelled": e.cancelled or False,
+                "location": {
+                    "id": e.location.id,
+                    "city": e.location.city,
+                    "country": str(e.location.country),
+                    "water_name": e.location.water_name,
+                } if e.location else None,
+                "organizer": {
+                    "id": e.organizer.id,
+                    "name": e.organizer.name,
+                } if e.organizer else None,
+            }
+            for e in ranked[:limit_capped]
+        ]
+
+    return await do_search()
 
 
 @mcp.tool

@@ -32,7 +32,7 @@ Edit this application always in VS Code. Not in PyCharm anymore.
 
 2. Install dependencies:
    ```
-   pip install -r requirements.txt
+   uv sync
    ```
 
 3. Run migrations:
