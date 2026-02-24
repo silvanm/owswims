@@ -86,6 +86,33 @@ def sitemap(request):
     )
 
 
+def organizer_stats(request):
+    """Return organizer statistics, optionally filtered by country."""
+    country = request.GET.get('country', '')
+
+    if country:
+        # Filter organizers by country through their events' locations
+        organizers = models.Organizer.objects.raw(
+            "SELECT * FROM app_organizer WHERE id IN "
+            "(SELECT DISTINCT organizer_id FROM app_event "
+            "WHERE location_id IN (SELECT id FROM app_location WHERE country = '%s'))" % country
+        )
+    else:
+        organizers = models.Organizer.objects.all()
+
+    results = []
+    for org in organizers:
+        event_count = org.event_set.count()
+        results.append({
+            'name': org.name,
+            'email': org.contact_email,
+            'website': org.website,
+            'event_count': event_count,
+        })
+
+    return JsonResponse({'organizers': results})
+
+
 def claim_organizer(request, token):
     """
     View for organizers to claim their profile by setting a password.
