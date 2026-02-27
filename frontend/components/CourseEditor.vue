@@ -56,7 +56,7 @@ export default {
       'Click on the map to add waypoints. Double-click to save the track. Drag to move the map.'
     )
   },
-  beforeDestroy() {
+  beforeUnmount() {
     this.drawingManager.setMap(null)
   },
   methods: {
