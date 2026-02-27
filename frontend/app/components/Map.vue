@@ -44,7 +44,7 @@
           placement: 'left',
         }"
         class="map-button"
-        style="padding: 9px 9px 9px 11px"
+        style=""
       >
         <button class="text-gray-600" @click="seeAll">
           <FontAwesomeIcon icon="expand-arrows-alt" size="2x" />
@@ -88,7 +88,7 @@
 </template>
 
 <script setup>
-import { ref, watch, onMounted } from 'vue'
+import { ref, shallowRef, watch, onMounted, markRaw } from 'vue'
 import gql from 'graphql-tag'
 import { MarkerClusterer } from '@googlemaps/markerclusterer'
 import { debounce } from 'lodash-es'
@@ -121,6 +121,7 @@ const route = useRoute()
 const config = useRuntimeConfig()
 const { gtag } = useGtag()
 const { $apollo } = useNuxtApp()
+const urlHistory = useUrlHistory()
 
 const {
   formatEventDate,
@@ -142,7 +143,7 @@ const pickedLocationIdLocal = ref('TG9jYXRpb25Ob2RlOjE4NTg=')
 const pickedLocation = ref(null)
 const travelTimes = ref({})
 const formattedTravelDistance = ref('')
-const map = ref(null)
+const map = shallowRef(null)
 const raceTrackOverlays = ref({})
 let markerCluster = null
 let myLocationMarker = null
@@ -181,11 +182,11 @@ watch(
         strokeColor: '#fff',
         scale: 0.25,
       }
-      myLocationMarker = new google.maps.Marker({
+      myLocationMarker = markRaw(new google.maps.Marker({
         icon,
         position: newLocation.latlng,
         map: map.value,
-      })
+      }))
     }
   }
 )
@@ -314,7 +315,7 @@ async function initMap() {
     center = { lat: 47.3474476, lng: 8.6733976 }
   }
 
-  map.value = new google.maps.Map(document.getElementById('map'), {
+  map.value = markRaw(new google.maps.Map(document.getElementById('map'), {
     center,
     zoom: route.query.zoom ? parseInt(route.query.zoom) : 5,
     disableDefaultUI: false,
@@ -326,7 +327,7 @@ async function initMap() {
       style: google.maps.MapTypeControlStyle.HORIZONTAL_BAR,
       position: google.maps.ControlPosition.TOP_RIGHT,
     },
-  })
+  }))
 
   map.value.controls[google.maps.ControlPosition.RIGHT].push(
     centerButtonEl.value
@@ -444,7 +445,8 @@ function updateMarker() {
   })
 
   if (markerCluster) {
-    markerCluster.clearMarkers()
+    markerCluster.setMap(null)
+    markerCluster = null
   }
 
   for (const id of Object.keys(marker.value)) {
@@ -461,23 +463,23 @@ function updateMarker() {
       ? Math.round(location.averageRating)
       : 0
 
-    const markerObj = new google.maps.Marker({
+    const markerObj = markRaw(new google.maps.Marker({
       icon: markerPin(ratingForMarker),
       position: location,
-      map: map.value,
       title: location.name,
       shape: { coords: [0, 0, 28, 70 / 2], type: 'rect' },
-    })
+    }))
 
     locationIdToMarker.value[location.id] = markerObj
 
-    markerObj.addListener('click', () => {
+    markerObj.addListener('click', async () => {
       store.pickedLocationId = location.id
       emit('locationPicked')
       gtag('event', 'locationPicked', location.id)
       pickedLocationIdLocal.value = location.id
       pickedLocation.value = location
       infowindow.close()
+      await store.fetchPickedLocationData(location.id)
       calculateDistance(location, () => {
         formattedTravelDistance.value = getFormattedTravelDistance(
           location,
@@ -493,6 +495,33 @@ function updateMarker() {
   markerCluster = new MarkerClusterer({
     map: map.value,
     markers: Object.values(marker.value),
+    renderer: {
+      render({ count, position }) {
+        const size = Math.min(30 + Math.floor(count / 5) * 2, 50)
+        const svg = window.btoa(`
+          <svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
+            <circle cx="${size / 2}" cy="${size / 2}" r="${size / 2}" fill="#006eba" opacity="0.3"/>
+            <circle cx="${size / 2}" cy="${size / 2}" r="${size / 2 - 4}" fill="#006eba" opacity="0.5"/>
+            <circle cx="${size / 2}" cy="${size / 2}" r="${size / 2 - 8}" fill="#006eba"/>
+          </svg>
+        `)
+        return new google.maps.Marker({
+          position,
+          icon: {
+            url: `data:image/svg+xml;base64,${svg}`,
+            scaledSize: new google.maps.Size(size, size),
+            anchor: new google.maps.Point(size / 2, size / 2),
+          },
+          label: {
+            text: String(count),
+            color: 'white',
+            fontSize: '12px',
+            fontWeight: 'bold',
+          },
+          zIndex: Number(google.maps.Marker.MAX_ZINDEX) + count,
+        })
+      },
+    },
   })
 }
 
@@ -565,7 +594,7 @@ function centerChanged() {
     const query = {}
     query.lat = map.value.getCenter().lat()
     query.lng = map.value.getCenter().lng()
-    useUrlHistory().push(query, null)
+    urlHistory.push(query, null)
   }
 }
 
@@ -574,7 +603,7 @@ function zoomChanged() {
     raceTrackOverlays.value[raceId].label.setVisible(isLabelVisible())
   }
   const query = { zoom: map.value.getZoom() }
-  useUrlHistory().push(query, null)
+  urlHistory.push(query, null)
 }
 
 function drawRaceTrackOverlays(locationData) {
@@ -794,7 +823,9 @@ body {
   margin: 10px;
   height: 40px;
   width: 40px;
-  padding: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
   button:focus {
     outline: none;

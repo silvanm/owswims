@@ -2,33 +2,15 @@
   <ClientOnly fallback-tag="span" fallback="Loading...">
     <div>
       <div v-if="!showCalendar" class="pl-4 pr-4 pb-8">
-        <!-- Dual range slider replacing vue-slider-component -->
-        <div class="relative pt-6 pb-2">
-          <div class="flex justify-between text-xs text-gray-500 mb-2">
-            <span>{{ tooltipFormatter(min) }}</span>
-            <span>{{ tooltipFormatter(max) }}</span>
-          </div>
-          <div class="flex items-center gap-2">
-            <span class="text-xs whitespace-nowrap">{{ tooltipFormatter(dateRangeRelative[0]) }}</span>
-            <input
-              type="range"
-              :min="min"
-              :max="max"
-              :value="dateRangeRelative[0]"
-              class="w-full"
-              @input="onFromChange($event.target.value)"
-            />
-            <input
-              type="range"
-              :min="min"
-              :max="max"
-              :value="dateRangeRelative[1]"
-              class="w-full"
-              @input="onToChange($event.target.value)"
-            />
-            <span class="text-xs whitespace-nowrap">{{ tooltipFormatter(dateRangeRelative[1]) }}</span>
-          </div>
-        </div>
+        <VueSlider
+          v-model="dateRangeRelative"
+          :dot-size="25"
+          :marks="marksFormatter"
+          :min="-1"
+          :max="11"
+          :tooltip-formatter="tooltipFormatter"
+          @change="changeSlider"
+        />
       </div>
       <div v-if="showCalendar" class="pb-8">
         <VueDatePicker
@@ -48,6 +30,8 @@
 <script>
 import { addMonths, format } from 'date-fns'
 import { de, enUS, fr, it, ru, es, ja } from 'date-fns/locale'
+import VueSlider from 'vue-slider-component'
+import 'vue-slider-component/theme/default.css'
 import { VueDatePicker } from '@vuepic/vue-datepicker'
 import '@vuepic/vue-datepicker/dist/main.css'
 
@@ -55,7 +39,7 @@ const localeMap = { en: enUS, de, fr, it, ru, es, ja }
 
 export default {
   name: 'DaterangeSlider',
-  components: { VueDatePicker },
+  components: { VueSlider, VueDatePicker },
   props: {
     showCalendar: {
       type: Boolean,
@@ -69,15 +53,13 @@ export default {
   },
   data() {
     return {
-      min: -1,
-      max: 11,
       dateRangeRelative: [-1, 11],
       dateRange: [null, null],
     }
   },
   computed: {
     currentLocale() {
-      return this.locale || 'en'
+      return localeMap[this.locale] || enUS
     },
   },
   mounted() {
@@ -88,19 +70,17 @@ export default {
       const d = addMonths(new Date(), val)
       return format(d, 'LLL yyyy', { locale: localeMap[this.locale] || enUS })
     },
-    onFromChange(val) {
-      const v = parseInt(val)
-      if (v < this.dateRangeRelative[1]) {
-        this.dateRangeRelative = [v, this.dateRangeRelative[1]]
-        this.updateDateRangeFromRelative()
+    marksFormatter(val) {
+      if (val % 3 === 0) {
+        const d = addMonths(new Date(), val)
+        return {
+          label: format(d, 'LLL yyyy', { locale: localeMap[this.locale] || enUS }),
+        }
       }
+      return false
     },
-    onToChange(val) {
-      const v = parseInt(val)
-      if (v > this.dateRangeRelative[0]) {
-        this.dateRangeRelative = [this.dateRangeRelative[0], v]
-        this.updateDateRangeFromRelative()
-      }
+    changeSlider() {
+      this.updateDateRangeFromRelative()
     },
     updateDateRangeFromRelative() {
       const today = new Date()

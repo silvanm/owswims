@@ -305,7 +305,7 @@ const isClosed = ref(false)
 const isSliddenUp = ref(false)
 const showLightbox = ref(false)
 const activeEventIndex = ref(0)
-const eventPaneStyle = ref({})
+const eventPaneStyle = ref({ visibility: 'hidden' })
 const showsReviews = ref(false)
 
 const pickedEvent = computed(() => {
@@ -355,16 +355,19 @@ function updateEventPaneStyle() {
   if (device.isMobile()) {
     if (isSliddenUp.value) {
       eventPaneStyle.value = {
+        visibility: 'visible',
         top: window.innerHeight - containerEl.value.clientHeight + 'px',
       }
     } else {
       const height = device.isSmall() ? 120 : 160
       eventPaneStyle.value = {
+        visibility: 'visible',
         top: window.innerHeight - height + 'px',
       }
     }
   } else {
     eventPaneStyle.value = {
+      visibility: 'visible',
       maxHeight:
         (window.innerHeight - containerEl.value.offsetTop - 20).toString() +
         'px',
