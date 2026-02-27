@@ -98,11 +98,11 @@
         </h2>
         <div id="race-distance-slider" class="pl-4 pr-4 pb-5">
           <ClientOnly>
-            <vue-slider
+            <VueSlider
               v-model="distanceRangeLocal"
               :marks="rangeSliderMarks()"
               :tooltip-formatter="(val) => `${val}km`"
-              dot-size="25"
+              :dot-size="25"
               :min="0"
               :max="30"
             />
@@ -151,6 +151,8 @@
 
 <script setup>
 import { ref, watch, onMounted } from 'vue'
+import VueSlider from 'vue-slider-component'
+import 'vue-slider-component/theme/default.css'
 
 const { t } = useI18n()
 const store = useMainStore()
@@ -233,6 +235,7 @@ function clickOptionalSearchParamsButton() {
 }
 
 function clickEnvelope() {
+  filterCollapsed.value = false
   expandedPane.value = 'contact'
   gtag('event', 'clickEnvelope')
 }

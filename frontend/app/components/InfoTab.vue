@@ -86,8 +86,7 @@ export default {
   setup() {
     const store = useMainStore()
     const authStore = useAuthStore()
-    const router = useRouter()
-    return { store, authStore, router }
+    return { store, authStore }
   },
   data() {
     return {
@@ -102,7 +101,7 @@ export default {
   methods: {
     setTab(tab) {
       this.store.activeInfoTab = tab
-      this.router.push('/info/' + tab)
+      useUrlHistory().push({}, '/info/' + tab)
     },
   },
 }

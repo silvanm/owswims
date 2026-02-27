@@ -1,6 +1,7 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
-import { addMonths } from 'date-fns'
+import { addMonths, formatISO } from 'date-fns'
+import gql from 'graphql-tag'
 
 export const useMainStore = defineStore('main', () => {
   // State
@@ -61,6 +62,86 @@ export const useMainStore = defineStore('main', () => {
     isAccurate.value = data.isAccurate
   }
 
+  async function fetchPickedLocationData(locationId) {
+    pickedLocationData.value = null
+    const { $apollo } = useNuxtApp()
+    const result = await $apollo.query({
+      fetchPolicy: 'no-cache',
+      query: gql`
+        query ($dateFrom: Date!, $dateTo: Date!, $locationId: ID!) {
+          location(id: $locationId) {
+            id
+            country
+            city
+            headerPhoto
+            lat
+            lng
+            waterType
+            waterName
+            averageRating
+          }
+          allEvents(dateFrom: $dateFrom, dateTo: $dateTo, location: $locationId) {
+            edges {
+              node {
+                id
+                slug
+                name
+                dateStart
+                dateEnd
+                flyerImage
+                website
+                description
+                needsMedicalCertificate
+                needsLicense
+                soldOut
+                cancelled
+                withRanking
+                waterTemp
+                organizer {
+                  name
+                  website
+                  logo
+                }
+                reviews {
+                  edges {
+                    node {
+                      id
+                      createdAt
+                      rating
+                      comment
+                      country
+                      name
+                    }
+                  }
+                }
+                races {
+                  edges {
+                    node {
+                      id
+                      distance
+                      date
+                      raceTime
+                      name
+                      wetsuit
+                      priceValue
+                      coordinates
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      `,
+      variables: {
+        locationId,
+        dateFrom: formatISO(dateRange.value[0], { representation: 'date' }),
+        dateTo: formatISO(dateRange.value[1], { representation: 'date' }),
+      },
+    })
+    pickedLocationData.value = result.data
+  }
+
   return {
     // State
     lat,
@@ -96,5 +177,6 @@ export const useMainStore = defineStore('main', () => {
     // Actions
     locateMe,
     setMylocation,
+    fetchPickedLocationData,
   }
 })

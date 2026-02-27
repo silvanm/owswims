@@ -72,7 +72,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, shallowRef, onMounted } from 'vue'
 import gql from 'graphql-tag'
 import { useQuery } from '@vue/apollo-composable'
 import { formatISO } from 'date-fns'
@@ -127,20 +127,23 @@ const queryVariables = computed(() => ({
   organizerId: store.organizerData ? store.organizerData.id : '',
 }))
 
-const { result: locationsResult } = useQuery(LOCATIONS_QUERY, queryVariables, {
-  debounce: 200,
-})
+const { result: locationsResult } = useQuery(LOCATIONS_QUERY, queryVariables)
 
-const locationsFiltered = computed(
-  () => locationsResult.value?.locationsFiltered ?? null
-)
+const previousLocations = shallowRef(null)
+const locationsFiltered = computed(() => {
+  const current = locationsResult.value?.locationsFiltered
+  if (current) {
+    previousLocations.value = current
+  }
+  return current ?? previousLocations.value
+})
 
 // Google Maps script injection
 useHead({
   title: computed(() => store.pageTitle ?? t('pageTitle')),
   script: [
     {
-      src: `https://maps.googleapis.com/maps/api/js?key=${config.public.googleMapsKey}&libraries=drawing&v=beta&loading=async&callback=initGoogleMaps`,
+      src: `https://maps.googleapis.com/maps/api/js?key=${config.public.googleMapsKey}&libraries=drawing&callback=initGoogleMaps`,
       async: true,
       defer: true,
     },
