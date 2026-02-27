@@ -36,7 +36,7 @@ async function translate() {
       'x-rapidapi-host': 'google-api31.p.rapidapi.com',
     },
     data: {
-      text: textToTranslate.value.innerHTML,
+      text: textToTranslate.value?.textContent ?? '',
       to: locale.value,
       from_lang: '',
     },
@@ -46,7 +46,7 @@ async function translate() {
     const response = await axios.request(options)
     console.log('Translation response:', response.data)
     if (response.data && response.data.translated_text) {
-      textToTranslate.value.innerHTML = response.data.translated_text
+      textToTranslate.value.textContent = response.data.translated_text
       translationDone.value = true
       console.log('Translation completed')
     } else {
