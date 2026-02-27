@@ -329,10 +329,10 @@ async function initMap() {
     },
   }))
 
-  map.value.controls[google.maps.ControlPosition.RIGHT].push(
+  map.value.controls[google.maps.ControlPosition.RIGHT_CENTER].push(
     centerButtonEl.value
   )
-  map.value.controls[google.maps.ControlPosition.RIGHT].push(
+  map.value.controls[google.maps.ControlPosition.RIGHT_CENTER].push(
     seeAllButtonEl.value
   )
   map.value.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(
@@ -611,7 +611,7 @@ function drawRaceTrackOverlays(locationData) {
     event.node.races.edges.forEach((race) => {
       if (
         race.node.coordinates &&
-        race.node.coordinates.length > 0 &&
+        race.node.coordinates.length > 1 &&
         !(race.node.id in raceTrackOverlays.value)
       ) {
         const coordinateObj = race.node.coordinates
