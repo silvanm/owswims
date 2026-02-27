@@ -69,6 +69,7 @@
               <a
                 :href="event.node.website"
                 target="_blank"
+                rel="noopener noreferrer"
                 class="font-semibold"
                 >{{ event.node.name }}
                 <FontAwesomeIcon icon="external-link-square-alt" />

@@ -17,11 +17,13 @@ const calculateDistance = function (
 
   if (requestedDestinations.length === 0) {
     callback()
+    return
   }
 
   // only calculate if we have position via browser - and not via IP
   if (!store.getters.mylocation.isAccurate) {
     callback()
+    return
   }
 
   // this would allow calculating travel distance for both driving and train
