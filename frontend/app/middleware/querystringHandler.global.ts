@@ -36,7 +36,10 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
         slug: organizerSlug,
       },
     })
-    store.organizerData = result.data.allOrganizers.edges[0].node
+    const edges = result.data.allOrganizers.edges
+    if (edges && edges.length > 0) {
+      store.organizerData = edges[0].node
+    }
   }
 
   if (to.query.embedded) {
@@ -95,7 +98,9 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
         slug: eventSlug,
       },
     })
-    store.pickedLocationZoomedIn =
-      result.data.allEvents.edges[0].node.location.id
+    const edges = result.data.allEvents.edges
+    if (edges && edges.length > 0) {
+      store.pickedLocationZoomedIn = edges[0].node.location.id
+    }
   }
 })

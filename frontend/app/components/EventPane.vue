@@ -50,6 +50,7 @@
                 class="text-blue-300"
                 :href="getDirectionsUrl(store.pickedLocationData.location)"
                 target="_blank"
+                rel="noopener noreferrer"
               >
                 {{ t('directions') }}
               </a>
@@ -84,6 +85,7 @@
             v-if="pickedEvent.node.website"
             :href="pickedEvent.node.website"
             target="_blank"
+            rel="noopener noreferrer"
           >
             {{ pickedEvent.node.name }}
             <FontAwesomeIcon icon="external-link-square-alt" />
@@ -104,6 +106,7 @@
             class="event-icon"
             :href="getAdminEditUrl(pickedEvent.node.id)"
             target="_blank"
+            rel="noopener noreferrer"
             @click="trackAdminEdit"
           >
             <FontAwesomeIcon icon="edit" />
@@ -147,6 +150,7 @@
                 v-if="pickedEvent.node.organizer.website"
                 :href="pickedEvent.node.organizer.website"
                 target="_blank"
+                rel="noopener noreferrer"
               >
                 <div
                   v-if="pickedEvent.node.organizer.logo && !useDevice().isMobile()"
@@ -330,7 +334,7 @@ watch(
 )
 
 watch(activeEventIndex, () => {
-  store.focusedEventId = pickedEvent.value.node
+  store.focusedEventId = pickedEvent.value.node.id
   window.setTimeout(() => updateEventPaneStyle(), 100)
 })
 

@@ -60,10 +60,12 @@ async function send() {
       }, 2000)
     } else {
       sendButtonMessage.value = t('sendButtonFailed')
+      sendButtonDisabled.value = false
     }
   } catch (e) {
     console.error('Contact form send error:', e)
     sendButtonMessage.value = t('sendButtonFailed')
+    sendButtonDisabled.value = false
   }
 }
 </script>

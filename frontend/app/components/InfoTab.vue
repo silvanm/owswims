@@ -86,7 +86,8 @@ export default {
   setup() {
     const store = useMainStore()
     const authStore = useAuthStore()
-    return { store, authStore }
+    const urlHistory = useUrlHistory()
+    return { store, authStore, urlHistory }
   },
   data() {
     return {
@@ -101,7 +102,7 @@ export default {
   methods: {
     setTab(tab) {
       this.store.activeInfoTab = tab
-      useUrlHistory().push({}, '/info/' + tab)
+      this.urlHistory.push({}, '/info/' + tab)
     },
   },
 }
