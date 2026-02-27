@@ -4,7 +4,7 @@ Open Water Swims (OWSwims) is a web application designed to help open water swim
 
 ## Development Environment
 
-Edit this application always in VS Code. Not in PyCharm anymore.
+Edit this application always in VS Code. Not in PyCharm anymore!
 
 ## Getting Started
 
