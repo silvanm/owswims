@@ -864,28 +864,25 @@ Most remaining components are simple and primarily need:
 
 Before starting the migration, the following decisions should be made:
 
-### 15.1 TypeScript adoption?
-- **Option A:** Full TypeScript (recommended — Nuxt 4 has excellent TS support)
-- **Option B:** JavaScript with JSDoc types
-- **Option C:** Plain JavaScript (same as current)
+### 15.1 TypeScript adoption? → **Decision: Option B — JavaScript with JSDoc types**
 
-### 15.2 Options API vs Composition API scope?
-- **Option A:** Convert all components to `<script setup>` (cleanest, most work)
-- **Option B:** Convert only complex components; keep simple ones as Options API (pragmatic)
-- **Option C:** Keep all components as Options API (least work, but misses Composition API benefits)
+Full TypeScript would double the migration effort per component. JSDoc gives IDE type hints without compilation overhead. TypeScript can be adopted more strictly later once the migration is stable.
 
-### 15.3 Fresh project vs in-place upgrade?
-- **Option A:** Fresh Nuxt 4 project in new directory (recommended — cleaner)
-- **Option B:** In-place upgrade in existing `frontend/` directory
+### 15.2 Options API vs Composition API scope? → **Decision: Option B — Convert only complex components**
 
-### 15.4 Directory structure?
-- **Option A:** Replace `frontend/` with new Nuxt 4 code once ready
-- **Option B:** Run both `frontend/` (Nuxt 2) and `frontend-v4/` (Nuxt 4) during migration
+Trivial components (Toggle, Spinner, etc.) gain nothing from `<script setup>`. Complex components (Map.vue, EventPane.vue) genuinely benefit from Composition API for reactive state, watchers, and composables. All new code uses `<script setup>`.
 
-### 15.5 Datepicker replacement?
-- **Option A:** `@vuepic/vue-datepicker` (most popular, feature-rich)
-- **Option B:** `vue-datepicker-next` (closest API to vue2-datepicker)
-- **Option C:** Custom date input with native browser datepicker
+### 15.3 Fresh project vs in-place upgrade? → **Decision: Option A — Fresh Nuxt 4 project**
+
+Nuxt 2 → 4 is too big a jump for in-place. Config format, directory structure, and module system are all different. A fresh project gives a clean working state at every step.
+
+### 15.4 Directory structure? → **Decision: Option A — Replace `frontend/` when ready**
+
+Work in a long-lived branch where `frontend/` is replaced entirely. The old code stays accessible via git history / master branch. Avoids touching Docker/Helm/CI config twice.
+
+### 15.5 Datepicker replacement? → **Decision: Option A — `@vuepic/vue-datepicker`**
+
+Community standard for Vue 3 — actively maintained, good docs, supports date ranges and i18n.
 
 ---
 
