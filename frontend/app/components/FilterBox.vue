@@ -1,8 +1,8 @@
 <template>
   <div id="filter">
     <div class="bg-white p-4 pb-2 lg:p-6 lg:pb-5 relative overflow-hidden">
-      <h1 class="text-l md:text-2xl font-semibold text-primary">
-        <a href="/" style="color: black; text-decoration: none">
+      <h1 class="text-l md:text-2xl font-semibold text-primary flex items-center">
+        <a href="/" style="color: black; text-decoration: none" class="flex items-center">
           <img
             id="site-logo"
             class="inline"
@@ -10,8 +10,8 @@
           />
           open-water-swims.com</a
         >
-        <div class="inline float-right text-gray-600">
-          <span class="text-base">
+        <div class="ml-auto text-gray-600">
+          <span class="text-base flex items-center">
             <span
               class="pr-2 cursor-pointer"
               @click="clickOptionalSearchParamsButton"
