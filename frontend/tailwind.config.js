@@ -1,9 +1,6 @@
-module.exports = {
-  future: {
-    // removeDeprecatedGapUtilities: true,
-    // purgeLayersByDefault: true,
-  },
-  purge: [],
+/** @type {import('tailwindcss').Config} */
+export default {
+  content: ['./app/**/*.{vue,js,ts}', './nuxt.config.ts'],
   theme: {
     fontFamily: {
       sans: ['"Source Sans Pro"', 'BlinkMacSystemFont', 'sans-serif'],
@@ -20,6 +17,5 @@ module.exports = {
       },
     },
   },
-  variants: {},
-  plugins: [require('@tailwindcss/custom-forms')],
+  plugins: [],
 }
