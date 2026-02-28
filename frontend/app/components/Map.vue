@@ -523,6 +523,12 @@ function updateMarker() {
         })
       },
     },
+    onClusterClick(_event, cluster, map) {
+      const currentZoom = map.getZoom()
+      const targetZoom = Math.min(currentZoom + 3, map.maxZoom || 20)
+      map.panTo(cluster.position)
+      map.setZoom(targetZoom)
+    },
   })
 }
 
