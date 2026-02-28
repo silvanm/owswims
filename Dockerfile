@@ -1,11 +1,11 @@
 #### STAGE 1 ####
 
-FROM node:18 AS frontend
+FROM node:20 AS frontend
 
 WORKDIR /code
 
-COPY ./frontend/package.json ./frontend/yarn.lock ./
-RUN yarn install
+COPY ./frontend/package.json ./frontend/package-lock.json ./
+RUN npm ci
 
 ENV PATH="./node_modules/.bin:$PATH"
 
@@ -24,7 +24,7 @@ ENV CI_BUILD_DATE=$CI_BUILD_DATE
 
 COPY frontend/ ./
 
-RUN nuxt generate
+RUN npx nuxt build
 
 #### STAGE 2 ####
 
@@ -49,7 +49,7 @@ ARG SECRET_KEY
 ARG GOOGLE_APPLICATION_CREDENTIALS
 ARG GOOGLE_MAPS_API_KEY
 
-COPY --from=frontend /code/dist/static/ /code/dist/index.html static/
+COPY --from=frontend /code/.output/public/ static/
 RUN python ./manage.py collectstatic --noinput
 
 RUN echo "Commit Ref = ${CI_COMMIT_REF_SLUG} - Commit SHA = ${CI_COMMIT_SHA} - Built at = " ${CI_BUILD_DATE} > ./version
