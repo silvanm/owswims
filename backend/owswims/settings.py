@@ -183,6 +183,10 @@ USE_TZ = True
 STATIC_URL = "/static/"
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
+# Serve files from STATIC_ROOT at the root URL too (without /static/ prefix).
+# This allows Nuxt 4's /_nuxt/ asset references to resolve correctly.
+WHITENOISE_ROOT = STATIC_ROOT
+
 # see https://johnfraney.ca/posts/2019/05/14/integrate-django-vuejs/
 # Vue assets directory (assetsDir)
 STATICFILES_DIRS = []

@@ -101,5 +101,11 @@ export default defineNuxtConfig({
 
   tailwindcss: {},
 
+  nitro: {
+    prerender: {
+      routes: ['/', '/en', '/de', '/fr', '/it', '/es', '/ru', '/ja'],
+    },
+  },
+
   compatibilityDate: '2025-01-01',
 })
