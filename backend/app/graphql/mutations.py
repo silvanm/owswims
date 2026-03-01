@@ -43,6 +43,7 @@ class EventMutation(relay.ClientIDMutation):
     event = graphene.Field(EventNode)
 
     @classmethod
+    @login_required
     def mutate_and_get_payload(cls, root, info, id, client_mutation_id=None, **kwargs):
         event = Event.objects.get(pk=from_global_id(id)[1])
 
@@ -150,6 +151,7 @@ class CreateEventMutation(relay.ClientIDMutation):
     event = graphene.Field(EventNode)
 
     @classmethod
+    @login_required
     def mutate_and_get_payload(
         cls, root, info, name, date_start, date_end, client_mutation_id=None, **kwargs
     ):
@@ -309,6 +311,7 @@ class RaceMutation(relay.ClientIDMutation):
     race = graphene.Field(RaceNode)
 
     @classmethod
+    @login_required
     def mutate_and_get_payload(cls, root, info, id, client_mutation_id=None, **kwargs):
         race = Race.objects.get(pk=from_global_id(id)[1])
 
@@ -374,6 +377,7 @@ class CreateRaceMutation(relay.ClientIDMutation):
     race = graphene.Field(RaceNode)
 
     @classmethod
+    @login_required
     def mutate_and_get_payload(
         cls, root, info, event_id, date, distance, client_mutation_id=None, **kwargs
     ):
@@ -528,6 +532,7 @@ class DeleteRaceMutation(relay.ClientIDMutation):
     deleted_id = graphene.ID()
 
     @classmethod
+    @login_required
     def mutate_and_get_payload(cls, root, info, id, client_mutation_id=None):
         try:
             race = Race.objects.get(pk=from_global_id(id)[1])
