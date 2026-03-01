@@ -1,10 +1,13 @@
 # OWSwims
 
-Open Water Swims (OWSwims) is a web application designed to help open water swimming enthusiasts discover, track, and review swimming events around the world.
+[Open Water Swims](https://open-water-swims.com) is a web application designed to help open water swimming enthusiasts discover, track, and review swimming events around the world.
 
-## Development Environment
+## Tech Stack
 
-Edit this application always in VS Code. Not in PyCharm anymore.
+- **Backend**: Django 3.2, GraphQL (Graphene), PostgreSQL
+- **Frontend**: Nuxt.js, Vue, Apollo GraphQL client
+- **Event Import**: LLM-based pipeline using OpenAI + Firecrawl for automated event scraping
+- **Infrastructure**: Docker, Kubernetes (GKE), Helm, GitHub Actions CI/CD
 
 ## Getting Started
 
@@ -97,3 +100,7 @@ Set these in `backend/.env`:
 - `OPENAI_API_KEY`: LLM processing
 - `SERPER_API_KEY`: Google Search (for `discover_event_urls`)
 - `GOOGLE_MAPS_API_KEY`: Geocoding and place images
+
+## License
+
+This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
