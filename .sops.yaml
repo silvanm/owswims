@@ -1,0 +1,3 @@
+creation_rules:
+  - path_regex: helm/secrets\.yaml$
+    gcp_kms: projects/mpom-shared/locations/europe-west6/keyRings/sops/cryptoKeys/sops-key

@@ -115,6 +115,16 @@ jobs:
           --region ${{ secrets.GCP_REGION }} \
           --project ${{ secrets.GCP_PROJECT_ID }}
           
+    - name: Install SOPS
+      run: |
+        curl -LO https://github.com/getsops/sops/releases/download/v3.9.4/sops-v3.9.4.linux.amd64
+        chmod +x sops-v3.9.4.linux.amd64
+        sudo mv sops-v3.9.4.linux.amd64 /usr/local/bin/sops
+
+    - name: Decrypt and apply secrets
+      run: |
+        sops --decrypt helm/secrets.yaml | kubectl apply -f -
+
     - name: Deploy to Kubernetes with Helm
       run: |
         echo "## 🚀 Deploying to Production" >> $GITHUB_STEP_SUMMARY
@@ -125,7 +135,7 @@ jobs:
         helm upgrade --install owswims -f helm/values.yaml helm/ \
           --namespace ${{ env.KUBE_NAMESPACE }} \
           --set-string image.tag="${{ needs.build.outputs.short_sha }}"
-          
+
         echo "## ✅ Deployment Complete" >> $GITHUB_STEP_SUMMARY
         echo "- **Status**: Successfully deployed to GKE cluster" >> $GITHUB_STEP_SUMMARY
         echo "- **Image**: \`${{ needs.build.outputs.container_image }}:${{ needs.build.outputs.short_sha }}\`" >> $GITHUB_STEP_SUMMARY

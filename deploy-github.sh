@@ -37,7 +37,7 @@ docker build \
   --build-arg RAPIDAPI_KEY="${RAPIDAPI_KEY:-}" \
   --build-arg GRAPHQL_ENDPOINT="${GRAPHQL_ENDPOINT:-}" \
   --build-arg DEFAULT_HEADER_PHOTO_URL="${DEFAULT_HEADER_PHOTO_URL:-https://storage.googleapis.com/owswims-prod/photos/default-image.jpg}" \
-  --build-arg SECRET_KEY="${SECRET_KEY:-dfgim4p02mi2mg2eign2}" \
+  --build-arg SECRET_KEY="${SECRET_KEY:-}" \
   --build-arg SENTRY_DSN="${SENTRY_DSN:-}" \
   --tag "$CONTAINER_IMAGE:latest" \
   --tag "$CONTAINER_IMAGE:$COMMIT_SHORT_SHA" \
@@ -66,6 +66,10 @@ gcloud container clusters get-credentials "$K8S_CLUSTER" \
   --project "$GCP_PROJECT_ID"
 
 export KUBE_NAMESPACE=${KUBE_NAMESPACE:-owswims}
+
+echo "🔐 Decrypting and applying secrets..."
+sops --decrypt helm/secrets.yaml | kubectl apply -f -
+
 echo "🚀 Deploying to Kubernetes with Helm..."
 helm upgrade --install owswims -f helm/values.yaml helm/ \
   --namespace "$KUBE_NAMESPACE" \
