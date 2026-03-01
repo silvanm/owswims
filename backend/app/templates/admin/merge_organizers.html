@@ -1,0 +1,75 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block content %}
+<h2>Merge {{ organizer_data|length }} Organizers</h2>
+
+<p>Select the <strong>primary organizer</strong> to keep. All events, locations, crawl sources, and claim tokens from the other organizers will be reassigned to the primary. The other organizers will be deleted.</p>
+
+{% for od in organizer_data %}
+{% if od.has_user %}
+<div style="background: #ffc; border: 1px solid #dda; padding: 8px 12px; margin-bottom: 8px; border-radius: 4px;">
+    <strong>Warning:</strong> <em>{{ od.obj.name }}</em> has a linked user account ({{ od.user_info }}). If this organizer is deleted, the user account will be unlinked (not deleted).
+</div>
+{% endif %}
+{% endfor %}
+
+<form method="post">
+    {% csrf_token %}
+
+    {# Preserve the selected organizer PKs for the action framework #}
+    {% for od in organizer_data %}
+    <input type="hidden" name="{{ action_checkbox_name }}" value="{{ od.obj.pk }}">
+    {% endfor %}
+    <input type="hidden" name="action" value="merge_selected_organizers">
+    <input type="hidden" name="confirm_merge" value="1">
+
+    <table style="width: 100%; border-collapse: collapse; margin: 16px 0;">
+        <thead>
+            <tr style="background: #417690; color: #fff;">
+                <th style="padding: 8px;">Primary</th>
+                <th style="padding: 8px;">Name</th>
+                <th style="padding: 8px;">Website</th>
+                <th style="padding: 8px;">Events</th>
+                <th style="padding: 8px;">Locations</th>
+                <th style="padding: 8px;">Crawl Sources</th>
+                <th style="padding: 8px;">User Account</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for od in organizer_data %}
+            <tr style="background: {% cycle '#f9f9f9' '#fff' %};">
+                <td style="padding: 8px; text-align: center;">
+                    <input type="radio" name="primary_organizer" value="{{ od.obj.pk }}"
+                        {% if od.obj.pk == recommended_id %}checked{% endif %}>
+                </td>
+                <td style="padding: 8px;">
+                    <a href="{% url 'admin:app_organizer_change' od.obj.pk %}" target="_blank">{{ od.obj.name }}</a>
+                    {% if od.obj.pk == recommended_id %}
+                    <span style="color: #417690; font-size: 0.85em;">(recommended)</span>
+                    {% endif %}
+                </td>
+                <td style="padding: 8px;">
+                    {% if od.obj.website %}
+                    <a href="{{ od.obj.website }}" target="_blank">{{ od.obj.website|truncatechars:40 }}</a>
+                    {% else %}—{% endif %}
+                </td>
+                <td style="padding: 8px; text-align: center;">{{ od.event_count }}</td>
+                <td style="padding: 8px; text-align: center;">{{ od.location_count }}</td>
+                <td style="padding: 8px; text-align: center;">{{ od.crawl_source_count }}</td>
+                <td style="padding: 8px; text-align: center;">
+                    {% if od.has_user %}
+                    <span style="color: #c60;">{{ od.user_info }}</span>
+                    {% else %}—{% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div style="margin-top: 16px;">
+        <input type="submit" value="Confirm Merge" class="default" style="padding: 8px 16px;">
+        <a href="{% url 'admin:app_organizer_changelist' %}" style="margin-left: 12px; padding: 8px 16px;">Cancel</a>
+    </div>
+</form>
+{% endblock %}

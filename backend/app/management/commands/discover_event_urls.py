@@ -121,8 +121,8 @@ class Command(BaseCommand):
                 )
             )
 
-        # 1. Generate keywords with GPT-4o
-        self.stdout.write("Generating keywords with GPT-4o...")
+        # 1. Generate keywords with LLM
+        self.stdout.write(f"Generating keywords with {settings.OPENAI_MODEL}...")
         keywords = self.generate_keywords()
         self.stdout.write(self.style.SUCCESS(f"Generated {len(keywords)} keywords"))
 
@@ -195,8 +195,8 @@ class Command(BaseCommand):
             self.style.SUCCESS(f"Found {len(new_urls)} new URLs to process")
         )
 
-        # 7. Validate URLs with GPT-4o
-        self.stdout.write("Validating URLs with GPT-4o...")
+        # 7. Validate URLs with LLM
+        self.stdout.write(f"Validating URLs with {settings.OPENAI_MODEL}...")
         newly_valid_urls = []
 
         for i, url_data in enumerate(new_urls, 1):
