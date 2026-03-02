@@ -8,6 +8,18 @@
   >
     <div class="not-scrollable">
       <div
+        v-if="useDevice().isMobile()"
+        class="drag-handle"
+        @pointerup="slideToggle"
+      >
+        <div class="handle-pill" />
+        <FontAwesomeIcon
+          icon="chevron-up"
+          size="sm"
+          :class="['handle-chevron', { rotated: isSliddenUp }]"
+        />
+      </div>
+      <div
         id="event-pane-header"
         :style="{
           backgroundImage: `url(${headerPhotoUrl})`,
@@ -17,14 +29,6 @@
           id="overlay"
           @pointerup="slideUp"
         />
-        <div class="p-2 lg:p-6 absolute text-center text-white w-full">
-          <span
-            v-if="useDevice().isMobile()"
-            @pointerup="slideUp"
-          >
-            <FontAwesomeIcon icon="grip-lines" size="lg" />
-          </span>
-        </div>
         <div class="p-2 lg:p-6 absolute right-0 text-white">
           <CloseButton :is-static="true" @collapse="close" />
         </div>
@@ -363,7 +367,7 @@ function updateEventPaneStyle() {
         top: window.innerHeight - containerEl.value.clientHeight + 'px',
       }
     } else {
-      const height = device.isSmall() ? 120 : 160
+      const height = device.isSmall() ? 200 : 250
       eventPaneStyle.value = {
         visibility: 'visible',
         top: window.innerHeight - height + 'px',
@@ -387,6 +391,11 @@ function close() {
 
 function slideUp() {
   isSliddenUp.value = true
+  updateEventPaneStyle()
+}
+
+function slideToggle() {
+  isSliddenUp.value = !isSliddenUp.value
   updateEventPaneStyle()
 }
 
@@ -446,11 +455,44 @@ function trackAdminEdit() {
   overflow: hidden;
 
   max-height: 80vh;
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.15);
 
   @screen md {
     @apply relative;
     max-width: 500px;
     max-height: none;
+    border-radius: 0;
+    box-shadow: none;
+  }
+}
+
+.drag-handle {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px 0 4px;
+  cursor: pointer;
+  background: white;
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+
+  .handle-pill {
+    width: 36px;
+    height: 4px;
+    background: #ccc;
+    border-radius: 2px;
+  }
+
+  .handle-chevron {
+    color: #999;
+    margin-top: 4px;
+    transition: transform 0.3s;
+
+    &.rotated {
+      transform: rotate(180deg);
+    }
   }
 }
 

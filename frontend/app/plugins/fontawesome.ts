@@ -14,6 +14,7 @@ import {
   faExpandArrowsAlt,
   faEnvelope,
   faArrowLeft,
+  faChevronUp,
 } from '@fortawesome/free-solid-svg-icons'
 import { faCalendar } from '@fortawesome/free-regular-svg-icons'
 import { faFacebook } from '@fortawesome/free-brands-svg-icons'
@@ -35,6 +36,7 @@ library.add(
   faExpandArrowsAlt,
   faEnvelope,
   faArrowLeft,
+  faChevronUp,
   faCalendar,
   faFacebook
 )
