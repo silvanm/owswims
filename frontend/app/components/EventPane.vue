@@ -9,14 +9,13 @@
     <div class="not-scrollable">
       <div
         v-if="useDevice().isMobile()"
-        class="drag-handle"
+        class="expand-toggle"
         @pointerup="slideToggle"
       >
-        <div class="handle-pill" />
         <FontAwesomeIcon
           icon="chevron-up"
-          size="sm"
-          :class="['handle-chevron', { rotated: isSliddenUp }]"
+          size="lg"
+          :class="['toggle-chevron', { rotated: isSliddenUp }]"
         />
       </div>
       <div
@@ -468,26 +467,17 @@ function trackAdminEdit() {
   }
 }
 
-.drag-handle {
+.expand-toggle {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 8px 0 4px;
+  justify-content: center;
+  padding: 6px 0;
   cursor: pointer;
   background: white;
   border-top-left-radius: 12px;
   border-top-right-radius: 12px;
 
-  .handle-pill {
-    width: 36px;
-    height: 4px;
-    background: #ccc;
-    border-radius: 2px;
-  }
-
-  .handle-chevron {
+  .toggle-chevron {
     color: #999;
-    margin-top: 4px;
     transition: transform 0.3s;
 
     &.rotated {
