@@ -158,7 +158,7 @@ const { t } = useI18n()
 const store = useMainStore()
 const { gtag } = useGtag()
 
-const emit = defineEmits(['showLogin'])
+const emit = defineEmits(['showLogin', 'expand'])
 
 const distanceRangeMax = 30
 
@@ -191,6 +191,15 @@ watch(expandedPane, (newPane, oldPane) => {
   if (oldPane === 'info' && newPane !== 'info') {
     store.activeInfoTab = null
     useUrlHistory().push({}, '/')
+  }
+  if (newPane) {
+    emit('expand')
+  }
+})
+
+watch(filterCollapsed, (collapsed) => {
+  if (!collapsed) {
+    emit('expand')
   }
 })
 

@@ -64,8 +64,9 @@
           v-if="!store.isEmbedded"
           ref="filterboxRef"
           @show-login="doShowLogin"
+          @expand="collapseEventPane"
         />
-        <EventPane v-if="store.pickedLocationId" />
+        <EventPane v-if="store.pickedLocationId" ref="eventPaneRef" />
       </div>
     </div>
   </div>
@@ -85,6 +86,7 @@ const config = useRuntimeConfig()
 
 const mapRef = ref(null)
 const filterboxRef = ref(null)
+const eventPaneRef = ref(null)
 const loginboxShown = ref(false)
 const welcomeboxShown = ref(false)
 
@@ -205,6 +207,12 @@ onMounted(async () => {
 function locationPicked() {
   if (filterboxRef.value) {
     filterboxRef.value.collapse()
+  }
+}
+
+function collapseEventPane() {
+  if (useDevice().isMobile() && eventPaneRef.value) {
+    eventPaneRef.value.collapseContent()
   }
 }
 

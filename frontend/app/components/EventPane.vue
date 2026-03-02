@@ -438,6 +438,13 @@ function trackAdminEdit() {
     event_id: pickedEvent.value.node.id,
   })
 }
+
+function collapseContent() {
+  isSliddenUp.value = false
+  updateEventPaneStyle()
+}
+
+defineExpose({ collapseContent })
 </script>
 
 <style lang="scss" scoped>
