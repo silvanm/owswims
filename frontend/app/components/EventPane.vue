@@ -13,17 +13,19 @@
           backgroundImage: `url(${headerPhotoUrl})`,
         }"
       >
-        <div
+        <button
           v-if="useDevice().isMobile()"
+          type="button"
           class="expand-toggle-overlay"
-          @pointerup="slideToggle"
+          aria-label="Toggle event pane"
+          @click="slideToggle"
         >
           <FontAwesomeIcon
             icon="chevron-up"
             size="lg"
             :class="['toggle-chevron', { rotated: isSliddenUp }]"
           />
-        </div>
+        </button>
         <div
           id="overlay"
           @pointerup="slideUp"
@@ -488,6 +490,10 @@ defineExpose({ collapseContent })
   padding: 8px 0;
   cursor: pointer;
   z-index: 2;
+  border: none;
+  background: none;
+  font: inherit;
+  color: inherit;
 
   .toggle-chevron {
     color: rgba(255, 255, 255, 0.95);

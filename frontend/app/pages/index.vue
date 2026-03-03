@@ -219,9 +219,7 @@ watch(
 )
 
 function locationPicked() {
-  if (useDevice().isMobile() && filterboxRef.value) {
-    filterboxRef.value.collapse()
-  }
+  // Filter collapse on mobile is handled by the watch on store.pickedLocationId.
 }
 
 function collapseEventPane() {
