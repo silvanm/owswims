@@ -66,14 +66,18 @@
           @show-login="doShowLogin"
           @expand="collapseEventPane"
         />
-        <EventPane v-if="store.pickedLocationId" ref="eventPaneRef" />
+        <EventPane
+          v-if="store.pickedLocationId"
+          ref="eventPaneRef"
+          @expand="collapseFilterPane"
+        />
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, shallowRef, onMounted } from 'vue'
+import { ref, shallowRef, onMounted, watch, nextTick } from 'vue'
 import gql from 'graphql-tag'
 import { useQuery } from '@vue/apollo-composable'
 import { formatISO } from 'date-fns'
@@ -204,8 +208,18 @@ onMounted(async () => {
   window.setTimeout(() => (store.justMounted = false), 5000)
 })
 
+// On mobile, event pane and filters must never both be open (not enough space).
+watch(
+  () => store.pickedLocationId,
+  (pickedId) => {
+    if (useDevice().isMobile() && pickedId) {
+      nextTick(() => filterboxRef.value?.collapse())
+    }
+  }
+)
+
 function locationPicked() {
-  if (filterboxRef.value) {
+  if (useDevice().isMobile() && filterboxRef.value) {
     filterboxRef.value.collapse()
   }
 }
@@ -213,6 +227,12 @@ function locationPicked() {
 function collapseEventPane() {
   if (useDevice().isMobile() && eventPaneRef.value) {
     eventPaneRef.value.collapseContent()
+  }
+}
+
+function collapseFilterPane() {
+  if (useDevice().isMobile() && filterboxRef.value) {
+    filterboxRef.value.collapse()
   }
 }
 

@@ -8,22 +8,22 @@
   >
     <div class="not-scrollable">
       <div
-        v-if="useDevice().isMobile()"
-        class="expand-toggle"
-        @pointerup="slideToggle"
-      >
-        <FontAwesomeIcon
-          icon="chevron-up"
-          size="lg"
-          :class="['toggle-chevron', { rotated: isSliddenUp }]"
-        />
-      </div>
-      <div
         id="event-pane-header"
         :style="{
           backgroundImage: `url(${headerPhotoUrl})`,
         }"
       >
+        <div
+          v-if="useDevice().isMobile()"
+          class="expand-toggle-overlay"
+          @pointerup="slideToggle"
+        >
+          <FontAwesomeIcon
+            icon="chevron-up"
+            size="lg"
+            :class="['toggle-chevron', { rotated: isSliddenUp }]"
+          />
+        </div>
         <div
           id="overlay"
           @pointerup="slideUp"
@@ -298,6 +298,8 @@ const authStore = useAuthStore()
 const { gtag } = useGtag()
 const config = useRuntimeConfig()
 
+const emit = defineEmits(['expand'])
+
 const {
   getBooleanProps,
   formatEventDate,
@@ -394,8 +396,13 @@ function slideUp() {
 }
 
 function slideToggle() {
+  const wasSliddenUp = isSliddenUp.value
   isSliddenUp.value = !isSliddenUp.value
   updateEventPaneStyle()
+  // On mobile, when user expands the event pane, collapse the filter pane so both are never open.
+  if (useDevice().isMobile() && wasSliddenUp) {
+    emit('expand')
+  }
 }
 
 function showFlyer() {
@@ -461,30 +468,30 @@ defineExpose({ collapseContent })
   overflow: hidden;
 
   max-height: 80vh;
-  border-top-left-radius: 12px;
-  border-top-right-radius: 12px;
   box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.15);
 
   @screen md {
     @apply relative;
     max-width: 500px;
     max-height: none;
-    border-radius: 0;
     box-shadow: none;
   }
 }
 
-.expand-toggle {
+.expand-toggle-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
   display: flex;
   justify-content: center;
-  padding: 6px 0;
+  padding: 8px 0;
   cursor: pointer;
-  background: white;
-  border-top-left-radius: 12px;
-  border-top-right-radius: 12px;
+  z-index: 2;
 
   .toggle-chevron {
-    color: #999;
+    color: rgba(255, 255, 255, 0.95);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
     transition: transform 0.3s;
 
     &.rotated {
