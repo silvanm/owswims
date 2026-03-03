@@ -13,18 +13,23 @@
           backgroundImage: `url(${headerPhotoUrl})`,
         }"
       >
+        <button
+          v-if="useDevice().isMobile()"
+          type="button"
+          class="expand-toggle-overlay"
+          aria-label="Toggle event pane"
+          @click="slideToggle"
+        >
+          <FontAwesomeIcon
+            icon="chevron-up"
+            size="lg"
+            :class="['toggle-chevron', { rotated: isSliddenUp }]"
+          />
+        </button>
         <div
           id="overlay"
           @pointerup="slideUp"
         />
-        <div class="p-2 lg:p-6 absolute text-center text-white w-full">
-          <span
-            v-if="useDevice().isMobile()"
-            @pointerup="slideUp"
-          >
-            <FontAwesomeIcon icon="grip-lines" size="lg" />
-          </span>
-        </div>
         <div class="p-2 lg:p-6 absolute right-0 text-white">
           <CloseButton :is-static="true" @collapse="close" />
         </div>
@@ -295,6 +300,8 @@ const authStore = useAuthStore()
 const { gtag } = useGtag()
 const config = useRuntimeConfig()
 
+const emit = defineEmits(['expand'])
+
 const {
   getBooleanProps,
   formatEventDate,
@@ -363,7 +370,7 @@ function updateEventPaneStyle() {
         top: window.innerHeight - containerEl.value.clientHeight + 'px',
       }
     } else {
-      const height = device.isSmall() ? 120 : 160
+      const height = device.isSmall() ? 200 : 250
       eventPaneStyle.value = {
         visibility: 'visible',
         top: window.innerHeight - height + 'px',
@@ -388,6 +395,16 @@ function close() {
 function slideUp() {
   isSliddenUp.value = true
   updateEventPaneStyle()
+}
+
+function slideToggle() {
+  const wasSliddenUp = isSliddenUp.value
+  isSliddenUp.value = !isSliddenUp.value
+  updateEventPaneStyle()
+  // On mobile, when user expands the event pane, collapse the filter pane so both are never open.
+  if (useDevice().isMobile() && wasSliddenUp) {
+    emit('expand')
+  }
 }
 
 function showFlyer() {
@@ -430,6 +447,13 @@ function trackAdminEdit() {
     event_id: pickedEvent.value.node.id,
   })
 }
+
+function collapseContent() {
+  isSliddenUp.value = false
+  updateEventPaneStyle()
+}
+
+defineExpose({ collapseContent })
 </script>
 
 <style lang="scss" scoped>
@@ -446,11 +470,39 @@ function trackAdminEdit() {
   overflow: hidden;
 
   max-height: 80vh;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.15);
 
   @screen md {
     @apply relative;
     max-width: 500px;
     max-height: none;
+    box-shadow: none;
+  }
+}
+
+.expand-toggle-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  padding: 8px 0;
+  cursor: pointer;
+  z-index: 2;
+  border: none;
+  background: none;
+  font: inherit;
+  color: inherit;
+
+  .toggle-chevron {
+    color: rgba(255, 255, 255, 0.95);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+    transition: transform 0.3s;
+
+    &.rotated {
+      transform: rotate(180deg);
+    }
   }
 }
 
