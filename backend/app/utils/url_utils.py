@@ -1,8 +1,57 @@
 from typing import List, Dict, Any, Set
 from datetime import date
+from urllib.parse import urlparse
 import logging
 
 logger = logging.getLogger(__name__)
+
+
+# Domains that are generic portals, ticket shops, social media, or otherwise
+# not specific to a single open water swimming event.
+BLOCKED_DOMAINS = {
+    # Ticket / registration portals
+    "eventbrite.com",
+    "eventbrite.de",
+    "eventbrite.co.uk",
+    "eventbrite.fr",
+    "ticketmaster.com",
+    "ticketmaster.de",
+    "letsdoeit.com",
+    "datasport.com",
+    "my.raceresult.com",
+    "racetecresults.com",
+    "registration.finishtime.com",
+    "finishtime.com",
+    "timeandtiming.com",
+    "webscorer.com",
+    "race-timing.de",
+    "anmeldung.myvirtualrace.com",
+    # Generic event aggregators
+    "meetup.com",
+    "allevents.in",
+    "eventful.com",
+    "10times.com",
+    "komoot.com",
+    "komoot.de",
+    "outdooractive.com",
+    # Social media
+    "facebook.com",
+    "instagram.com",
+    "twitter.com",
+    "x.com",
+    "youtube.com",
+    "tiktok.com",
+    "linkedin.com",
+    # Generic / non-event sites
+    "wikipedia.org",
+    "google.com",
+    "google.de",
+    "tripadvisor.com",
+    "tripadvisor.de",
+    "amazon.com",
+    "amazon.de",
+    "reddit.com",
+}
 
 
 class URLUtils:
@@ -10,6 +59,22 @@ class URLUtils:
     Utility class for URL operations like normalization and checking for existing URLs.
     Used by both discover_event_urls.py and crawl_events.py.
     """
+
+    @staticmethod
+    def is_blocked_domain(url: str) -> bool:
+        """Check if a URL belongs to a blocked generic domain."""
+        try:
+            hostname = urlparse(url).hostname or ""
+            hostname = hostname.lower()
+            if hostname.startswith("www."):
+                hostname = hostname[4:]
+            # Check exact match and parent domain (e.g. sub.eventbrite.com)
+            for blocked in BLOCKED_DOMAINS:
+                if hostname == blocked or hostname.endswith("." + blocked):
+                    return True
+        except Exception:
+            pass
+        return False
 
     @staticmethod
     def normalize_url(url: str) -> str:
@@ -65,6 +130,12 @@ class URLUtils:
             # Filter URLs
             for url_data in urls:
                 url = url_data["url"]
+
+                if cls.is_blocked_domain(url):
+                    if stdout:
+                        stdout.write(f"Skipping blocked domain: {url}")
+                    continue
+
                 normalized_url = cls.normalize_url(url)
 
                 # Check if this URL has a future event in the database
@@ -132,6 +203,14 @@ class URLUtils:
 
             # Filter URL sets
             for urls in url_sets:
+                # Filter out blocked domains from the set
+                filtered_urls = [u for u in urls if not cls.is_blocked_domain(u)]
+                if not filtered_urls:
+                    if stdout:
+                        stdout.write(f"Skipping URL set (all blocked domains): {urls}")
+                    continue
+                urls = filtered_urls
+
                 # Check if any URL in this set has a future event in the database
                 has_future_event = False
                 for url in urls:

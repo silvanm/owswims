@@ -347,17 +347,8 @@ class Command(BaseCommand):
             # Check event type
             event_type = url_data.get("event_type", "unknown")
 
-            if event_type == "unknown":
-                self.stdout.write(
-                    self.style.WARNING(
-                        f"Skipping event {i}/{len(discovered_urls)}: {url} (Type: {event_type})"
-                    )
-                )
-                skipped += 1
-                continue
-
-            # Process based on event type
-            if event_type == "single":
+            # Process based on event type (treat unknown as single)
+            if event_type in ("single", "unknown"):
                 # Process as a single event
                 self.stdout.write(
                     f"Processing single event {i}/{len(discovered_urls)}: {url}"
