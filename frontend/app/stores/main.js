@@ -1,6 +1,6 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
-import { addMonths, formatISO } from 'date-fns'
+import { formatISO } from 'date-fns'
 import gql from 'graphql-tag'
 
 export const useMainStore = defineStore('main', () => {
@@ -17,7 +17,8 @@ export const useMainStore = defineStore('main', () => {
   const mapType = ref(false)
   const showOrganizerLogo = ref(false)
   const distanceRange = ref([0, 1000])
-  const dateRange = ref([new Date(), addMonths(new Date(), 12)])
+  // TEMP: limit to Aug 2026 to avoid a corrupt September event crashing the query
+  const dateRange = ref([new Date(), new Date(2026, 7, 31)])
   const pickedLocationData = ref(null)
   const focusedEventId = ref(null)
   const travelTimes = ref([])
