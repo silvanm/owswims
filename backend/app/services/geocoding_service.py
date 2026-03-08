@@ -2,7 +2,7 @@ import logging
 import math
 import requests
 from typing import List, Dict, Tuple, Optional, Any
-from urllib.parse import urlencode
+from urllib.parse import urlencode, quote
 
 from django.conf import settings
 import googlemaps
@@ -408,7 +408,7 @@ class GeocodingService:
             url = "https://maps.googleapis.com/maps/api/staticmap?"
             url += urlencode(params)
             for m in markers:
-                url += f"&markers={m}"
+                url += f"&markers={quote(m, safe='')}"
 
             # Only set zoom if there's a single location; otherwise let Google auto-fit
             if len(locations) == 1:

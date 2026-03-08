@@ -484,16 +484,20 @@ class Command(BaseCommand):
                     ],
                 }
             ]
-            return llm.parse_vision_completion(
-                messages=messages,
-                response_model=MergeDecision,
-                system_prompt=(
-                    "You are an expert at analysing satellite "
-                    "imagery and open-water swimming event data."
-                    " Pick the location closer to a visible "
-                    "body of water."
-                ),
-            )
+            try:
+                return llm.parse_vision_completion(
+                    messages=messages,
+                    response_model=MergeDecision,
+                    system_prompt=(
+                        "You are an expert at analysing satellite "
+                        "imagery and open-water swimming event "
+                        "data. Pick the location closer to a "
+                        "visible body of water."
+                    ),
+                )
+            except Exception:
+                logger.exception("Vision LLM call failed")
+                return None
 
         # Text-only path (--no-vision)
         try:
@@ -501,12 +505,13 @@ class Command(BaseCommand):
                 prompt=prompt_text,
                 response_model=MergeDecision,
                 system_prompt=(
-                    "You are an expert at open-water swimming event data. "
-                    "Decide which location and event to keep when merging duplicates."
+                    "You are an expert at open-water swimming "
+                    "event data. Decide which location and event "
+                    "to keep when merging duplicates."
                 ),
             )
-        except Exception as e:
-            logger.error(f"Text-only LLM call failed: {e}")
+        except Exception:
+            logger.exception("Text-only LLM call failed")
             return None
 
     @transaction.atomic
