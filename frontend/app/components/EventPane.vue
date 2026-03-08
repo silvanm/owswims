@@ -23,7 +23,7 @@
           <FontAwesomeIcon
             icon="chevron-up"
             size="lg"
-            :class="['toggle-chevron', { rotated: isSliddenUp }]"
+            :class="['toggle-chevron', { rotated: isCollapsed }]"
           />
         </button>
         <div
@@ -313,7 +313,7 @@ const {
 
 const containerEl = ref(null)
 const isClosed = ref(false)
-const isSliddenUp = ref(false)
+const isCollapsed = ref(false)
 const showLightbox = ref(false)
 const activeEventIndex = ref(0)
 const eventPaneStyle = ref({ visibility: 'hidden' })
@@ -348,7 +348,7 @@ watch(activeEventIndex, () => {
 watch(
   () => store.raceTrackUnderFocusId,
   () => {
-    isSliddenUp.value = false
+    isCollapsed.value = false
     window.setTimeout(() => updateEventPaneStyle(), 100)
   }
 )
@@ -364,7 +364,7 @@ function updateEventPaneStyle() {
   if (!containerEl.value) return
   const device = useDevice()
   if (device.isMobile()) {
-    if (isSliddenUp.value) {
+    if (isCollapsed.value) {
       eventPaneStyle.value = {
         visibility: 'visible',
         top: window.innerHeight - containerEl.value.clientHeight + 'px',
@@ -388,21 +388,21 @@ function updateEventPaneStyle() {
 
 function close() {
   isClosed.value = true
-  isSliddenUp.value = false
+  isCollapsed.value = false
   updateEventPaneStyle()
 }
 
 function slideUp() {
-  isSliddenUp.value = true
+  isCollapsed.value = true
   updateEventPaneStyle()
 }
 
 function slideToggle() {
-  const wasSliddenUp = isSliddenUp.value
-  isSliddenUp.value = !isSliddenUp.value
+  const wasCollapsed = isCollapsed.value
+  isCollapsed.value = !isCollapsed.value
   updateEventPaneStyle()
   // On mobile, when user expands the event pane, collapse the filter pane so both are never open.
-  if (useDevice().isMobile() && wasSliddenUp) {
+  if (useDevice().isMobile() && wasCollapsed) {
     emit('expand')
   }
 }
@@ -449,7 +449,7 @@ function trackAdminEdit() {
 }
 
 function collapseContent() {
-  isSliddenUp.value = false
+  isCollapsed.value = true
   updateEventPaneStyle()
 }
 
