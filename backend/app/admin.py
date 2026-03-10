@@ -456,6 +456,25 @@ class LocationHasCoordinatesFilter(admin.SimpleListFilter):
             return queryset.filter(lat__isnull=True) | queryset.filter(lng__isnull=True)
 
 
+class LocationHasImageFilter(admin.SimpleListFilter):
+    title = "has Image"
+    parameter_name = "has_image"
+
+    def lookups(self, request, model_admin):
+        return (
+            ("yes", "Yes"),
+            ("no", "No"),
+        )
+
+    def queryset(self, request, queryset):
+        if self.value() == "yes":
+            return queryset.exclude(header_photo="").exclude(header_photo__isnull=True)
+        elif self.value() == "no":
+            return queryset.filter(
+                Q(header_photo="") | Q(header_photo__isnull=True)
+            )
+
+
 @admin.register(models.Location)
 class LocationAdmin(admin.ModelAdmin):
     form = LocationForm
@@ -472,7 +491,7 @@ class LocationAdmin(admin.ModelAdmin):
         "image_display",
         "number_of_events",
     ]
-    list_filter = [LocationIsVerifiedFilter, LocationHasCoordinatesFilter, "country"]
+    list_filter = [LocationIsVerifiedFilter, LocationHasCoordinatesFilter, LocationHasImageFilter, "country"]
     search_fields = ["city", "country"]
     readonly_fields = ("image_display", "number_of_events")
     actions = ["verify_locations", "unverify_locations", "process_unverified_locations"]
