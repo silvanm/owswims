@@ -1,6 +1,8 @@
 import logging
 import math
+import requests
 from typing import List, Dict, Tuple, Optional, Any
+from urllib.parse import urlencode, quote
 
 from django.conf import settings
 import googlemaps
@@ -371,3 +373,50 @@ class GeocodingService:
         except Exception as e:
             self._log(f"Error finding place: {str(e)}", "error")
             return None
+
+    def generate_static_map(
+        self,
+        locations: list,
+        zoom: int = 15,
+        size: tuple = (600, 400),
+        maptype: str = "satellite",
+    ) -> bytes:
+        """Generate a static map image with labeled markers.
+
+        Args:
+            locations: List of dicts with keys 'lat', 'lng', 'label' (A/B/...).
+            zoom: Map zoom level.
+            size: (width, height) in pixels.
+            maptype: Map type (satellite, roadmap, hybrid, terrain).
+
+        Returns:
+            PNG image bytes, or empty bytes on failure.
+        """
+        try:
+            markers = []
+            for loc in locations:
+                markers.append(
+                    f"color:red|label:{loc['label']}|{loc['lat']},{loc['lng']}"
+                )
+
+            params = {
+                "size": f"{size[0]}x{size[1]}",
+                "maptype": maptype,
+                "key": self.api_key,
+            }
+
+            url = "https://maps.googleapis.com/maps/api/staticmap?"
+            url += urlencode(params)
+            for m in markers:
+                url += f"&markers={quote(m, safe='')}"
+
+            # Only set zoom if there's a single location; otherwise let Google auto-fit
+            if len(locations) == 1:
+                url += f"&zoom={zoom}"
+
+            response = requests.get(url, timeout=10)
+            response.raise_for_status()
+            return response.content
+        except Exception as e:
+            self._log(f"Error generating static map: {str(e)}", "error")
+            return b""

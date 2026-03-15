@@ -1,5 +1,5 @@
 import logging
-from typing import Optional, TypeVar, Generic, Type
+from typing import Optional, TypeVar, Generic, Type, List
 from django.conf import settings
 from openai import OpenAI
 from pydantic import BaseModel
@@ -69,4 +69,43 @@ class LLMService:
         except Exception as e:
             logger.error(f"Error parsing completion from OpenAI: {str(e)}")
             # Return a default instance of the model
+            return response_model()
+
+    def parse_vision_completion(
+        self,
+        messages: List[dict],
+        response_model: Type[T],
+        system_prompt: str = None,
+    ) -> T:
+        """Get structured completion from a vision prompt (text + images).
+
+        Args:
+            messages: OpenAI-style messages with multi-content blocks
+                      (text and image_url entries).
+            response_model: Pydantic model for structured output.
+            system_prompt: Optional system prompt override.
+        """
+        try:
+            system_content = (
+                system_prompt
+                or "You are a helpful assistant that extracts structured information."
+            )
+
+            all_messages = [
+                {"role": "system", "content": system_content},
+                *messages,
+            ]
+
+            kwargs = {
+                "model": self.model,
+                "messages": all_messages,
+                "response_format": response_model,
+            }
+            if self._supports_reasoning_effort():
+                kwargs["reasoning_effort"] = settings.OPENAI_REASONING_EFFORT
+
+            response = self.client.beta.chat.completions.parse(**kwargs)
+            return response.choices[0].message.parsed
+        except Exception as e:
+            logger.error(f"Error parsing vision completion from OpenAI: {str(e)}")
             return response_model()

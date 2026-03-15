@@ -37,7 +37,7 @@ def sitemap(request):
     )
 
     # Info pages
-    info_tabs = ["help", "organizers", "contributors", "imprint"]
+    info_tabs = ["help", "organizers", "contributors", "partners", "imprint"]
     for tab in info_tabs:
         url = f"/en/info/{tab}"
         sitemap.add(

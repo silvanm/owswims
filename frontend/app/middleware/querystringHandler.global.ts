@@ -70,7 +70,7 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
 
   // Handle /info/<tab> path to open info pane with specific tab
   const infoMatch = to.path.match(
-    /\/info\/(help|organizers|contributors|imprint)\/?$/
+    /\/info\/(help|organizers|contributors|imprint|partners)\/?$/
   )
   if (infoMatch) {
     store.activeInfoTab = infoMatch[1]

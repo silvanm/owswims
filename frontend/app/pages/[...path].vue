@@ -2,6 +2,11 @@
   <MainPageContent />
 </template>
 
+<script setup>
+// Catch-all route for direct access to /info/<tab>, /submit, /organizer/<slug>, /event/<slug>.
+// Middleware (querystringHandler.global.ts) runs before this page and sets store state from to.path.
+</script>
+
 <style lang="scss">
 body {
   position: fixed;

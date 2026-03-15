@@ -12,7 +12,7 @@ Phase 2: Batch update update_crawl_sources 2027           (re-runnable)
 Phase 3: Individual   update_next_year_events 2027        (re-runnable)
 Phase 4: Discover     discover_event_urls + crawl_events  (re-runnable)
 Phase 5: Manual       crawl_events --event/--crawl/--file (as needed)
-Phase 6: Cleanup      merge_events + merge_locations      (re-runnable)
+Phase 6: Cleanup      smart_merge_events (primary), then merge_events + merge_locations
 Phase 7: Data quality process_unverified_locations, etc.  (re-runnable)
 ```
 
@@ -116,7 +116,7 @@ This finds events that were NOT in last year's database.
 
 ```bash
 # Search specific countries
-python manage.py discover_event_urls --countries CH DE FR AT
+python manage.py discover_event_urls --countries CH DE FR AT IT ES GB NL BE PT GR HR SE DK NO FI IE PL CZ HU SI MT CY
 
 # Limit for testing
 python manage.py discover_event_urls --countries CH --limit 5 --dry-run
@@ -166,28 +166,46 @@ python manage.py crawl_events --event https://example.com/event --dry-run
 
 ## Phase 6: Cleanup
 
-### Merge duplicate events
+### Smart merge (primary tool)
+
+Uses LLM + satellite imagery to find same-date events at nearby but distinct locations,
+pick the better location (closer to water) and richer event, coalesce data, then merge.
+This is the **main cleanup command** — run it first.
 
 ```bash
-# Preview
-python manage.py merge_events --dry-run
+# Preview (no changes)
+python manage.py smart_merge_events --dry-run
+
+# Narrow scope
+python manage.py smart_merge_events --dry-run --country CH --limit 3
 
 # Interactive merge
-python manage.py merge_events
+python manage.py smart_merge_events --limit 5
 
-# Check specific location
-python manage.py merge_events --location 123
+# Auto-merge high-confidence decisions
+python manage.py smart_merge_events --auto --confidence-threshold 0.8
+
+# Text-only (no satellite map, cheaper)
+python manage.py smart_merge_events --no-vision --limit 5
+
+# Custom search radius (default 1500m)
+python manage.py smart_merge_events --distance 2000 --dry-run
 ```
 
-Finds future events at the same location + same date. Interactive: shows both events and asks which to keep.
+### Secondary cleanup (edge cases)
 
-### Merge duplicate locations
+After `smart_merge_events`, two simpler commands handle remaining edge cases:
+
+- **`merge_events`** — duplicates at the **exact same** `location_id` (e.g., from `copy_to_next_year` running twice). `smart_merge_events` skips same-location pairs.
+- **`merge_locations`** — nearby locations that don't share same-date events (e.g., two pools in the same city used by different events on different dates).
 
 ```bash
-# Preview (500m default)
-python manage.py merge_locations --dry-run
+# Same-location duplicates
+python manage.py merge_events --dry-run
+python manage.py merge_events
 
-# Custom distance
+# Nearby locations without shared dates
+python manage.py merge_locations --dry-run
 python manage.py merge_locations --distance 1000
 ```
 
@@ -219,6 +237,7 @@ python manage.py fix_race_currencies
 | `discover_event_urls` | Yes | URL cache prevents re-validation |
 | `crawl_events` | Yes | Location + date dedup |
 | `merge_events` | Yes | Interactive, idempotent |
+| `smart_merge_events` | Yes | Interactive or `--auto`; LLM-assisted |
 | `merge_locations` | Yes | Interactive, idempotent |
 
 ---
@@ -252,7 +271,8 @@ python manage.py fix_race_currencies
     discover_event_urls ──> crawl_events ──> New Events (invisible=True)
     manual URLs ──────────> crawl_events ──> New Events (invisible=True)
 
-    merge_events ──> Removes duplicates (same location + date)
+    smart_merge_events ──> Merges duplicates (nearby locations, LLM+vision)
+    merge_events ──────> Removes duplicates (same location + date)
 ```
 
 ---
@@ -303,4 +323,4 @@ Note: `--year` defaults to the current year. In January, you typically want `--y
 
 ---
 
-*Last updated: 2026-02-07 | git: 757c1ff*
+*Last updated: 2026-03-08 | git: d74f11f*
