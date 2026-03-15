@@ -72,14 +72,33 @@ class GraphQLCsrfExemptWhenBearerMiddleware:
     def __call__(self, request):
         if request.path == "/graphql" and request.method == "POST":
             from django.conf import settings
+            from urllib.parse import urlparse
 
             auth = request.META.get("HTTP_AUTHORIZATION", "")
             origin = request.META.get("HTTP_ORIGIN", "")
-            if auth.startswith("Bearer ") or origin in getattr(
-                settings, "CORS_ORIGIN_WHITELIST", ()
-            ):
+            whitelist = getattr(settings, "CORS_ORIGIN_WHITELIST", ())
+
+            allowed = (
+                auth.startswith("Bearer ")
+                or origin in whitelist
+                or self._origin_matches_request_host(origin, request)
+            )
+            if allowed:
                 request.csrf_processing_done = True
         return self.get_response(request)
+
+    @staticmethod
+    def _origin_matches_request_host(origin, request):
+        """Allow when Origin host matches request host (same-site), e.g. for e2e against prod."""
+        if not origin:
+            return False
+        try:
+            parsed = urlparse(origin)
+            origin_host = parsed.hostname or parsed.netloc
+            request_host = request.get_host().split(":")[0]
+            return origin_host and origin_host == request_host
+        except Exception:
+            return False
 
 
 class ApiTokenAuthMiddleware:
