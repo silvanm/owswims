@@ -13,10 +13,20 @@ export function useUrlHistory() {
     return ret.join('&')
   }
 
+  function getCurrentQuery() {
+    if (typeof window === 'undefined') return {}
+    const search = window.location.search
+    if (!search || search === '?') return {}
+    const params = new URLSearchParams(search)
+    const obj = {}
+    for (const [key, value] of params.entries()) {
+      obj[key] = value
+    }
+    return obj
+  }
+
   function push(query = {}, path = null) {
     if (typeof window === 'undefined') return
-
-    const route = useRoute()
 
     if (path !== null) {
       path = '/' + locale.value + path
@@ -24,11 +34,13 @@ export function useUrlHistory() {
       path = window.location.pathname
     }
 
-    const queryVar = { ...route.query, ...query }
+    // Use current URL query so params set via pushState are preserved (router is not updated by pushState)
+    const queryVar = { ...getCurrentQuery(), ...query }
 
     // The reason we don't do this via the router engine of Nuxt is because
     // pushing a new route to the router triggers a page rerender
-    history.pushState({}, '', path + '?' + encodeQueryData(queryVar))
+    const search = encodeQueryData(queryVar)
+    history.pushState({}, '', search ? path + '?' + search : path)
   }
 
   // Handle browser back/forward for /info/<tab> URLs
@@ -36,7 +48,7 @@ export function useUrlHistory() {
     const store = useMainStore()
     window.addEventListener('popstate', () => {
       const infoMatch = window.location.pathname.match(
-        /\/info\/(help|organizers|contributors|imprint)\/?$/
+        /\/info\/(help|organizers|contributors|imprint|partners)\/?$/
       )
       if (infoMatch) {
         store.activeInfoTab = infoMatch[1]

@@ -17,6 +17,12 @@
         {{ $t('titleContributors') }}
       </li>
       <li
+        :class="{ active: activeTab === 'partners' }"
+        @click="setTab('partners')"
+      >
+        {{ $t('titlePartners') }}
+      </li>
+      <li
         :class="{ active: activeTab === 'imprint' }"
         @click="setTab('imprint')"
       >
@@ -60,6 +66,25 @@
           >calendarioaguasabiertas.com</a
         >
       </p>
+    </div>
+    <div v-if="activeTab === 'partners'" id="partners">
+      <h3 class="font-bold text-lg mb-2">{{ $t('titlePartners') }}</h3>
+      <a
+        href="https://www.spotgoats.com"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="partners-entry flex items-start gap-3 p-3 rounded border border-gray-200 hover:border-blue-500 hover:bg-gray-50 no-underline text-inherit"
+      >
+        <img
+          src="~/assets/PWA_logo.png"
+          alt="Spotgoats"
+          class="partners-logo flex-shrink-0"
+        />
+        <div>
+          <span class="font-semibold text-blue-600">Spotgoats</span>
+          <p class="text-sm mt-1 text-gray-700">{{ $t('spotgoatsDescription') }}</p>
+        </div>
+      </a>
     </div>
     <div v-if="activeTab === 'imprint'" id="imprint">
       <p>
@@ -117,5 +142,11 @@ ul.tabs {
   li.active {
     @apply border-b-2 border-blue-600;
   }
+}
+
+.partners-logo {
+  width: 56px;
+  height: 56px;
+  object-fit: contain;
 }
 </style>
