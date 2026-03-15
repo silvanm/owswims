@@ -100,7 +100,9 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
     })
     const edges = result.data.allEvents.edges
     if (edges && edges.length > 0) {
-      store.pickedLocationZoomedIn = edges[0].node.location.id
+      const locationId = edges[0].node.location.id
+      store.pickedLocationZoomedIn = locationId
+      store.pickedLocationId = locationId
     }
   }
 })

@@ -481,14 +481,21 @@ function updateMarker() {
       pickedLocation.value = location
       infowindow.close()
       await store.fetchPickedLocationData(location.id)
-      // Update URL with selected location and current map view so back/forward and sharing work
-      const query = { location: location.id }
+      // Update URL to sitemap canonical form /:locale/event/:slug so sharing and direct links work
+      const query = {}
       if (map.value) {
         query.lat = map.value.getCenter().lat()
         query.lng = map.value.getCenter().lng()
         query.zoom = map.value.getZoom()
       }
-      urlHistory.push(query, null)
+      const firstEventSlug =
+        store.pickedLocationData?.allEvents?.edges?.[0]?.node?.slug
+      if (firstEventSlug) {
+        urlHistory.push(query, '/event/' + firstEventSlug)
+      } else {
+        query.location = location.id
+        urlHistory.push(query, null)
+      }
       calculateDistance(location, () => {
         formattedTravelDistance.value = getFormattedTravelDistance(
           location,
