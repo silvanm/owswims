@@ -58,6 +58,30 @@ def log_request_body(info):
         logging.error(body)
 
 
+class GraphQLCsrfExemptWhenBearerMiddleware:
+    """
+    Skip CSRF validation for GraphQL POST when request comes from a CORS-whitelisted
+    origin (or has Authorization: Bearer). The SPA uses JWT for auth and does not
+    send session cookies for GraphQL; CORS is whitelist-only, so we allow these
+    requests without CSRF to avoid 403 for the frontend.
+    """
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        if request.path == "/graphql" and request.method == "POST":
+            from django.conf import settings
+
+            auth = request.META.get("HTTP_AUTHORIZATION", "")
+            origin = request.META.get("HTTP_ORIGIN", "")
+            if auth.startswith("Bearer ") or origin in getattr(
+                settings, "CORS_ORIGIN_WHITELIST", ()
+            ):
+                request.csrf_processing_done = True
+        return self.get_response(request)
+
+
 class ApiTokenAuthMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response

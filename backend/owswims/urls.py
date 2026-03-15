@@ -18,18 +18,21 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, re_path
-from django.views.decorators.csrf import csrf_exempt
 from django_sitemaps import robots_txt
 from app.views import index, sitemap, claim_organizer
 from app.organizer_admin import organizer_admin_site
 from graphene_django.views import GraphQLView
 
+# GraphQL: CSRF enforced (no csrf_exempt). GraphiQL only in DEBUG.
 urlpatterns = [
     path("", index, name="index"),
     path("admin/", admin.site.urls),
     path("organizer-admin/", organizer_admin_site.urls),
     path("claim/<str:token>/", claim_organizer, name="claim_organizer"),
-    path("graphql", csrf_exempt(GraphQLView.as_view(graphiql=True))),
+    path(
+        "graphql",
+        GraphQLView.as_view(graphiql=settings.DEBUG),
+    ),
     re_path(r"^sitemap\.xml$", sitemap),
     re_path(r"^robots\.txt$", robots_txt(timeout=86400)),
     re_path(r"^.*/$", index, name="index"),

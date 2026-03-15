@@ -78,6 +78,7 @@ MIDDLEWARE = [
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.locale.LocaleMiddleware",  # i18n: language detection
     "django.middleware.common.CommonMiddleware",
+    "app.middleware.GraphQLCsrfExemptWhenBearerMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "app.middleware.ApiTokenAuthMiddleware",
@@ -87,9 +88,14 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-CORS_ORIGIN_ALLOW_ALL = True
-
-CORS_ORIGIN_WHITELIST = ("http://localhost:3000",)
+# CORS: explicit whitelist only. Set CORS_ALLOWED_ORIGINS in env for production.
+CORS_ORIGIN_ALLOW_ALL = False
+CORS_ORIGIN_WHITELIST = tuple(
+    env.list(
+        "CORS_ALLOWED_ORIGINS",
+        default=["http://localhost:3000", "http://127.0.0.1:3000"],
+    )
+)
 
 ROOT_URLCONF = "owswims.urls"
 

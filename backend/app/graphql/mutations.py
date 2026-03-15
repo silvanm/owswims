@@ -1,12 +1,19 @@
 import logging
 
 import graphene
+from django.core.exceptions import PermissionDenied
 from graphene import relay
 from graphql_auth import mutations
 from graphql_jwt.decorators import login_required
 from graphql_relay import from_global_id
 
 from app.models import Event, Location, Race, Review, ApiToken, EventSubmission
+from .auth import (
+    require_can_edit_event,
+    require_can_edit_location,
+    require_can_edit_organizer,
+    require_can_edit_race,
+)
 from .queries import LocationNode, RaceNode, EventNode
 
 
@@ -46,6 +53,7 @@ class EventMutation(relay.ClientIDMutation):
     @login_required
     def mutate_and_get_payload(cls, root, info, id, client_mutation_id=None, **kwargs):
         event = Event.objects.get(pk=from_global_id(id)[1])
+        require_can_edit_event(info.context.user, event)
 
         # Update basic fields
         if "name" in kwargs:
@@ -155,6 +163,20 @@ class CreateEventMutation(relay.ClientIDMutation):
     def mutate_and_get_payload(
         cls, root, info, name, date_start, date_end, client_mutation_id=None, **kwargs
     ):
+        user = info.context.user
+        # If organizer_id is set, user must be that organizer or staff.
+        if "organizer_id" in kwargs and kwargs.get("organizer_id"):
+            from app.models import Organizer
+            from .auth import can_edit_organizer
+
+            org = Organizer.objects.get(pk=from_global_id(kwargs["organizer_id"])[1])
+            if not can_edit_organizer(user, org):
+                raise PermissionDenied(
+                    "You do not have permission to create events for this organizer."
+                )
+        elif not user.is_staff:
+            raise PermissionDenied("Only staff can create events without an organizer.")
+
         # Create new event with required fields
         event = Event(name=name, date_start=date_start, date_end=date_end)
 
@@ -230,6 +252,7 @@ class LocationMutation(relay.ClientIDMutation):
     @login_required
     def mutate_and_get_payload(cls, root, info, id, client_mutation_id=None, **kwargs):
         location = Location.objects.get(pk=from_global_id(id)[1])
+        require_can_edit_location(info.context.user, location)
 
         # Update basic fields
         if "city" in kwargs:
@@ -276,6 +299,7 @@ class CreateLocationMutation(relay.ClientIDMutation):
     def mutate_and_get_payload(
         cls, root, info, city, country, client_mutation_id=None, **kwargs
     ):
+        # Any authenticated user may create a location (shared resource).
         # Create new location with required fields
         location = Location(city=city, country=country)
 
@@ -314,6 +338,7 @@ class RaceMutation(relay.ClientIDMutation):
     @login_required
     def mutate_and_get_payload(cls, root, info, id, client_mutation_id=None, **kwargs):
         race = Race.objects.get(pk=from_global_id(id)[1])
+        require_can_edit_race(info.context.user, race)
 
         # Update coordinates if provided
         if "coordinates" in kwargs:
@@ -383,6 +408,7 @@ class CreateRaceMutation(relay.ClientIDMutation):
     ):
         # Get the event
         event = Event.objects.get(pk=from_global_id(event_id)[1])
+        require_can_edit_event(info.context.user, event)
 
         # Create new race with required fields
         race = Race(event=event, date=date, distance=distance)
@@ -439,6 +465,7 @@ class OrganizerMutation(relay.ClientIDMutation):
         from app.models import Organizer
 
         organizer = Organizer.objects.get(pk=from_global_id(id)[1])
+        require_can_edit_organizer(info.context.user, organizer)
 
         # Update basic fields
         if "name" in kwargs:
@@ -536,6 +563,7 @@ class DeleteRaceMutation(relay.ClientIDMutation):
     def mutate_and_get_payload(cls, root, info, id, client_mutation_id=None):
         try:
             race = Race.objects.get(pk=from_global_id(id)[1])
+            require_can_edit_race(info.context.user, race)
             race.delete()
             return DeleteRaceMutation(success=True, deleted_id=id)
         except Race.DoesNotExist:
@@ -556,6 +584,7 @@ class DeleteEventMutation(relay.ClientIDMutation):
     def mutate_and_get_payload(cls, root, info, id, client_mutation_id=None):
         try:
             event = Event.objects.get(pk=from_global_id(id)[1])
+            require_can_edit_event(info.context.user, event)
             event.delete()
             return DeleteEventMutation(success=True, deleted_id=id)
         except Event.DoesNotExist:
@@ -576,6 +605,7 @@ class DeleteLocationMutation(relay.ClientIDMutation):
     def mutate_and_get_payload(cls, root, info, id, client_mutation_id=None):
         try:
             location = Location.objects.get(pk=from_global_id(id)[1])
+            require_can_edit_location(info.context.user, location)
             location.delete()
             return DeleteLocationMutation(success=True, deleted_id=id)
         except Location.DoesNotExist:
@@ -598,6 +628,7 @@ class DeleteOrganizerMutation(relay.ClientIDMutation):
             from app.models import Organizer
 
             organizer = Organizer.objects.get(pk=from_global_id(id)[1])
+            require_can_edit_organizer(info.context.user, organizer)
             organizer.delete()
             return DeleteOrganizerMutation(success=True, deleted_id=id)
         except Exception:

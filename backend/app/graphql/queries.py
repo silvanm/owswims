@@ -132,7 +132,7 @@ class EventNode(DjangoObjectType):
             "date_start": ["lte", "gte"],
             "date_end": ["lte", "gte"],
         }
-        include = "__all__"
+        fields = "__all__"
         interfaces = (Node,)
 
     flyer_image = graphene.String(resolver=get_flyer_image_url)
