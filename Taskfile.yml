@@ -1,0 +1,51 @@
+# Taskfile for owswims – run with: task <taskname>
+# See https://taskfile.dev/
+
+version: '3'
+
+vars:
+  TMUX_SESSION: owswims-dev
+
+tasks:
+  # Start cloud_sql_proxy, backend, and frontend in a tmux session (3 panes).
+  # Usage: task dev
+  # Attach later: tmux attach -t {{.TMUX_SESSION}}
+  dev:
+    desc: Run proxy + backend + frontend in tmux
+    cmds:
+      - |
+        if tmux has-session -t {{.TMUX_SESSION}} 2>/dev/null; then
+          echo "Session {{.TMUX_SESSION}} already exists. Attaching..."
+          exec tmux attach -t {{.TMUX_SESSION}}
+        else
+          tmux new-session -d -s {{.TMUX_SESSION}} -n dev \
+            'cloud_sql_proxy --port 6432 mpom-shared:europe-west6:mpom-shared-postgres13'
+          tmux split-window -t {{.TMUX_SESSION}} -h 'cd backend && uv run python manage.py runserver'
+          tmux split-window -t {{.TMUX_SESSION}} -v 'cd frontend && npm run dev'
+          tmux select-layout -t {{.TMUX_SESSION}} tiled
+          exec tmux attach -t {{.TMUX_SESSION}}
+        fi
+
+  dev-kill:
+    desc: Kill the dev tmux session (stops proxy, backend, frontend)
+    cmds:
+      - tmux kill-session -t {{.TMUX_SESSION}} 2>/dev/null || true
+      - echo "Session {{.TMUX_SESSION}} killed (or was not running)."
+
+  # Individual tasks if you want to run one of them alone
+  proxy:
+    desc: Run Cloud SQL proxy only
+    cmds:
+      - cloud_sql_proxy --port 6432 mpom-shared:europe-west6:mpom-shared-postgres13
+
+  backend:
+    desc: Run Django dev server
+    dir: backend
+    cmds:
+      - uv run python manage.py runserver
+
+  frontend:
+    desc: Run Nuxt dev server
+    dir: frontend
+    cmds:
+      - npm run dev
