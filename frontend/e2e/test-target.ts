@@ -8,6 +8,21 @@ const GRAPHQL_URL =
   process.env.GRAPHQL_ENDPOINT ??
   'http://localhost:8000/graphql'
 
+// Origin must be in backend CORS_ORIGIN_WHITELIST so GraphQL POST is allowed.
+// When hitting production (CI), use the GraphQL URL's origin; locally use frontend origin.
+function e2eOrigin(): string {
+  if (process.env.E2E_ORIGIN) return process.env.E2E_ORIGIN
+  try {
+    const u = new URL(GRAPHQL_URL)
+    if (u.hostname !== 'localhost' && u.hostname !== '127.0.0.1') {
+      return `${u.protocol}//${u.host}`
+    }
+  } catch {
+    /* ignore */
+  }
+  return 'http://localhost:3000'
+}
+
 function defaultDateRange(): { dateFrom: string; dateTo: string } {
   const now = new Date()
   const dateFrom = now.toISOString().split('T')[0]
@@ -21,15 +36,12 @@ export interface TestTarget {
   eventSlug: string
 }
 
-// Origin expected by backend CORS/CSRF whitelist (so GraphQL POST is allowed without CSRF token)
-const E2E_ORIGIN = process.env.E2E_ORIGIN ?? 'http://localhost:3000'
-
 async function graphql<T>(query: string, variables: Record<string, unknown>): Promise<T> {
   const res = await fetch(GRAPHQL_URL, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      Origin: E2E_ORIGIN,
+      Origin: e2eOrigin(),
     },
     body: JSON.stringify({ query, variables }),
   })
