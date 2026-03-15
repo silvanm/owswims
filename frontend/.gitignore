@@ -210,3 +210,8 @@ node_modules
 .output
 .nuxt
 .omc
+
+# Playwright
+test-results
+playwright-report
+playwright/.cache
