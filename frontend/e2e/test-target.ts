@@ -21,10 +21,16 @@ export interface TestTarget {
   eventSlug: string
 }
 
+// Origin expected by backend CORS/CSRF whitelist (so GraphQL POST is allowed without CSRF token)
+const E2E_ORIGIN = process.env.E2E_ORIGIN ?? 'http://localhost:3000'
+
 async function graphql<T>(query: string, variables: Record<string, unknown>): Promise<T> {
   const res = await fetch(GRAPHQL_URL, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      Origin: E2E_ORIGIN,
+    },
     body: JSON.stringify({ query, variables }),
   })
   if (!res.ok) {

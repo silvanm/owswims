@@ -16,6 +16,8 @@ env:
     # Security: DEBUG must be False in production (no tracebacks/settings exposure).
     DEBUG: "False"
     ALLOWED_HOSTS: localhost,hoenggerberg,owswims,open-water-swims.com,new.open-water-swims.com
+    # Required for GraphQL: frontend origin(s) must be whitelisted so CSRF is skipped for POST /graphql.
+    CORS_ALLOWED_ORIGINS: "https://open-water-swims.com,https://new.open-water-swims.com,https://www.open-water-swims.com"
     DB_USER: owswims
     DB_NAME: owswims
     DB_HOST: 10.57.224.9
