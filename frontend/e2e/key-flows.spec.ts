@@ -28,8 +28,8 @@ test.describe('Key app flows', () => {
     const locations = body?.data?.locationsFiltered
     expect(Array.isArray(locations) && locations.length >= 1).toBeTruthy()
     await expect(page.locator('#map')).toBeVisible()
-    // Wait for Google Maps to render (it injects a child div into #map)
-    await expect(page.locator('#map >> div')).toBeVisible({ timeout: 15_000 })
+    // Wait for Google Maps to render (it injects a direct child div into #map)
+    await expect(page.locator('#map > div').first()).toBeVisible({ timeout: 15_000 })
   })
 
   test('3. Open event via URL shows event detail pane', async ({ page }) => {
